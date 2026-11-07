@@ -266,6 +266,12 @@
         .card:nth-child(6n+5) .chapter-num { background: #f7c6c6; color: #5a2e2e; }
         .card:nth-child(6n) .chapter-num { background: #c4b3e0; color: #2f2a4a; }
 
+        .offline-chapters { padding: 1rem; background: #f1f9ee; border-radius: 18px; }
+        .offline-chapters ol { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: .5rem; margin: 1rem 0 0; padding-left: 1.5rem; }
+        .offline-chapters a { color: #1f4d33; }
+        .offline-chapters a:focus-visible { outline: 3px solid #1f4d33; outline-offset: 3px; }
+        .offline-chapters[hidden] { display: none; }
+
         .state-msg {
             text-align: center;
             padding: 3rem;
@@ -287,7 +293,41 @@
         <div class="sub"></div>
     </div>
 
-    <div id="cardContainer" class="course-grid"></div>
+    <nav id="offlineChapters" class="offline-chapters" aria-label="课程章节备用目录">
+        <p>章节目录（离线可用）。若卡片未加载，请直接选择章节：</p>
+        <ol>
+            <li><a href="01.html">01 · 为什么要学数据结构</a></li>
+            <li><a href="02.html">02 · 复杂度分析</a></li>
+            <li><a href="03.html">03 · 数组与字符串</a></li>
+            <li><a href="04.html">04 · 链表</a></li>
+            <li><a href="05.html">05 · 栈</a></li>
+            <li><a href="06.html">06 · 队列</a></li>
+            <li><a href="07.html">07 · 哈希表</a></li>
+            <li><a href="08.html">08 · 树基础</a></li>
+            <li><a href="09.html">09 · 二叉搜索树</a></li>
+            <li><a href="10.html">10 · 平衡二叉树</a></li>
+            <li><a href="11.html">11 · 堆与优先队列</a></li>
+            <li><a href="12.html">12 · 图基础</a></li>
+            <li><a href="13.html">13 · 图算法</a></li>
+            <li><a href="14.html">14 · 排序算法全览</a></li>
+            <li><a href="15.html">15 · 递归与分治</a></li>
+            <li><a href="16.html">16 · 回溯算法</a></li>
+            <li><a href="17.html">17 · 动态规划</a></li>
+            <li><a href="18.html">18 · 贪心算法</a></li>
+            <li><a href="19.html">19 · 并查集</a></li>
+            <li><a href="20.html">20 · 线段树与树状数组</a></li>
+            <li><a href="21.html">21 · 字典树(Trie)</a></li>
+            <li><a href="22.html">22 · 跳表与B+树</a></li>
+            <li><a href="23.html">23 · LeetCode刷题方法论</a></li>
+            <li><a href="24.html">24 · 大厂面试高频题精讲</a></li>
+            <li><a href="25.html">25 · 系统设计中的数据结构</a></li>
+            <li><a href="26.html">26 · 数据结构性能分析</a></li>
+            <li><a href="27.html">27 · AI与数据结构的交叉</a></li>
+            <li><a href="28.html">28 · 学习路线与综合项目</a></li>
+        </ol>
+    </nav>
+
+    <div id="cardContainer" class="course-grid" aria-live="polite"></div>
 
     <div style="text-align:center;">
         <div class="footer"></div>
@@ -301,6 +341,7 @@
         var titleEl = document.querySelector('.header .title-text');
         var subEl = document.querySelector('.header .sub');
         var footerEl = document.querySelector('.footer');
+        var offlineChapters = document.getElementById('offlineChapters');
 
         function showError(msg) {
             container.innerHTML = '<div class="state-msg error">' + msg + '</div>';
@@ -324,6 +365,7 @@
                 }
 
                 container.innerHTML = '';
+                offlineChapters.hidden = true;
                 data.chapters.forEach(function(course) {
                     var card = document.createElement('div');
                     card.className = 'card';
@@ -366,7 +408,7 @@
                 });
             })
             .catch(function(err) {
-                showError('课程数据加载失败: ' + err.message + '。请刷新页面重试。');
+                showError('课程卡片未能加载，请使用上方离线章节目录。');
             });
     })();
 </script>
