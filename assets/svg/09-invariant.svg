@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 430" role="img" aria-labelledby="t d"><title id="t">二叉搜索树的全子树区间约束</title><desc id="d">左侧合法二叉搜索树标出每棵子树允许的取值区间；右侧反例中节点6位于根5的左子树内却大于5，违反约束</desc><rect width="880" height="430" rx="14" fill="#f9fcf9"/>
+<g font-family="system-ui,Arial,sans-serif"><text x="24" y="38" font-size="20" font-weight="750" fill="#234649">约束作用于整棵子树，而不只是直接孩子</text><text x="24" y="63" font-size="13" fill="#667a7d">节点 5 的左子树每个键都要 &lt; 5，右子树每个键都要 &gt; 5</text></g>
+<line x1="440" y1="86" x2="440" y2="404" stroke="#dce8e4" stroke-width="2" stroke-dasharray="6 7"/>
+<text x="24" y="104" font-size="15" font-weight="750" fill="#137976" font-family="system-ui,Arial,sans-serif">合法：全部后代都落在区间内</text>
+<text x="462" y="104" font-size="15" font-weight="750" fill="#b3543f" font-family="system-ui,Arial,sans-serif">非法：6 破坏了根 5 的左子树上界</text>
+<path d="M205 152L135 210M205 152L275 210M135 210L90 272M135 210L185 272M275 210L245 272M275 210L330 272" stroke="#82a69b" stroke-width="2.7" fill="none"/>
+<circle cx="205" cy="140" r="22" fill="#e3f2ed" stroke="#5d9e93" stroke-width="2"/><text x="205" y="147" text-anchor="middle" font-size="21" font-weight="800" fill="#2e6462" font-family="system-ui,Arial,sans-serif">5</text>
+<circle cx="135" cy="226" r="20" fill="#eeeaf8" stroke="#9c90c0" stroke-width="2"/><text x="135" y="233" text-anchor="middle" font-size="19" font-weight="800" fill="#2e6462" font-family="system-ui,Arial,sans-serif">3</text>
+<circle cx="275" cy="226" r="20" fill="#eeeaf8" stroke="#9c90c0" stroke-width="2"/><text x="275" y="233" text-anchor="middle" font-size="19" font-weight="800" fill="#2e6462" font-family="system-ui,Arial,sans-serif">8</text>
+<circle cx="90" cy="288" r="19" fill="#fff4e9" stroke="#cfad82" stroke-width="2"/><text x="90" y="294" text-anchor="middle" font-size="18" font-weight="800" fill="#2e6462" font-family="system-ui,Arial,sans-serif">2</text>
+<circle cx="185" cy="288" r="19" fill="#fff4e9" stroke="#cfad82" stroke-width="2"/><text x="185" y="294" text-anchor="middle" font-size="18" font-weight="800" fill="#2e6462" font-family="system-ui,Arial,sans-serif">4</text>
+<circle cx="245" cy="288" r="19" fill="#fff4e9" stroke="#cfad82" stroke-width="2"/><text x="245" y="294" text-anchor="middle" font-size="18" font-weight="800" fill="#2e6462" font-family="system-ui,Arial,sans-serif">7</text>
+<circle cx="330" cy="288" r="19" fill="#fff4e9" stroke="#cfad82" stroke-width="2"/><text x="330" y="294" text-anchor="middle" font-size="18" font-weight="800" fill="#2e6462" font-family="system-ui,Arial,sans-serif">9</text>
+<g font-family="system-ui,Arial,sans-serif" font-size="14" fill="#526f71"><text x="24" y="356">子树(3) 的键 ∈ (−∞, 5)：得到 2、3、4</text><text x="24" y="380">子树(8) 的键 ∈ (5, +∞)：得到 7、8、9</text><text x="24" y="404" fill="#137976">中序遍历 2,3,4,5,7,8,9 恰好升序</text></g>
+<path d="M672 152L600 214M672 152L742 214M600 214L628 278" stroke="#b8998f" stroke-width="2.7" fill="none"/>
+<circle cx="672" cy="140" r="22" fill="#e3f2ed" stroke="#5d9e93" stroke-width="2"/><text x="672" y="147" text-anchor="middle" font-size="21" font-weight="800" fill="#2e6462" font-family="system-ui,Arial,sans-serif">5</text>
+<circle cx="600" cy="230" r="20" fill="#eeeaf8" stroke="#9c90c0" stroke-width="2"/><text x="600" y="237" text-anchor="middle" font-size="19" font-weight="800" fill="#2e6462" font-family="system-ui,Arial,sans-serif">3</text>
+<circle cx="742" cy="230" r="20" fill="#eeeaf8" stroke="#9c90c0" stroke-width="2"/><text x="742" y="237" text-anchor="middle" font-size="19" font-weight="800" fill="#2e6462" font-family="system-ui,Arial,sans-serif">8</text>
+<circle cx="628" cy="294" r="19" fill="#fdece8" stroke="#c8664c" stroke-width="2.4"/><text x="628" y="300" text-anchor="middle" font-size="18" font-weight="800" fill="#a63d29" font-family="system-ui,Arial,sans-serif">6</text>
+<g font-family="system-ui,Arial,sans-serif" font-size="14" fill="#8a5a4c"><text x="462" y="356">6 是 5 的左子树成员，却满足 6 &gt; 5</text><text x="462" y="380">只检查“左孩子 3 &lt; 5”会漏掉这个错误</text><text x="462" y="404" fill="#b3543f">任何插入/删除后都必须重新满足区间约束</text></g>
+</svg>
