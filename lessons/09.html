@@ -1,358 +1,114 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
-    <title>第9章 二叉搜索树</title>
-    <link rel="stylesheet" href="theme.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="二叉搜索树把二分查找装进树里：用全子树区间不变量定义有序性，推导查找、插入与三种删除情况，并解释升序输入导致的退化。">
+<title>第 09 章 · 二叉搜索树：区间不变量下的查找、插入与删除 | 数据结构与算法</title>
+<link rel="stylesheet" href="../assets/css/article.css">
 </head>
 <body>
-<div class="double-border">
-<div class="container">
-    <div class="sidebar">
-        <h3>🧠 课程目录</h3>
-        <ul class="chapter-list">
-            <li><a href="01.html">第1章 为什么要学数据结构</a></li>
-            <li><a href="02.html">第2章 复杂度分析</a></li>
-            <li><a href="03.html">第3章 数组与字符串</a></li>
-            <li><a href="04.html">第4章 链表</a></li>
-            <li><a href="05.html">第5章 栈</a></li>
-            <li><a href="06.html">第6章 队列</a></li>
-            <li><a href="07.html">第7章 哈希表</a></li>
-            <li><a href="08.html">第8章 树基础</a></li>
-            <li><a href="09.html" class="active">第9章 二叉搜索树</a></li>
-            <li><a href="10.html">第10章 平衡二叉树</a></li>
-            <li><a href="11.html">第11章 堆与优先队列</a></li>
-            <li><a href="12.html">第12章 图基础</a></li>
-            <li><a href="13.html">第13章 图算法</a></li>
-            <li><a href="14.html">第14章 排序算法全览</a></li>
-            <li><a href="15.html">第15章 递归与分治</a></li>
-            <li><a href="16.html">第16章 回溯算法</a></li>
-            <li><a href="17.html">第17章 动态规划</a></li>
-            <li><a href="18.html">第18章 贪心算法</a></li>
-            <li><a href="19.html">第19章 并查集</a></li>
-            <li><a href="20.html">第20章 线段树与树状数组</a></li>
-            <li><a href="21.html">第21章 字典树(Trie)</a></li>
-            <li><a href="22.html">第22章 跳表与B+树</a></li>
-            <li><a href="23.html">第23章 LeetCode刷题方法论</a></li>
-            <li><a href="24.html">第24章 大厂面试高频题精讲</a></li>
-            <li><a href="25.html">第25章 系统设计中的数据结构</a></li>
-            <li><a href="26.html">第26章 数据结构性能分析</a></li>
-            <li><a href="27.html">第27章 AI与数据结构的交叉</a></li>
-            <li><a href="28.html">第28章 学习路线与综合项目</a></li>
-        </ul>
-    </div>
-    <div class="main-content">
+<a href="#content" class="skip-link">跳转至正文</a>
+<header class="article-top"><div class="top-inner"><a class="brand" href="../index.html">← 课程首页</a><span class="course-name">数据结构与算法 · 深度图解</span><a class="source-link" href="https://github.com/1998x-stack/data-structures-tutorial">GitHub</a></div></header>
+<div class="article-layout">
+<aside class="toc"><details open><summary>本章导览</summary><nav aria-label="二叉搜索树章节目录"><ol>
+<li><a href="#why"><span>01</span>为什么有序容器需要比数组更好的结构？</a></li>
+<li><a href="#invariant"><span>02</span>区间不变量：整棵左子树都要小于根</a></li>
+<li><a href="#search"><span>03</span>查找：每一步排除一棵子树</a></li>
+<li><a href="#insert"><span>04</span>插入：沿着失败的查找路径落脚</a></li>
+<li><a href="#delete"><span>05</span>删除：按孩子数量分三种情况</a></li>
+<li><a href="#validate"><span>06</span>验证 BST：为什么只比较直接孩子会出错</a></li>
+<li><a href="#degenerate"><span>07</span>退化：升序输入为什么会变成链</a></li>
+<li><a href="#limits"><span>08</span>适用边界与复杂度账本</a></li>
+</ol></nav></details><div class="toc-bottom"><a href="../index.html#curriculum">查看 28 章课程</a></div></aside>
+<main id="content"><article>
+<header class="article-heading"><div class="article-kicker">TREES &amp; GRAPHS / CHAPTER 09</div><h1>二叉搜索树：让二叉树可排序地搜索</h1><p class="dek">普通二叉树不承诺任何键序。给每个节点加上一条全子树区间约束后，查找、插入与删除都能沿单一路径进行；但这条优势依赖树形，升序输入会让它退化成链。</p><div class="topic-tags"><span>全子树区间不变量</span><span>查找 / 插入 / 删除</span><span>中序后继</span><span>退化与平衡</span></div></header>
+<section id="why" class="article-section" aria-labelledby="heading-why"><span class="section-number">01 / 08</span><h2 id="heading-why">为什么有序容器需要比数组更好的结构？</h2>
+<p>在一个已排序数组里，二分查找用约 O(log n) 次比较定位一个键，但维持有序的代价很高：在中间插入或删除一个元素要搬移大量槽位，是 O(n)。单链表插入删除只需改少量引用，却不能按位置跳到中间，查找同样退化为 O(n)。</p>
+<p>于是有一个自然的问题：能不能<strong>同时</strong>得到“每次比较都把候选范围缩小一半”和“只改动局部就能插入删除”？二叉搜索树（BST）把二分查找的决策从数组的“中位下标”搬到树的“节点引用”上：每次比较都把候选范围收窄到一棵子树。</p>
+<p>但要小心：普通二叉树<em>并不</em>自带有序性。上一章例子里的左孩子 2、右孩子 6 只是摆放方式。要让“往左走 / 往右走”有确定含义，需要额外加一条约束，这就是下一节的区间不变量。</p></section>
+<section id="invariant" class="article-section" aria-labelledby="heading-invariant"><span class="section-number">02 / 08</span><h2 id="heading-invariant">区间不变量：整棵左子树都要小于根</h2>
+<p>二叉搜索树是一棵二叉树，并满足：对任意节点 <em>v</em>，<strong>v 左子树中所有节点的键都小于 <em>v</em> 的键，右子树中所有节点的键都大于 <em>v</em> 的键</strong>，且左右子树各自也递归满足。约束说的是“整棵子树”，而不是“直接孩子”。</p>
+<figure class="diagram"><div class="diagram-scroll" tabindex="0" aria-label="可横向滚动查看图示"><img src="../assets/svg/09-invariant.svg" alt="左侧合法二叉搜索树标出每棵子树允许的区间，右侧反例中节点 6 位于根 5 的左子树内却大于 5" width="880" height="430" loading="lazy"></div><figcaption>图 1 · 左树每棵子树的键都落在由祖先确定的开区间内；右树中的 6 虽然满足“左孩子 3 &lt; 5”，却破坏了“根 5 的左子树必须 &lt; 5”这条上界，因此不是合法的 BST。</figcaption></figure>
+<p>换一种说法：从根出发，每个节点的取值被沿途祖先夹在一个开区间里。先向左走到 <em>L</em>，上界就收紧为 <em>L</em>；再向右走到 <em>R</em>，下界收紧为 <em>R</em>。查找、插入和删除都必须保持这个区间关系。</p>
+<aside class="caution"><strong>“中序升序”是推论，不是定义</strong><p>由区间不变量可以推出：对 BST 做中序遍历得到的是严格递增序列。但不能反过来把“中序升序”当定义去构造或校验：存在重复键时还要额外约定重复键落在哪一侧，否则“升序”本身就描述不全。</p></aside></section>
+<section id="search" class="article-section" aria-labelledby="heading-search"><span class="section-number">03 / 08</span><h2 id="heading-search">查找：每一步排除一棵子树</h2>
+<p>从根开始，把目标键 <em>k</em> 与当前节点的键比较：相等则命中；<em>k</em> 更小就进入左子树；<em>k</em> 更大就进入右子树；走到空引用则说明不存在。每走一步，根据区间不变量就排除了一整棵子树，这正是二分思想的体现。</p>
+<pre class="code-panel" tabindex="0"><code>def search(root, target):
+    node = root
+    while node is not None and node.value != target:
+        node = node.left if target &lt; node.value else node.right
+    return node
 
-        <h2>从"猜数字"游戏说起</h2>
-
-        <p>我想起小时候玩过一个游戏——一个人在1到100之间想一个数字，另一个人来猜，每次猜完对方会告诉你"大了"还是"小了"。你最快的策略是什么？当然是每次都猜中间的那个数字。第一次猜50，对方说"小了"，下一次就猜75……用这种<strong>二分法</strong>，最多7次就能猜中（因为 2⁷ = 128 > 100）。</p>
-
-        <p>二叉搜索树（Binary Search Tree, BST）就是将这种"二分查找"的思想应用到树形结构的产物。它让"查找"从遍历所有节点（O(n)）变成了沿着一条路径直达目标（O(log n)）。听起来很棒，对吧？但先别急着欢呼——它有一个"致命缺陷"，我们会在本章末尾揭晓。</p>
-
-        <p>先来学习这颗"聪明"的树是如何工作的。</p>
-
-        <h2>BST的定义与性质</h2>
-
-        <p>二叉搜索树（BST）是一棵二叉树，并且满足以下性质：</p>
-
-        <ul>
-            <li><strong>左子树</strong>上所有节点的值都<strong>小于</strong>根节点的值。</li>
-            <li><strong>右子树</strong>上所有节点的值都<strong>大于</strong>根节点的值。</li>
-            <li>左右子树也都是 BST（递归定义）。</li>
-        </ul>
-
-        <p>注意——是"所有"左子树节点都小于根，不仅是左孩子。这意味着：</p>
-
-        <pre><code># 这是一棵合法的BST：
-#       5
-#      / \
-#     3   8
-#    / \
-#   2   4
-# 因为 2 < 4 < 5 < 8，所有左子树节点(2,3,4)都小于5
-
-# 这<strong>不是</strong>一棵合法的BST：
-#       5
-#      / \
-#     3   8
-#    / \
-#   2   6   ← 6在根5的左子树中，但6 > 5，违反了BST性质！</code></pre>
-
-        <p><strong>最重要的推论：对BST进行中序遍历，得到的是一个严格升序的序列。</strong>这一点怎么强调都不过分——它是BST所有操作的核心，也是面试中考察BST最常见的切入点。</p>
-
-        <pre><code># 对上面的合法BST进行中序遍历
-# 左→根→右: [2, 3, 4, 5, 8]
-# 确实是一个升序序列
-
-def is_sorted_by_inorder(root):
-    """验证BST性质：中序遍历是否升序"""
-    result = []
-    def inorder(node):
-        if not node:
-            return
-        inorder(node.left)
-        result.append(node.val)
-        inorder(node.right)
-    inorder(root)
-    return all(result[i] < result[i+1] for i in range(len(result)-1))</code></pre>
-
-        <h2>BST的查找</h2>
-
-        <p>BST的查找就是"猜数字"游戏的树形版本。从根开始，比较目标值和当前节点的值：</p>
-        <ul>
-            <li>如果相等 → 找到了，返回节点。</li>
-            <li>如果目标值 < 当前值 → 去左子树找。</li>
-            <li>如果目标值 > 当前值 → 去右子树找。</li>
-            <li>如果走到空节点 → 不存在，返回None。</li>
-        </ul>
-
-        <pre><code>def search_bst(root, target):
-    """在BST中查找目标值"""
-    if not root:
-        return None
-    if root.val == target:
-        return root
-    elif target < root.val:
-        return search_bst(root.left, target)
-    else:
-        return search_bst(root.right, target)
-
-# 迭代版本（更节省栈空间）
-def search_bst_iterative(root, target):
-    curr = root
-    while curr and curr.val != target:
-        if target < curr.val:
-            curr = curr.left
-        else:
-            curr = curr.right
-    return curr</code></pre>
-
-        <p>查找的时间复杂度：</p>
-        <ul>
-            <li><strong>最好情况</strong>：树是平衡的，O(log n) — 每次排除一半的节点。</li>
-            <li><strong>最坏情况</strong>：树退化成链表，O(n) — 每次只能排除一个节点。</li>
-            <li><strong>平均情况</strong>：随机插入的BST，O(log n) 的期望值。</li>
-        </ul>
-
-        <h2>BST的插入与删除</h2>
-
-        <h3>插入</h3>
-
-        <p>插入的思路和查找类似——先找到"应该放哪里"，然后把新节点挂上去。</p>
-
-        <pre><code>def insert_bst(root, val):
-    """在BST中插入一个新值，返回新的根节点"""
-    if not root:
-        return TreeNode(val)
-    if val < root.val:
-        root.left = insert_bst(root.left, val)
-    elif val > root.val:
-        root.right = insert_bst(root.right, val)
-    # 如果相等，通常不插入（BST通常不包含重复值）
+assert search(root, 4).value == 4     # 5 -&gt; 3 -&gt; 4
+assert search(root, 6) is None        # 5 -&gt; 8 -&gt; 7 -&gt; 空</code></pre>
+<p>比较次数等于从根到命中节点的路径长度加一（等价于该节点的深度加一）。最好情况目标正好是根，只需 1 次比较；最坏情况走到最深的叶或空引用，需要 <em>h</em>+1 次，其中 <em>h</em> 是树高（按边数）。所以查找代价是 <strong>O(h)</strong>，而不是固定的 O(log n)。</p>
+<div class="lab" data-demo="bst-search"><h3>沿比较路径查找一个键</h3><p>结构固定为图 1 左树：根 5，左子树 3(2,4)，右子树 8(7,9)。选择目标键，按左 / 右决策列出比较路径。</p><div class="lab-controls"><label for="bst-target">目标键</label><select id="bst-target"><option value="4">4（存在）</option><option value="2">2（存在）</option><option value="8">8（存在）</option><option value="9">9（存在）</option><option value="6">6（不存在）</option><option value="10">10（不存在）</option></select></div><output aria-live="polite">查找 4：5 → 3 → 4，命中，比较 3 次。</output></div></section>
+<section id="insert" class="article-section" aria-labelledby="heading-insert"><span class="section-number">04 / 08</span><h2 id="heading-insert">插入：沿着失败的查找路径落脚</h2>
+<p>插入不上单独设计路径：先像查找一样从根走到空引用，新节点就挂在这里。因为新键沿途已经与每个祖先比较过，所以挂上去后区间不变量仍然成立。递归写法最简洁：</p>
+<pre class="code-panel" tabindex="0"><code>def insert(root, value):
+    if root is None:
+        return Node(value)
+    if value &lt; root.value:
+        root.left = insert(root.left, value)
+    elif value &gt; root.value:
+        root.right = insert(root.right, value)
     return root</code></pre>
-
-        <h3>删除（重头戏）</h3>
-
-        <p>删除是BST最复杂的操作。根据被删除节点的子节点数量，有三种情况：</p>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>情况</th>
-                    <th>描述</th>
-                    <th>处理方法</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>情况1：叶子节点</td>
-                    <td>没有子节点，比如删除上例中的 2 或 4</td>
-                    <td>直接删除父节点指向它的指针即可</td>
-                </tr>
-                <tr>
-                    <td>情况2：只有一个子节点</td>
-                    <td>比如删除上例中的 8（假设8有右孩子9）</td>
-                    <td>用子节点替换被删除节点（让父节点直接指向子节点）</td>
-                </tr>
-                <tr>
-                    <td>情况3：有两个子节点</td>
-                    <td>比如删除上例中的 3</td>
-                    <td>找到右子树的最小节点（后继）或左子树的最大节点（前驱），替换值，然后递归删除那个替换节点</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <pre><code>def delete_bst(root, val):
-    """在BST中删除一个值，返回新的根节点"""
-    if not root:
+<p>如果 <code>value</code> 与某个节点相等，上面的 <code>elif</code> 两个分支都不进入，相当于<strong>忽略重复键</strong>；这使中序遍历保持严格递增。实际系统有时需要保留重复：可以在节点上记一个计数，或约定重复键总是落到某一侧，但这一约定必须写进不变量，否则校验和删除都会产生歧义。</p>
+<aside class="note"><strong>一次插入的代价</strong><p>插入本身在找到落脚叶后只改一个引用，是 O(1)；整个操作的代价在于找到这个位置，仍然是从根出发的 O(h) 比较。</p></aside></section>
+<section id="delete" class="article-section" aria-labelledby="heading-delete"><span class="section-number">05 / 08</span><h2 id="heading-delete">删除：按孩子数量分三种情况</h2>
+<p>删除比查找多了一层麻烦：拿掉一个节点后，它的孩子需要有人接管，而且接管后仍要满足全子树区间约束。按被删节点的孩子数量分三种：</p>
+<figure class="diagram"><div class="diagram-scroll" tabindex="0" aria-label="可横向滚动查看图示"><img src="../assets/svg/09-delete.svg" alt="二叉搜索树删除的三种情况：叶子直接摘除，只有一个孩子时孩子顶替，两个孩子时用右子树最小节点替换" width="880" height="720" loading="lazy"></div><figcaption>图 2 · 三种删除情况。前两种只改一条引用；两个孩子的节点用<strong>中序后继</strong>（右子树的最小键）的值顶替，再回到右子树删掉那个后继位置，从而保持区间不变量。</figcaption></figure>
+<pre class="code-panel" tabindex="0"><code>def delete(root, value):
+    if root is None:
         return None
-
-    if val < root.val:
-        root.left = delete_bst(root.left, val)
-    elif val > root.val:
-        root.right = delete_bst(root.right, val)
+    if value &lt; root.value:
+        root.left = delete(root.left, value)
+    elif value &gt; root.value:
+        root.right = delete(root.right, value)
     else:
-        # 找到了要删除的节点
-        # 情况1和2：叶子或只有一个子节点
-        if not root.left:
-            return root.right
-        if not root.right:
-            return root.left
-
-        # 情况3：有两个子节点
-        # 找右子树的最小节点（后继）
+        if root.left is None:
+            return root.right          # 叶子，或只有右孩子
+        if root.right is None:
+            return root.left           # 只有左孩子
         successor = root.right
-        while successor.left:
-            successor = successor.left
-        # 用后继节点的值替换当前节点
-        root.val = successor.val
-        # 递归删除右子树中的后继节点
-        root.right = delete_bst(root.right, successor.val)
-
+        while successor.left is not None:
+            successor = successor.left # 右子树最小键 = 中序后继
+        root.value = successor.value
+        root.right = delete(root.right, successor.value)
     return root</code></pre>
-
-        <p>删除常见于LeetCode第450题「删除二叉搜索树中的节点」。面试官特别喜欢考察你对"双子节点删除"的理解——尤其是用后继节点替换的思路。</p>
-
-        <h2>验证BST</h2>
-
-        <p>我们来看一道经典面试题——<strong>LeetCode 98「验证二叉搜索树」</strong>。题目很简单：给定一棵二叉树，判断它是否是合法的BST。</p>
-
-        <p>很多人的第一反应是："对树做中序遍历，检查结果是否升序。"这个思路是对的，但面试官可能会追问："你能不用额外的数组空间吗？"</p>
-
-        <p>这里介绍一种更优雅的做法——<strong>区间递归法</strong>：</p>
-
-        <pre><code>def is_valid_bst(root):
-    """验证BST，区间递归法"""
-    def validate(node, low, high):
-        if not node:
+<p>为什么选后继？因为后继是右子树里最小的键，用它顶替后，左子树的所有键仍小于它，右子树剩下的键仍大于它，区间约束不被破坏。对称地，也可以用左子树的最大键（前驱）代替。承接前两类，删除同样沿一条根到叶的路径，代价为 O(h)。</p></section>
+<section id="validate" class="article-section" aria-labelledby="heading-validate"><span class="section-number">06 / 08</span><h2 id="heading-validate">验证 BST：为什么只比较直接孩子会出错</h2>
+<p>给定一棵二叉树，判断它是否是合法 BST。利用区间不变量，可以写一个带着开区间 <code>(low, high)</code> 下行的递归：进入左子树时把上界收紧为当前键，进入右子树时把下界收紧为当前键。用 <code>None</code> 表示“无界”，就不需要伪造无穷大哨兵。</p>
+<pre class="code-panel" tabindex="0"><code>def validate(root):
+    def check(node, low, high):
+        if node is None:
             return True
-        # 当前节点的值必须在 (low, high) 区间内
-        if node.val <= low or node.val >= high:
+        if low is not None and node.value &lt;= low:
             return False
-        # 左子树的值必须在 (low, node.val) 之间
-        # 右子树的值必须在 (node.val, high) 之间
-        return (validate(node.left, low, node.val) and
-                validate(node.right, node.val, high))
+        if high is not None and node.value &gt;= high:
+            return False
+        return (check(node.left, low, node.value)
+                and check(node.right, node.value, high))
+    return check(root, None, None)</code></pre>
+<p>常见错误是只检查“左孩子 &lt; 当前 &lt; 右孩子”。回顾图 1 的右树：6 是 5 的左子树的成员，却满足 6 &gt; 5。只看直接孩子的写法会误判它为合法，因为它从未把祖先的区间传下去。区间递归法的空间是递归栈的 O(h)，而“中序遍历收集数组再判断升序”需要额外的 O(n) 空间——两者时间都是 O(n)。</p>
+<aside class="caution"><strong>重复键下的校验需要先有约定</strong><p>如果树允许重复键，上面的严格不等号会直接将它判为非法。要么在节点上记计数、让键唯一，要么把不等号侧别按约定写成非严格，两种做法不能混用。</p></aside></section>
+<section id="degenerate" class="article-section" aria-labelledby="heading-degenerate"><span class="section-number">07 / 08</span><h2 id="heading-degenerate">退化：升序输入为什么会变成链</h2>
+<p>前面所有 O(log n) 的说法都建立在“树高与 log n 同阶”上。但这并不是 BST 自动保证的。如果把 1, 2, 3, 4, 5 按升序依次插入，每次新键都大于已有全部键，查找路径总是向右到底，结果是一条高度为 4 的右链——它实际上就是链表。</p>
+<figure class="diagram"><div class="diagram-scroll" tabindex="0" aria-label="可横向滚动查看图示"><img src="../assets/svg/09-degenerate.svg" alt="左侧按 1 到 5 升序插入得到的链，高度 4；右侧同样五个键平衡排列，高度 2" width="880" height="430" loading="lazy"></div><figcaption>图 3 · 同样的 5 个键：升序插入得到高度 4 的链，查找需要 5 次比较；平衡排列高度只有 2，查找最多 3 次比较。树形由插入顺序决定，而代价由树形决定。</figcaption></figure>
+<p>这不是罕见的巧合：按时间戳、按自增主键、或从一个已经排好序的文件里读取记录，都会持续产生升序插入。因此直接使用裸 BST 储存会增长的有序数据，存在实际风险。形状还会被删除影响：图 2 的删除总是用后继顶替，长期随机删除通常仍能保持大致平衡，但并非证明。</p>
+<aside class="note"><strong>期望值背后的前提</strong><p>“随机插入的 BST 平均高度是 O(log n)”是一个关于<strong>随机插入顺序</strong>的期望结论，不是对任意输入的最坏保证。一旦输入顺序不再随机，这个前提就不再成立。</p></aside></section>
+<section id="limits" class="article-section" aria-labelledby="heading-limits"><span class="section-number">08 / 08</span><h2 id="limits">适用边界与复杂度账本</h2>
+<p>把代价写成表时，必须把“平均 / 最坏”分别标出条件和前提，否则容易把期望当成保证：</p>
+<div class="table-scroll" tabindex="0"><table><thead><tr><th scope="col">操作</th><th scope="col">平均（随机插入顺序）</th><th scope="col">最坏（偏斜）</th><th scope="col">前提</th></tr></thead><tbody><tr><td>查找 <code>search</code></td><td>O(log n)</td><td>O(n)</td><td>树高 <em>h</em> 决定代价 O(h)</td></tr><tr><td>插入 <code>insert</code></td><td>O(log n)</td><td>O(n)</td><td>重复键策略已约定</td></tr><tr><td>删除 <code>delete</code></td><td>O(log n)</td><td>O(n)</td><td>后继 / 前驱选择不影响上界</td></tr><tr><td>中序遍历</td><td>O(n)</td><td>O(n)</td><td>必须访问全部 <em>n</em> 个节点</td></tr><tr><td>验证 <code>validate</code></td><td>O(n) 时间 / O(h) 空间</td><td>O(n) 时间 / O(n) 空间</td><td>递归栈随树高增长</td></tr></tbody></table></div>
+<p>使用 BST 前要回答三个问题：键是否唯一、重复键如何处理；比较器是否满足全序且一致；数据到达顺序是否可能有序。如果搜索与插入需要在最坏情况下也保持对数高度，就需要额外的<strong>自平衡</strong>机制——这正是下一章 AVL 树与红黑树要解决的问题。</p>
+<aside class="note"><strong>动手校验</strong><p>建议至少测试：空树、单节点、只有左孩子、只有右孩子、全部键升序、全部键降序、含负数，以及删除根节点。本章参考实现与测试位于 <code>examples/bst.py</code> 与 <code>tests/test_bst.py</code>。</p></aside></section>
 
-    return validate(root, float('-inf'), float('inf'))</code></pre>
-
-        <p>为什么不用 <code>is_sorted_by_inorder</code> 中的数组法？因为区间法的时间复杂度同样是 O(n)，但空间复杂度是 O(h)（h是树的高度），比数组法的 O(n) 空间更优。而且区间法更直接地利用了BST的<strong>定义本身</strong>——它没有依赖"中序遍历有序"这个推论，而是直接验证BST的递归约束。</p>
-
-        <div class="tip">
-            <strong>面试锦囊：</strong>当面试官问"验证BST"这道题时，先给"中序遍历法"（最直观），然后主动提出"但我还可以用区间递归法，空间复杂度更优"。这展示了你从"直觉"到"优化"的思维过程，比只给出一个完美答案更有说服力。
-        </div>
-
-        <h2>BST的局限</h2>
-
-        <p>现在到了本章最重要的部分——BST的"致命缺陷"。</p>
-
-        <p>考虑这种情况：你按升序依次插入 1, 2, 3, 4, 5 到一棵空的BST中。插入过程如下：</p>
-
-        <pre><code>插入1:
-  1
-
-插入2:
-  1
-   \
-    2
-
-插入3:
-  1
-   \
-    2
-     \
-      3
-
-插入4:
-  1
-   \
-    2
-     \
-      3
-       \
-        4
-
-插入5:
-  1
-   \
-    2
-     \
-      3
-       \
-        4
-         \
-          5</code></pre>
-
-        <p>天哪！这哪里是树，这分明是一条<strong>链表</strong>！</p>
-
-        <div class="warning">
-            <strong>血的教训：</strong>我曾经在一个生产系统中用BST来存储用户ID到会话信息的映射。数据量小的时候一切正常，查找飞快。但随着用户量增长，某些时间段的插入模式导致BST严重"偏科"——树的高度从 10 左右暴涨到了 5000 多。查询从"毫秒级"退化成了"需要遍历半棵树"——有时候一次查询要遍历几千个节点，系统响应时间从 10ms 飙到了 2 秒。那次故障让我深刻理解了：<strong>BST的理想性能建立在"数据随机分布"的假设上，而这个假设在现实中往往不成立。</strong>
-        </div>
-
-        <p>这个场景并不是偶然的——很多现实数据是有序的（按时间戳插入、按自增ID插入），而这些数据恰恰会导致BST退化成链表。</p>
-
-        <p>BST的操作复杂度总结：</p>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>操作</th>
-                    <th>平均复杂度</th>
-                    <th>最坏复杂度</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>查找 (Search)</td>
-                    <td>O(log n)</td>
-                    <td>O(n)</td>
-                </tr>
-                <tr>
-                    <td>插入 (Insert)</td>
-                    <td>O(log n)</td>
-                    <td>O(n)</td>
-                </tr>
-                <tr>
-                    <td>删除 (Delete)</td>
-                    <td>O(log n)</td>
-                    <td>O(n)</td>
-                </tr>
-                <tr>
-                    <td>中序遍历 (In-order)</td>
-                    <td>O(n)</td>
-                    <td>O(n)</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <p>看到没有——最坏情况下所有操作都退化为 O(n)。这就是"说好的二分查找呢？"</p>
-
-        <p>解决办法也很明确：<strong>让树保持平衡</strong>。在插入和删除时，通过各种旋转操作，自动维护树的高度在 O(log n) 量级。这就是下一章要讲的<strong>平衡二叉树</strong>——AVL树和红黑树。</p>
-
-        <div class="highlight">
-            <strong>面试金句：</strong>"BST是平衡树的基础，但直接使用BST是有风险的——当输入有序时它会退化为链表。所以实际工程中我们使用自平衡的BST变体，比如红黑树和AVL树。红黑树用在需要频繁插入删除的场景（比如Java的TreeMap、C++ STL的map），AVL树用在查询多于修改的场景（比如数据库索引的候选结构）。"
-        </div>
-
-        <h2>本章小结</h2>
-
-        <p>这一章我们深入学习了二叉搜索树：</p>
-        <ul>
-            <li>理解了BST的<strong>核心性质</strong>——左 < 根 < 右，中序遍历是升序序列。</li>
-            <li>实现了BST的<strong>查找</strong>（二分法的树版本）、<strong>插入</strong>（沿着路径放置）、<strong>删除</strong>（三种情况的处理）。</li>
-            <li>学习了验证BST的<strong>区间递归法</strong>（LeetCode 98），比中序遍历数组法更优雅。</li>
-            <li>通过一个真实的线上事故，深刻认识到<strong>BST退化</strong>的严重性——它引出了下一章的主题。</li>
-        </ul>
-
-        <p>下一章<strong>「平衡二叉树」</strong>，我们来解决BST的退化问题。你将看到AVL树如何用四种旋转保持平衡，以及红黑树为什么是"实践中最重要的BST变体"。准备迎接二叉树的"进化版"吧！</p>
-
-        <div class="footer-nav">
-            <a href="08.html">← 上一章</a>
-            <a href="index.html">📖 返回目录</a>
-            <a href="10.html">下一章 →</a>
-        </div>
-    </div>
-</div>
-</div>
+<section class="takeaways"><h2>带走三个判断准则</h2><ol><li>BST 的有序性是一条<strong>全子树区间约束</strong>，中序升序只是它的推论，不能反过来当作定义。</li><li>查找、插入、删除都沿一条从根到叶的路径工作，代价正比于树高 <em>h</em>，而不是节点数 <em>n</em>。</li><li>BST 的 O(log n) 以“树大致平衡”为前提；随机插入的期望成立，升序或逆序输入会退化为 O(n)。</li></ol></section>
+<section class="references"><h2>继续学习与校验资料</h2><ul><li><a href="https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/resources/lecture-5-binary-trees-part-2/">MIT 6.006：Binary Trees, Part 2</a> — 二叉搜索树的定义与操作</li><li><a href="https://docs.python.org/3/tutorial/datastructures.html" rel="noopener noreferrer">Python 数据结构教程</a> — 与内置有序容器接口对照</li><li><a href="08.html">上一章：树基础与遍历</a> — 中序、前序与层序遍历</li><li><a href="10.html">下一章：平衡二叉树</a> — 用旋转维持高度上界</li></ul></section>
+<nav class="end-nav" aria-label="上一章和下一章"><a href="08.html">← 第 8 章</a><a href="../index.html">全部课程</a><a class="chapter-link" href="10.html">第 10 章 →</a></nav>
+</article></main></div>
+<footer class="article-footer"><a href="../index.html">数据结构与算法课程</a><span>先定义不变量，再谈操作代价。</span></footer>
+<script src="../assets/js/interactive.js" defer></script>
 </body>
 </html>

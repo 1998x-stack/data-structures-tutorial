@@ -114,4 +114,19 @@
   select.addEventListener("change",update);update();
  }
 
+ // Chapter 09: trace the comparison path of a BST search on a fixed tree.
+ const bst=document.querySelector('[data-demo="bst-search"]');
+ if(bst){
+  const select=bst.querySelector("select"),out=bst.querySelector("output");
+  const tree={v:5,l:{v:3,l:{v:2},r:{v:4}},r:{v:8,l:{v:7},r:{v:9}}};
+  const update=()=>{
+   const target=Number(select.value);
+   const path=[];let node=tree,hit=false;
+   while(node){path.push(node.v);if(target===node.v){hit=true;break;}node=target<node.v?node.l:node.r;}
+   const trail=path.join(" → ")+(hit?"":" → 空");
+   out.textContent="查找 "+target+"："+trail+"；"+(hit?"命中":"未找到")+"，比较 "+path.length+" 次。";
+  };
+  select.addEventListener("change",update);update();
+ }
+
 })();
