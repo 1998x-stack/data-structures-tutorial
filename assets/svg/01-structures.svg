@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 390" role="img" aria-labelledby="t d"><title id="t">三种数据组织方式</title><desc id="d">相同元素在数组中使用连续槽位、在链表中以指针串联、在哈希表中通过键映射到桶，支持的操作代价不同</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#52716e"/></marker></defs>
+<rect width="880" height="390" rx="15" fill="#f9fcf9"/>
+<g font-family="system-ui,Arial,sans-serif" fill="#234248"><text x="32" y="36" font-weight="700" font-size="20">同样保存 A、B、C，结构为何改变查询方式？</text><text x="32" y="58" font-size="13" fill="#60777a">假设数组元素等宽；链表节点可分散；哈希函数将键映射到桶索引</text></g>
+<g font-family="system-ui,Arial,sans-serif"><text x="42" y="111" font-size="16" font-weight="700" fill="#14696a">01 连续槽位 / ARRAY</text><text x="42" y="139" font-size="13" fill="#53676d">地址 = base + i × width</text></g>
+<g stroke="#5ca39d" stroke-width="1.6" fill="#eaf6f3"><rect x="355" y="89" width="110" height="66" rx="7"/><rect x="478" y="89" width="110" height="66" rx="7"/><rect x="601" y="89" width="110" height="66" rx="7"/></g>
+<g font-family="system-ui,Arial,sans-serif" fill="#176e6d" font-size="22" font-weight="700" text-anchor="middle"><text x="410" y="130">A</text><text x="533" y="130">B</text><text x="656" y="130">C</text></g>
+<g font-family="system-ui,Arial,sans-serif" fill="#69807d" font-size="12" text-anchor="middle"><text x="410" y="172">index 0</text><text x="533" y="172">index 1</text><text x="656" y="172">index 2</text></g>
+<path d="M32 193H846" stroke="#e1e9e3"/>
+<g font-family="system-ui,Arial,sans-serif"><text x="42" y="231" font-size="16" font-weight="700" fill="#7461ba">02 指针串联 / LINKED LIST</text><text x="42" y="260" font-size="13" fill="#53676d">沿 next 指针走到目标</text></g>
+<g fill="#f0ecfa" stroke="#9c8bc8" stroke-width="1.6"><rect x="355" y="211" width="88" height="57" rx="8"/><rect x="490" y="224" width="88" height="57" rx="8"/><rect x="640" y="207" width="88" height="57" rx="8"/></g>
+<g font-family="system-ui,Arial,sans-serif" text-anchor="middle" fill="#695497" font-weight="700" font-size="20"><text x="399" y="246">A</text><text x="534" y="259">B</text><text x="684" y="241">C</text></g>
+<g stroke="#695497" stroke-width="2" fill="none" marker-end="url(#arrow)"><path d="M443 240L489 250"/><path d="M578 252L640 235"/></g>
+<path d="M32 302H846" stroke="#e1e9e3"/><g font-family="system-ui,Arial,sans-serif"><text x="42" y="335" font-size="16" font-weight="700" fill="#aa6746">03 按键定位 / HASH TABLE</text><text x="42" y="361" font-size="13" fill="#53676d">预期快速定位，但需要处理冲突</text></g>
+<g font-family="system-ui,Arial,sans-serif" fill="#fff0e6" stroke="#d3a284"><rect x="355" y="315" width="110" height="42" rx="6"/><rect x="482" y="315" width="110" height="42" rx="6"/><rect x="609" y="315" width="110" height="42" rx="6"/></g>
+<g font-family="system-ui,Arial,sans-serif" text-anchor="middle" font-size="15" fill="#a85e39"><text x="410" y="341">h(A) → 0</text><text x="537" y="341">h(B) → 1</text><text x="664" y="341">h(C) → 2</text></g></svg>

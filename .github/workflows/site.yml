@@ -1,0 +1,31 @@
+name: Site quality
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python tests/validate_site.py
+      - run: python -m unittest discover -s tests -p 'test_*.py'
+      - name: Install Chromium smoke-test tooling
+        run: |
+          python -m pip install playwright==1.56.0
+          python -m playwright install --with-deps chromium
+      - name: Browser QA across desktop and mobile
+        run: python tests/browser_check.py
+      - name: Upload browser QA evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-qa
+          path: reports/browser/
+          if-no-files-found: ignore

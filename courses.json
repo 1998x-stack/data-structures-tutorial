@@ -1,7 +1,7 @@
 {
   "title": "数据结构与算法实战",
   "emoji": "🧠",
-  "subtitle": "🧠 28章 实战体系",
+  "subtitle": "28 章 · 从直觉到工程实现",
   "chapterCount": 28,
   "chapters": [
     {
@@ -12,7 +12,9 @@
         "面试中的DS",
         "学习路线图"
       ],
-      "file": "01.html"
+      "file": "lessons/01.html",
+      "module": "理解计算代价",
+      "revision": "illustrated"
     },
     {
       "num": "02",
@@ -22,7 +24,9 @@
         "时间与空间复杂度",
         "均摊分析"
       ],
-      "file": "02.html"
+      "file": "lessons/02.html",
+      "module": "理解计算代价",
+      "revision": "illustrated"
     },
     {
       "num": "03",
@@ -32,7 +36,9 @@
         "前缀和与双指针",
         "滑动窗口"
       ],
-      "file": "03.html"
+      "file": "lessons/03.html",
+      "module": "理解计算代价",
+      "revision": "illustrated"
     },
     {
       "num": "04",
@@ -42,7 +48,9 @@
         "哨兵节点",
         "快慢指针"
       ],
-      "file": "04.html"
+      "file": "lessons/04.html",
+      "module": "线性结构",
+      "revision": "original"
     },
     {
       "num": "05",
@@ -52,7 +60,9 @@
         "括号匹配",
         "单调栈"
       ],
-      "file": "05.html"
+      "file": "lessons/05.html",
+      "module": "线性结构",
+      "revision": "original"
     },
     {
       "num": "06",
@@ -62,7 +72,9 @@
         "循环队列",
         "单调队列与BFS"
       ],
-      "file": "06.html"
+      "file": "lessons/06.html",
+      "module": "线性结构",
+      "revision": "original"
     },
     {
       "num": "07",
@@ -72,7 +84,9 @@
         "冲突解决",
         "LRU缓存设计"
       ],
-      "file": "07.html"
+      "file": "lessons/07.html",
+      "module": "线性结构",
+      "revision": "original"
     },
     {
       "num": "08",
@@ -82,7 +96,9 @@
         "二叉树遍历",
         "递归与迭代"
       ],
-      "file": "08.html"
+      "file": "lessons/08.html",
+      "module": "树、堆与图",
+      "revision": "original"
     },
     {
       "num": "09",
@@ -92,7 +108,9 @@
         "插入删除查找",
         "验证BST"
       ],
-      "file": "09.html"
+      "file": "lessons/09.html",
+      "module": "树、堆与图",
+      "revision": "original"
     },
     {
       "num": "10",
@@ -102,7 +120,9 @@
         "红黑树入门",
         "2-3-4树等价"
       ],
-      "file": "10.html"
+      "file": "lessons/10.html",
+      "module": "树、堆与图",
+      "revision": "original"
     },
     {
       "num": "11",
@@ -112,7 +132,9 @@
         "堆排序",
         "Top-K问题"
       ],
-      "file": "11.html"
+      "file": "lessons/11.html",
+      "module": "树、堆与图",
+      "revision": "original"
     },
     {
       "num": "12",
@@ -122,7 +144,9 @@
         "DFS/BFS遍历",
         "连通分量"
       ],
-      "file": "12.html"
+      "file": "lessons/12.html",
+      "module": "树、堆与图",
+      "revision": "original"
     },
     {
       "num": "13",
@@ -132,7 +156,9 @@
         "拓扑排序",
         "最小生成树"
       ],
-      "file": "13.html"
+      "file": "lessons/13.html",
+      "module": "树、堆与图",
+      "revision": "original"
     },
     {
       "num": "14",
@@ -142,7 +168,9 @@
         "快排与归并",
         "非比较排序"
       ],
-      "file": "14.html"
+      "file": "lessons/14.html",
+      "module": "算法设计",
+      "revision": "original"
     },
     {
       "num": "15",
@@ -152,7 +180,9 @@
         "二分查找",
         "主定理"
       ],
-      "file": "15.html"
+      "file": "lessons/15.html",
+      "module": "算法设计",
+      "revision": "original"
     },
     {
       "num": "16",
@@ -162,7 +192,9 @@
         "排列组合子集",
         "N皇后与剪枝"
       ],
-      "file": "16.html"
+      "file": "lessons/16.html",
+      "module": "算法设计",
+      "revision": "original"
     },
     {
       "num": "17",
@@ -172,7 +204,9 @@
         "背包问题",
         "LCS与LIS"
       ],
-      "file": "17.html"
+      "file": "lessons/17.html",
+      "module": "算法设计",
+      "revision": "original"
     },
     {
       "num": "18",
@@ -182,7 +216,9 @@
         "区间调度",
         "Huffman编码"
       ],
-      "file": "18.html"
+      "file": "lessons/18.html",
+      "module": "算法设计",
+      "revision": "original"
     },
     {
       "num": "19",
@@ -192,7 +228,9 @@
         "按秩合并",
         "连通性判断"
       ],
-      "file": "19.html"
+      "file": "lessons/19.html",
+      "module": "高级索引",
+      "revision": "original"
     },
     {
       "num": "20",
@@ -202,7 +240,9 @@
         "懒标记",
         "Fenwick Tree"
       ],
-      "file": "20.html"
+      "file": "lessons/20.html",
+      "module": "高级索引",
+      "revision": "original"
     },
     {
       "num": "21",
@@ -212,7 +252,9 @@
         "自动补全",
         "AC自动机入门"
       ],
-      "file": "21.html"
+      "file": "lessons/21.html",
+      "module": "高级索引",
+      "revision": "original"
     },
     {
       "num": "22",
@@ -222,7 +264,9 @@
         "B树与B+树",
         "LSM树入门"
       ],
-      "file": "22.html"
+      "file": "lessons/22.html",
+      "module": "高级索引",
+      "revision": "original"
     },
     {
       "num": "23",
@@ -232,7 +276,9 @@
         "错题本管理",
         "一道题学到一类题"
       ],
-      "file": "23.html"
+      "file": "lessons/23.html",
+      "module": "应用与项目",
+      "revision": "original"
     },
     {
       "num": "24",
@@ -242,7 +288,9 @@
         "多种解法对比",
         "口述复杂度模板"
       ],
-      "file": "24.html"
+      "file": "lessons/24.html",
+      "module": "应用与项目",
+      "revision": "original"
     },
     {
       "num": "25",
@@ -252,7 +300,9 @@
         "排行榜与限流器",
         "Feed流推送"
       ],
-      "file": "25.html"
+      "file": "lessons/25.html",
+      "module": "应用与项目",
+      "revision": "original"
     },
     {
       "num": "26",
@@ -262,7 +312,9 @@
         "分支预测",
         "基准测试方法"
       ],
-      "file": "26.html"
+      "file": "lessons/26.html",
+      "module": "应用与项目",
+      "revision": "original"
     },
     {
       "num": "27",
@@ -272,7 +324,9 @@
         "自适应DS",
         "图神经网络简介"
       ],
-      "file": "27.html"
+      "file": "lessons/27.html",
+      "module": "应用与项目",
+      "revision": "original"
     },
     {
       "num": "28",
@@ -282,7 +336,9 @@
         "Mini Redis实现",
         "进阶路线图"
       ],
-      "file": "28.html"
+      "file": "lessons/28.html",
+      "module": "应用与项目",
+      "revision": "original"
     }
   ]
 }

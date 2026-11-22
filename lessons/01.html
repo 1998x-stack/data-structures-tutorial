@@ -1,0 +1,46 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="数据结构不是一张名称表，而是一组对访问、插入、删除和顺序的承诺。从真实需求出发，理解抽象数据类型、实现方式和操作代价的差异。"><title>第 01 章 · 从问题出发：如何选择数据结构 | 数据结构与算法</title><link rel="stylesheet" href="../assets/css/article.css"></head>
+<body><a href="#content" class="skip-link">跳转至正文</a><header class="article-top"><div class="top-inner"><a class="brand" href="../index.html">← 课程首页</a><span class="course-name">数据结构与算法 · 深度图解</span><a class="source-link" href="https://github.com/1998x-stack/data-structures-tutorial">GitHub</a></div></header>
+<div class="article-layout"><aside class="toc"><details open><summary>本章导览</summary><nav aria-label="从问题出发：如何选择数据结构的章节目录"><ol><li><a href="#need"><span>01</span>先提出问题：为什么一种容器不够用？</a></li><li><a href="#representation"><span>02</span>结构的含义：数据的布局与可执行操作</a></li><li><a href="#complexity"><span>03</span>操作代价：没有脱离场景的排名</a></li><li><a href="#contract"><span>04</span>用不变量理解一个栈</a></li><li><a href="#choose"><span>05</span>亲自选一次：哪个约束决定结构？</a></li><li><a href="#limits"><span>06</span>性能之外：内存、局部性与演化成本</a></li></ol></nav></details><div class="toc-bottom"><a href="../index.html#curriculum">查看 28 章课程</a></div></aside>
+<main id="content"><article><header class="article-heading"><div class="article-kicker">FOUNDATIONS / CHAPTER 01</div><h1>从问题出发：如何选择数据结构</h1><p class="dek">数据结构不是一张名称表，而是一组对访问、插入、删除和顺序的承诺。从真实需求出发，理解抽象数据类型、实现方式和操作代价的差异。</p><div class="topic-tags"><span>数据结构与 ADT</span><span>数组 / 链表 / 哈希</span><span>操作契约</span></div></header>
+<section id="need" class="article-section" aria-labelledby="heading-need"><span class="section-number">01 / 06</span><h2 id="heading-need">先提出问题：为什么一种容器不够用？</h2><p>设想一个系统持续收到事件，每条事件包含 <code>id</code>、时间和内容。你同时需要：按到达顺序处理事件、按 <code>id</code> 快速查找、查询最近收到的事件。把数据放进普通数组当然可以，但按 <code>id</code> 的搜索若只能逐项比较，最坏需要检查全部 <em>n</em> 条记录。</p>
+<p>如果再建立一个 <code>id → 记录</code> 的映射，按键查找通常更快；如果还要先进先出地处理事件，就需要维护一个队列。<strong>不同问题不一定共用同一个最优结构，同一系统也常组合多个结构。</strong></p>
+<p>判断之前，应先写出操作需求：访问的是下标还是键？插入发生在头部还是尾部？是否需要保持元素有序？能容忍多少额外内存？这些条件比“哪一种结构最先进”更重要。</p></section>
+<section id="representation" class="article-section" aria-labelledby="heading-representation"><span class="section-number">02 / 06</span><h2 id="heading-representation">结构的含义：数据的布局与可执行操作</h2><p><strong>抽象数据类型（ADT）</strong>描述外部可观察行为：栈提供 <code>push</code> 和 <code>pop</code>，遵循后进先出（LIFO）；队列提供入队和出队，遵循先进先出（FIFO）。ADT 并不规定底层必须用数组还是链表实现。</p>
+<p><strong>具体数据结构</strong>描述如何在内存中表示元素和关系：数组用下标对应槽位，链表通过节点中的引用连接后继，哈希表通过散列结果定位桶。抽象接口与底层实现之间的区别，让我们可以改变性能特征而不改变调用方的语义。</p>
+<figure class="diagram"><div class="diagram-scroll" tabindex="0" aria-label="可横向滚动的完整图解"><img src="../assets/svg/01-structures.svg" alt="对同一批 A B C 元素展示数组、链表和哈希表的不同存储关系" width="880" height="400" loading="lazy"></div><figcaption>图 1 · 连续槽位支持按下标定位；链表需要沿引用走访；哈希表按键计算桶地址，但必须处理碰撞。三者的“快”对应不同操作。</figcaption></figure>
+<aside class="note"><strong>先分清顺序与地址</strong><p>数组中的第 i 个元素能够通过槽位偏移定位，并不意味着「按任意值查找」也是常数时间。查找与索引是两个不同操作。</p></aside></section>
+<section id="complexity" class="article-section" aria-labelledby="heading-complexity"><span class="section-number">03 / 06</span><h2 id="heading-complexity">操作代价：没有脱离场景的排名</h2><p>在常见随机存取机器模型里，固定宽度数组按下标访问的代价为 <code>O(1)</code>；顺序链表按下标访问要逐个走节点，代价为 <code>O(n)</code>。但如果已拿到链表头，插入一个新头节点只需要改写少量引用；动态数组在头部插入则常常需要搬移已有元素。</p>
+<figure class="diagram"><div class="diagram-scroll" tabindex="0" aria-label="可横向滚动的完整图解"><img src="../assets/svg/01-tradeoffs.svg" alt="四种结构按操作比较渐进代价并标注前提" width="880" height="400" loading="lazy"></div><figcaption>图 2 · 对照表故意保留“键语义”“不适用”等格子：先定义操作，后比较复杂度，才能避免不公平的横向比较。</figcaption></figure>
+<div class="table-scroll" tabindex="0"><table><thead><tr><th scope="col">需求</th><th scope="col">更适合优先考虑</th><th scope="col">关键前提</th></tr></thead><tbody><tr><td>频繁通过整数下标读取</td><td>数组 / 动态数组</td><td>槽位可随机访问</td></tr><tr><td>已知头节点且频繁头插</td><td>单链表</td><td>头节点引用可直接访问</td></tr><tr><td>频繁按唯一键查找</td><td>哈希表</td><td>散列分布合理、可扩容</td></tr><tr><td>维护有序键、范围查找</td><td>平衡搜索树</td><td>保持平衡，比较器定义一致</td></tr></tbody></table></div>
+<aside class="caution"><strong>哈希表并非严格最坏 O(1)</strong><p>哈希表的单次查找可能因冲突而退化，插入还可能触发扩容。这里的常数时间是建立在哈希和负载条件上的预期或均摊结论，而不是所有输入的确定保证。</p></aside></section>
+<section id="contract" class="article-section" aria-labelledby="heading-contract"><span class="section-number">04 / 06</span><h2 id="heading-contract">用不变量理解一个栈</h2><p>不变量是每次操作完成后都必须保持的性质。栈最重要的性质是：下次 <code>pop()</code> 返回最近一次尚未弹出的元素。用 Python 列表实现栈时，尾部就是栈顶；追加和弹出末尾符合相同接口语义。</p>
+<pre class="code-panel"><code>class Stack:
+    def __init__(self):
+        self._items = []
+
+    def push(self, value):
+        self._items.append(value)
+
+    def pop(self):
+        if not self._items:
+            raise IndexError(&quot;pop from empty stack&quot;)
+        return self._items.pop()
+
+s = Stack()
+s.push(&quot;A&quot;)
+s.push(&quot;B&quot;)
+assert s.pop() == &quot;B&quot;
+assert s.pop() == &quot;A&quot;</code></pre>
+<p>每次操作后，<code>_items[-1]</code>（若非空）始终是最后入栈元素。列表尾部弹出通常是常数时间；尾部追加是<strong>均摊</strong>常数时间，而不是承诺每次扩容都不搬移元素。下一章会从操作计数推导这种区别。</p>
+<p>若要实现 FIFO 队列，直接反复对大型列表执行 <code>pop(0)</code> 要移动元素，应考虑 <code>collections.deque</code>；这正是从操作模型选择结构的例子。</p></section>
+<section id="choose" class="article-section" aria-labelledby="heading-choose"><span class="section-number">05 / 06</span><h2 id="heading-choose">亲自选一次：哪个约束决定结构？</h2><p>下面不是机械推荐表，而是在固定假设下比较一个<strong>最主要</strong>操作。实际系统往往同时有多个操作，最终需要权衡读取频率、内存和维护成本。</p>
+<div class="lab" data-demo="choice"><h3>选择优先操作</h3><div class="lab-controls"><label for="choice-op">主要需求</label><select id="choice-op"><option value="random">通过下标频繁取第 i 项</option><option value="front">已知表头，持续在头部插入</option><option value="lookup">按唯一键频繁查找</option><option value="ordered">按键排序与范围扫描</option></select></div><output aria-live="polite">若主要操作是按整数下标取第 i 项，数组可通过偏移量定位槽位；在随机存取模型下是 O(1)。</output></div>
+<p>从需求到设计的顺序是：明确主要操作 → 写出正确性和顺序约束 → 估算复杂度 → 用真实工作负载验证。反过来先选一个“喜欢”的结构，往往会在边界条件上付出代价。</p></section>
+<section id="limits" class="article-section" aria-labelledby="heading-limits"><span class="section-number">06 / 06</span><h2 id="heading-limits">性能之外：内存、局部性与演化成本</h2><p>复杂度只描述输入规模增长时的量级。链表节点通常多一个或多个引用，可能增加内存和指针追踪开销；数组拥有更好的顺序访问局部性，但连续扩容或插入可能搬移元素。树需要维护平衡；哈希表需要选择键语义、处理冲突并监控负载。</p>
+<p>一个缓存系统常同时组合哈希映射与双向链表：映射负责按键定位节点，链表负责 O(1) 地移动最近使用的节点（已知节点的前提下）。这种组合说明：“数据结构”不是背诵某个名字，而是为约束建立一组可证明的操作保证。</p>
+<aside class="note"><strong>练习题</strong><p>设计浏览器“后退”功能：用什么 ADT？如果还要同时支持“前进”呢？先描述每个操作和不变量，再考虑用两个栈实现。</p></aside>
+</section>
+<section id="takeaways" class="takeaways"><h2>带走三个判断准则</h2><ol><li>把 ADT 的外部行为与数组、链表、哈希等内部实现区分开。</li><li>复杂度要标明操作、数据量 n、访问前提和最坏 / 期望 / 均摊条件。</li><li>工程设计可以组合结构；先说明需求，再验证性能和空间开销。</li></ol></section>
+<section id="further-reading" class="references"><h2>继续学习与校验资料</h2><ul><li><a href="https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/resources/lecture-notes/" rel="noopener noreferrer">MIT 6.006 Lecture Notes</a> — 数据结构及分析模型</li><li><a href="https://docs.python.org/3/tutorial/datastructures.html" rel="noopener noreferrer">Python Data Structures</a> — 列表、栈、队列的接口行为</li><li><a href="02.html" rel="noopener noreferrer">下一章：复杂度分析</a> — 给 O 表示法和均摊结论一个可计算的定义</li></ul></section>
+<nav class="end-nav" aria-label="上一章和下一章"><span>课程起点</span><a href="../index.html">全部课程</a><a class="chapter-link" href="02.html">第 2 章 →</a></nav>
+</article></main></div><footer class="article-footer"><a href="../index.html">数据结构与算法课程</a><span>把概念变成可以解释和验证的操作。</span></footer><script src="../assets/js/interactive.js" defer></script></body></html>
