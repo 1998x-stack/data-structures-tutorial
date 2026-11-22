@@ -143,4 +143,20 @@
   select.addEventListener("change",update);update();
  }
 
+ // Chapter 11: deterministic array states for a min-heap push/pop sequence.
+ const heap=document.querySelector('[data-demo="heap-trace"]');
+ if(heap){
+  const input=heap.querySelector("input"),out=heap.querySelector("output");
+  const states=[
+   ["初始（空堆）","空","还没有元素。"],
+   ["push(5)","[5]","空堆直接放入根。"],
+   ["push(1)","[1, 5]","1 在末尾，小于父 5，上浮到根。"],
+   ["push(3)","[1, 5, 3]","3 是 1 的孩子，父不大于子，无需交换。"],
+   ["push(0)","[0, 1, 3, 5]","0 依次小于父 5 与父 1，上浮两步到根。"],
+   ["pop() 返回 0","[1, 5, 3]","末尾 5 移到根，与较小的孩子 1 交换后恢复堆序。"]
+  ];
+  const update=()=>{const n=Number(input.value),s=states[n];out.textContent="第 "+n+" 步 "+s[0]+"：数组 "+s[1]+"。"+s[2];};
+  input.addEventListener("input",update);update();
+ }
+
 })();

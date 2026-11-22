@@ -1,399 +1,124 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
-    <title>第11章 堆与优先队列</title>
-    <link rel="stylesheet" href="theme.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="堆用完全二叉树的形状与堆序维护最值：数组表示、上浮与下沉、建堆为何是 O(n)，以及堆排序的原地实现与边界。">
+<title>第 11 章 · 堆与优先队列：只要最值，不要全局有序 | 数据结构与算法</title>
+<link rel="stylesheet" href="../assets/css/article.css">
 </head>
 <body>
-<div class="double-border">
-<div class="container">
-    <div class="sidebar">
-        <h3>🧠 课程目录</h3>
-        <ul class="chapter-list">
-            <li><a href="01.html">第1章 为什么要学数据结构</a></li>
-            <li><a href="02.html">第2章 复杂度分析</a></li>
-            <li><a href="03.html">第3章 数组与字符串</a></li>
-            <li><a href="04.html">第4章 链表</a></li>
-            <li><a href="05.html">第5章 栈</a></li>
-            <li><a href="06.html">第6章 队列</a></li>
-            <li><a href="07.html">第7章 哈希表</a></li>
-            <li><a href="08.html">第8章 树基础</a></li>
-            <li><a href="09.html">第9章 二叉搜索树</a></li>
-            <li><a href="10.html">第10章 平衡二叉树</a></li>
-            <li><a href="11.html" class="active">第11章 堆与优先队列</a></li>
-            <li><a href="12.html">第12章 图基础</a></li>
-            <li><a href="13.html">第13章 图算法</a></li>
-            <li><a href="14.html">第14章 排序算法全览</a></li>
-            <li><a href="15.html">第15章 递归与分治</a></li>
-            <li><a href="16.html">第16章 回溯算法</a></li>
-            <li><a href="17.html">第17章 动态规划</a></li>
-            <li><a href="18.html">第18章 贪心算法</a></li>
-            <li><a href="19.html">第19章 并查集</a></li>
-            <li><a href="20.html">第20章 线段树与树状数组</a></li>
-            <li><a href="21.html">第21章 字典树(Trie)</a></li>
-            <li><a href="22.html">第22章 跳表与B+树</a></li>
-            <li><a href="23.html">第23章 LeetCode刷题方法论</a></li>
-            <li><a href="24.html">第24章 大厂面试高频题精讲</a></li>
-            <li><a href="25.html">第25章 系统设计中的数据结构</a></li>
-            <li><a href="26.html">第26章 数据结构性能分析</a></li>
-            <li><a href="27.html">第27章 AI与数据结构的交叉</a></li>
-            <li><a href="28.html">第28章 学习路线与综合项目</a></li>
-        </ul>
-    </div>
-    <div class="main-content">
+<a href="#content" class="skip-link">跳转至正文</a>
+<header class="article-top"><div class="top-inner"><a class="brand" href="../index.html">← 课程首页</a><span class="course-name">数据结构与算法 · 深度图解</span><a class="source-link" href="https://github.com/1998x-stack/data-structures-tutorial">GitHub</a></div></header>
+<div class="article-layout">
+<aside class="toc"><details open><summary>本章导览</summary><nav aria-label="堆与优先队列章节目录"><ol>
+<li><a href="#why"><span>01</span>从优先队列到堆：只要最值，不要全局有序</a></li>
+<li><a href="#shape"><span>02</span>堆的两条不变量：完全二叉树 + 堆序</a></li>
+<li><a href="#array"><span>03</span>数组表示：下标本身就是父子关系</a></li>
+<li><a href="#ops"><span>04</span>插入与弹出：上浮和下沉</a></li>
+<li><a href="#heapify"><span>05</span>为什么自底向上建堆是 O(n)</a></li>
+<li><a href="#sort"><span>06</span>堆排序：原地、O(n log n)、不稳定</a></li>
+<li><a href="#limits"><span>07</span>适用边界与常见误区</a></li>
+</ol></nav></details><div class="toc-bottom"><a href="../index.html#curriculum">查看 28 章课程</a></div></aside>
+<main id="content"><article>
+<header class="article-heading"><div class="article-kicker">TREES &amp; GRAPHS / CHAPTER 11</div><h1>堆与优先队列：只要最值，不要全局有序</h1><p class="dek">优先队列只需要反复取出最小（或最大）的元素，不要求整体有序。完全二叉树的形状约束加上堆序，让插入与删除都在 O(log n) 内完成，还能用一个数组紧凑存储。</p><div class="topic-tags"><span>完全二叉树</span><span>堆序不变量</span><span>上浮 / 下沉</span><span>建堆 O(n)</span><span>堆排序</span></div></header>
+<section id="why" class="article-section" aria-labelledby="heading-why"><span class="section-number">01 / 07</span><h2 id="heading-why">从优先队列到堆：只要最值，不要全局有序</h2>
+<p>很多任务只需要反复取“当前最小”或“当前最大”的元素：调度器每次选最早到期的任务、Dijkstra 每次选出距离最小的未定节点、Top-K 问题只要保留最大的 K 个。描述这种需求的抽象数据类型是<strong>优先队列</strong>，它至少提供 <code>insert</code> 与 <code>extract_min</code>（或 <code>extract_max</code>）两个操作。</p>
+<p>如果只能用一个已排序数组，插入新元素要搬移槽位，是 O(n)；用无序数组则相反，取出最值要扫一遍，也是 O(n)。平衡搜索树两者都能 O(log n)，但要维护全序、且指针开销不小。堆提供了一个更轻的方案：两个操作都是 <strong>O(log n)</strong>，常数小，而且可以存在一个连续数组里。</p>
+<p>关键在于：优先队列只关心“谁是第一个”，不关心其余元素之间的顺序。堆正是为这个较弱需求设计的数据结构。</p></section>
+<section id="shape" class="article-section" aria-labelledby="heading-shape"><span class="section-number">02 / 07</span><h2 id="heading-shape">堆的两条不变量：完全二叉树 + 堆序</h2>
+<p>堆同时满足两个条件：</p>
+<ul><li><strong>完全二叉树</strong>：除最后一层外每层都填满，最后一层从左到右连续填充。于是有 <em>n</em> 个节点的堆高度恰为 ⌊log₂ <em>n</em>⌋，不会出现偏斜。</li><li><strong>堆序</strong>：最大堆中每个节点的键都 ≥ 它的两个孩子（最小堆则相反）。注意只约束<strong>父子</strong>，不约束兄弟。</li></ul>
+<p>因此堆与上一章的 BST 很不相同：堆不要求中序遍历有序，也不能用它做范围查找。下面两棵树都是合法的最小堆，因为父与子的关系都满足，而兄弟之间的 5 和 7 谁大谁小无关紧要：</p>
+<pre class="code-panel" tabindex="0"><code>合法最小堆 A        合法最小堆 B
+      1                   1
+     / \                 / \
+    3   5               3   7
+   / \                 / \
+  7   9               5   9
 
-        <h2>医院急诊室的"优先级"</h2>
+# 两棵都是小顶堆：父 ≤ 子。注意中序遍历 A 得 [7,3,9,1,5]，
+# 不是升序——堆不是二叉搜索树。</code></pre>
+<aside class="caution"><strong>“完全”是形状约束，“堆序”是值约束</strong><p>两条不变量缺一不可：只有堆序，树可能退化成链（高度 O(n)）；只有完全形状，取值可以任意，无法在 O(log n) 内找到最值。</p></aside></section>
+<section id="array" class="article-section" aria-labelledby="heading-array"><span class="section-number">03 / 07</span><h2 id="heading-array">数组表示：下标本身就是父子关系</h2>
+<p>因为堆是完全二叉树，按层序从左到右读出节点，不会出现空洞。把结果直接放进数组，父子关系就能用下标算出来（下标从 0 起）：对节点 <em>i</em>，<code>parent = (i−1)//2</code>，<code>left = 2i+1</code>，<code>right = 2i+2</code>。这样既不需要指针，也不需哨兵占位。</p>
+<figure class="diagram"><div class="diagram-scroll" tabindex="0" aria-label="可横向滚动查看图示"><img src="../assets/svg/11-array-heap.svg" alt="最大堆 9,7,8,3,5,2,6 的树形与数组表示，标出父子下标公式" width="880" height="400" loading="lazy"></div><figcaption>图 1 · 同一棵最大堆的两种视图：左边画出父子关系，右边按层序存入数组并标出下标。用公式定位孩子，而不是遍历。</figcaption></figure>
+<pre class="code-panel" tabindex="0"><code>def parent(i):
+    return (i - 1) // 2
 
-        <p>想象你是一个急诊室的分诊护士。每分钟都有新病人被送来——有轻伤（擦破皮）、有中症（骨折）、也有危重病人（心脏病发作）。你不能按照"先来后到"的顺序处理病人。心脏骤停的病人必须优先于擦破皮的病人——即使擦破皮的人先到。</p>
+def children(i):
+    return 2 * i + 1, 2 * i + 2
 
-        <p>这就是<strong>优先队列（Priority Queue）</strong>的概念——每个元素都有一个"优先级"，优先级最高的元素最先被处理，而不考虑入队顺序。</p>
+heap = [9, 7, 8, 3, 5, 2, 6]        # 图 1 中的最大堆
+assert parent(6) == 2 and heap[2] == 8
+assert children(1) == (3, 4)
+assert all(heap[i] &lt;= heap[parent(i)] for i in range(1, len(heap)))</code></pre>
+<p>最后一个拥有孩子的节点下标是 <code>n // 2 − 1</code>；超过它的下标都是叶子。这个事实在下一节建堆时会用到。</p></section>
+<section id="ops" class="article-section" aria-labelledby="heading-ops"><span class="section-number">04 / 07</span><h2 id="heading-ops">插入与弹出：上浮和下沉</h2>
+<p>两个操作都只沿一条祖先路径修修指针，所以代价是 O(树高) = O(log n)：</p>
+<ul><li><strong>插入</strong>：把新元素追到数组末尾（保持完全形状），再不断与父节点比较，若违反堆序就交换，直到满足为止——这就是<strong>上浮</strong>。</li><li><strong>弹出</strong>：取出 <code>heap[0]</code> 后，把末尾元素移到根（继续保持完全形状），再不断与<strong>较小的孩子</strong>交换，直到父不大于孩子——这就是<strong>下沉</strong>。</li></ul>
+<figure class="diagram"><div class="diagram-scroll" tabindex="0" aria-label="可横向滚动查看图示"><img src="../assets/svg/11-sift.svg" alt="最小堆插入 0 时逐层上浮，以及弹出堆顶后末尾元素下沉的数组变化" width="880" height="440" loading="lazy"></div><figcaption>图 2 · 最小堆的上浮（②–④）与下沉（⑤–⑥）。上浮只与自己的父节点比较；下沉必须与两个孩子中<strong>较小</strong>的那个交换，否则可能把更大的孩子提前。</figcaption></figure>
+<pre class="code-panel" tabindex="0"><code>def push(heap, value):
+    heap.append(value)
+    i = len(heap) - 1
+    while i &gt; 0 and heap[i] &lt; heap[(i - 1) // 2]:
+        parent = (i - 1) // 2
+        heap[i], heap[parent] = heap[parent], heap[i]
+        i = parent
 
-        <p>用什么数据结构来实现优先队列？你可能会想到：</p>
-        <ul>
-            <li><strong>数组/链表</strong>：插入 O(1)，取出最大/最小值需要 O(n) 扫描。或者保持有序，插入 O(n)，取出 O(1)。都不完美。</li>
-            <li><strong>平衡BST</strong>：插入和取出都是 O(log n)，但实现太复杂了。</li>
-        </ul>
-
-        <p>有没有一种更轻量级的数据结构，能够以 O(log n) 的复杂度完成插入和取出最大值/最小值，且实现足够简单？有——<strong>堆（Heap）</strong>。</p>
-
-        <h2>堆的概念</h2>
-
-        <p>堆（Heap）是一种特殊的完全二叉树，它满足<strong>堆序性质（Heap Property）</strong>：</p>
-
-        <ul>
-            <li><strong>最大堆（Max-Heap）</strong>：每个节点的值都 ≥ 其子节点的值。根节点是最大值。</li>
-            <li><strong>最小堆（Min-Heap）</strong>：每个节点的值都 ≤ 其子节点的值。根节点是最小值。</li>
-        </ul>
-
-        <p>注意堆只要求一个节点和它的子节点之间满足大小关系，<strong>不要求</strong>左子树和右子树之间有特定的大小关系（这是堆和BST的关键区别）。事实上，在堆中，你甚至不关心"兄弟节点谁大谁小"——只要满足堆序性质就行。</p>
-
-        <pre><code># 这是一个合法的最大堆：
-#        100
-#       /   \
-#      50    30
-#     /  \   /
-#    20  10 25
-#
-# 每个节点都比它的子节点大（或等于）
-# 但不要求兄弟节点之间有序：
-# 50 > 30 或者 50 < 30 都是可以的
-
-# 这也是一个合法的最大堆：
-#        100
-#       /   \
-#      30    50
-#     /  \
-#    20  10
-# 30 < 50? 没问题！堆只要求"父 ≥ 子"</code></pre>
-
-        <h2>堆的数组实现</h2>
-
-        <p>由于堆是完全二叉树，我们可以用数组来存储，不需要显式的左右指针。这在第8章已经埋下了伏笔：</p>
-
-        <ul>
-            <li>根节点存储在 index = 1（方便计算，忽略 index = 0）</li>
-            <li>对于 index = i 的节点：<code>parent = i // 2</code></li>
-            <li>对于 index = i 的节点：<code>left = 2 * i</code>，<code>right = 2 * i + 1</code></li>
-        </ul>
-
-        <pre><code># 数组表示的最大堆
-#        100
-#       /   \
-#      50    30
-#     /  \
-#    20  10
-# 数组: [_, 100, 50, 30, 20, 10]
-# index: 0  1    2   3   4   5
-# 通常 index=0 留空
-
-# parent(3) = 3//2 = 1 → arr[1] = 100 (节点30的父节点是100) √
-# left(2) = 4 → arr[4] = 20 (节点50的左孩子是20) √
-# right(2) = 5 → arr[5] = 10 (节点50的右孩子是10) √</code></pre>
-
-        <h3>上浮（Swim）与下沉（Sink）</h3>
-
-        <p>堆的两个核心操作是<strong>上浮（swim / bubble-up）</strong>和<strong>下沉（sink / bubble-down）</strong>：</p>
-
-        <ul>
-            <li><strong>上浮</strong>：在堆尾插入一个新元素后，它可能比父节点大（最大堆），这时需要不断和父节点交换，直到堆序恢复。</li>
-            <li><strong>下沉</strong>：取出堆顶后，将堆尾元素移到堆顶，它可能比子节点小，这时需要不断和较大的子节点交换，直到堆序恢复。</li>
-        </ul>
-
-        <pre><code>class MinHeap:
-    """最小堆实现"""
-    def __init__(self):
-        self.heap = [0]  # index从1开始，0占位
-
-    def push(self, val):
-        """插入元素"""
-        self.heap.append(val)
-        self._swim(len(self.heap) - 1)
-
-    def pop(self):
-        """弹出最小值（堆顶）"""
-        if len(self.heap) <= 1:
-            return None
-        if len(self.heap) == 2:
-            return self.heap.pop()
-        min_val = self.heap[1]
-        self.heap[1] = self.heap.pop()  # 把堆尾移到堆顶
-        self._sink(1)
-        return min_val
-
-    def _swim(self, i):
-        """上浮：如果节点比父节点小，向上交换"""
-        while i > 1 and self.heap[i] < self.heap[i // 2]:
-            self.heap[i], self.heap[i // 2] = self.heap[i // 2], self.heap[i]
-            i //= 2
-
-    def _sink(self, i):
-        """下沉：如果节点比子节点大，向下交换（与较小的子节点交换）"""
-        n = len(self.heap) - 1
-        while 2 * i <= n:
-            j = 2 * i  # 左孩子
-            # 如果右孩子更小，用右孩子
-            if j + 1 <= n and self.heap[j + 1] < self.heap[j]:
-                j = j + 1
-            if self.heap[i] <= self.heap[j]:
+def pop(heap):
+    top = heap[0]
+    last = heap.pop()
+    if heap:
+        heap[0] = last
+        i = 0
+        while True:
+            left, right = 2 * i + 1, 2 * i + 2
+            small = i
+            if left &lt; len(heap) and heap[left] &lt; heap[small]:
+                small = left
+            if right &lt; len(heap) and heap[right] &lt; heap[small]:
+                small = right
+            if small == i:
                 break
-            self.heap[i], self.heap[j] = self.heap[j], self.heap[i]
-            i = j
+            heap[i], heap[small] = heap[small], heap[i]
+            i = small
+    return top</code></pre>
+<p>注意 <code>pop</code> 在堆只剩一个元素时直接返回它，不要再去访问空数组。空堆上调用 <code>pop</code> 应报错，而不是静默返回。</p>
+<div class="lab" data-demo="heap-trace"><h3>逐步观察数组变化</h3><p>固定演示序列：依次 <code>push(5) push(1) push(3) push(0)</code>，再 <code>pop()</code>。拖动滑块查看每一步的数组。</p><div class="lab-controls"><label for="heap-step">步骤</label><input id="heap-step" type="range" min="0" max="5" value="4" step="1"></div><output aria-live="polite">第 4 步 push(0)：数组 [0, 1, 3, 5]。</output></div></section>
+<section id="heapify" class="article-section" aria-labelledby="heading-heapify"><span class="section-number">05 / 07</span><h2 id="heading-heapify">为什么自底向上建堆是 O(n)</h2>
+<p>把一批已有的元素变成一个堆，最直接的做法是逐个 <code>push</code>，最坏要 O(n  log n)。但还有一个更快的做法：把数组直接当作完全二叉树，从最后一个非叶节点 <code>n//2 − 1</code> 开始，<strong>从后往前</strong>对每个节点做一次下沉。因为下沉时它的子树已经是堆，一次下沉就能让以它为根的子树也变成堆。</p>
+<pre class="code-panel" tabindex="0"><code>def heapify(values):
+    for i in range(len(values) // 2 - 1, -1, -1):
+        sink(values, i, len(values))
+    return values
 
-    def peek(self):
-        return self.heap[1] if len(self.heap) > 1 else None
+# 只需处理一半下标；下标 n//2 及其之后都是叶子，无需下沉。</code></pre>
+<p>关键不是“每次下沉 O(log n)”：深层的节点很多但下沉距离很短，浅层的节点很少但距离很长。若按<strong>高度</strong> <em>h</em> 分组统计总交换次数，一个高度为 <em>h</em> 的节点至多下沉 <em>h</em> 次，而高度为 <em>h</em> 的节点数不超过 n / 2<sup>h+1</sup>，于是总工作量至多为：</p>
+<div class="equation eq-scroll" role="region" tabindex="0" aria-label="建堆总代价的上界求和公式"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block" aria-label="总代价不超过 n 乘以 h 除以 2 的 h 加一次方对 h 求和，结果为 O(n)"><mrow><munderover><mo>∑</mo><mrow><mi>h</mi><mo>=</mo><mn>0</mn></mrow><mrow><mo>⌊</mo><mi>log</mi><mo>⁡</mo><mi>n</mi><mo>⌋</mo></mrow></munderover><mfrac><mi>n</mi><msup><mn>2</mn><mrow><mi>h</mi><mo>+</mo><mn>1</mn></mrow></msup></mfrac><mo>⋅</mo><mi>h</mi><mo>&lt;</mo><mi>n</mi><munderover><mo>∑</mo><mrow><mi>h</mi><mo>=</mo><mn>0</mn></mrow><mi>∞</mi></munderover><mfrac><mi>h</mi><msup><mn>2</mn><mi>h</mi></msup></mfrac><mo>=</mo><mi>O</mi><mo>(</mo><mi>n</mi><mo>)</mo></mrow></math></div>
+<p>最后一步用到级数 Σ <em>h</em>/2<sup><em>h</em></sup> = 2，是一个常数。所以<strong>自底向上建堆是最坏情况下的 O(n)</strong>，而不是 O(n log n)。</p></section>
+<section id="sort" class="article-section" aria-labelledby="heading-sort"><span class="section-number">06 / 07</span><h2 id="heading-sort">堆排序：原地、O(n log n)、不稳定</h2>
+<p>有了建堆与下沉，排序只需两步：先把数组建成<strong>最大堆</strong>，然后反复把堆顶（当前最大值）与末尾交换，缩小堆的范围并下沉新的堆顶。堆在数组内部长大缩小，不需要额外空间。</p>
+<pre class="code-panel" tabindex="0"><code>def heap_sort(values):
+    data = list(values)
+    n = len(data)
+    for i in range(n // 2 - 1, -1, -1):     # 1. 建最大堆
+        sink(data, i, n)
+    for end in range(n - 1, 0, -1):          # 2. 逐个把最大值放到末尾
+        data[0], data[end] = data[end], data[0]
+        sink(data, 0, end)
+    return data</code></pre>
+<p>建堆 O(n)，接下来的 n−1 次下沉每次 O(log n)，总计 <strong>O(n log n)</strong>，并且是<strong>原地</strong>排序（递归下沉可以写成循环，辅助空间 O(1)）。它与快速排序一样是<strong>不稳定</strong>的：相等元素很可能被交换到不同相对位置。需要注意 Python 内置的 <code>sorted</code> 使用 Timsort，而不是堆排序；<code>heapq</code> 只提供最小堆原语。</p></section>
+<section id="limits" class="article-section" aria-labelledby="heading-limits"><span class="section-number">07 / 07</span><h2 id="heading-limits">适用边界与常见误区</h2>
+<ul><li><strong>“堆能快速查找任意元素”</strong>：不行。查出堆顶是 O(1)，但查找任意键必须扫描，O(n)。</li><li><strong>“堆是排好序的”</strong>：不是。堆只保证父与子的关系；数组下标顺序也不等于有序顺序。</li><li><strong>“堆排序与归并一样稳定”</strong>：堆排序不稳定；需要稳定排序应选归并或 Timsort 类算法。</li><li><strong>“需要范围查询也选堆”</strong>：范围或有序遍历应用平衡树 / 有序数组；堆不提供这些能力。</li></ul>
+<p>一个典型应用是 <strong>Top-K</strong>：求最大的 K 个元素时，维护一个大小为 K 的<strong>最小堆</strong>，比当前堆顶大就替换并下沉。遍历 <em>n</em> 个元素、每次 O(log K)，总代价 O(n log K)，额外空间只有 O(K)，比全排序 O(n log n) 在 K 远小于 n 时更划算（本章复杂度均按比较模型计）。</p>
+<aside class="note"><strong>动手校验</strong><p>至少测试：空堆、单元素、含重复值与负数、连续 push 后连续 pop 是否升序、建堆后是否满足堆序、以及堆排序是否不修改输入。参考实现与测试位于 <code>examples/heaps.py</code> 与 <code>tests/test_heaps.py</code>。</p></aside></section>
 
-    def __len__(self):
-        return len(self.heap) - 1
-
-    def heapify(self, arr):
-        """从数组构建堆，O(n)"""
-        self.heap = [0] + arr[:]
-        n = len(self.heap) - 1
-        # 从最后一个非叶子节点开始下沉
-        for i in range(n // 2, 0, -1):
-            self._sink(i)
-
-# 测试
-h = MinHeap()
-h.push(3)
-h.push(1)
-h.push(4)
-h.push(1)
-h.push(5)
-print(h.pop())  # 1
-print(h.pop())  # 1
-print(h.pop())  # 3
-print(h.pop())  # 4
-print(h.pop())  # 5</code></pre>
-
-        <div class="tip">
-            <strong>注意 heapify 的时间复杂度是 O(n)，不是 O(n log n)：</strong>直觉上你可能觉得对 n 个元素每个执行一次下沉就是 O(n log n)，但仔细分析——堆中第 k 层的节点数约为 n/2ᵏ，这些节点最多下沉 k 次。总操作次数 Σ k·n/2ᵏ = O(n)。这是堆的一个很"反直觉"但非常优雅的性质。
-        </div>
-
-        <h2>堆排序</h2>
-
-        <p>堆排序的过程非常简单：先把数组构建成一个最大堆（或最小堆），然后不断取出堆顶元素。每次取出堆顶后，将堆尾移到堆顶并下沉，保持堆序。</p>
-
-        <pre><code>def heap_sort(arr):
-    """堆排序，原地排序，升序"""
-    n = len(arr)
-
-    # 1. 建堆（最大堆），从最后一个非叶子节点开始下沉
-    for i in range(n // 2 - 1, -1, -1):
-        _sink(arr, n, i)
-
-    # 2. 不断取出堆顶，放到数组末尾
-    for i in range(n - 1, 0, -1):
-        arr[0], arr[i] = arr[i], arr[0]  # 堆顶（最大值）放到末尾
-        _sink(arr, i, 0)  # 对剩余部分重建堆
-
-    return arr
-
-def _sink(arr, n, i):
-    """对 arr[0..n-1] 中的 i 节点下沉"""
-    largest = i
-    left = 2 * i + 1
-    right = 2 * i + 2
-    if left < n and arr[left] > arr[largest]:
-        largest = left
-    if right < n and arr[right] > arr[largest]:
-        largest = right
-    if largest != i:
-        arr[i], arr[largest] = arr[largest], arr[i]
-        _sink(arr, n, largest)
-
-# 测试
-print(heap_sort([3, 1, 4, 1, 5, 9, 2, 6]))
-# [1, 1, 2, 3, 4, 5, 6, 9]</code></pre>
-
-        <p>堆排序的时间复杂度：<strong>O(n log n)</strong>，空间复杂度：<strong>O(1)</strong>（原地排序）。但它<strong>不是稳定排序</strong>——相等的元素可能会改变相对顺序。</p>
-
-        <h2>Top-K问题</h2>
-
-        <p>Top-K问题是面试中的高频考点，比如"在100万个元素中找出最大的K个"。堆是解决这类问题最优雅的工具。</p>
-
-        <p>考虑LeetCode 215——「数组中的第K个最大元素」：</p>
-
-        <ul>
-            <li><strong>排序法</strong>：对整个数组排序，取倒数第K个。O(n log n)。</li>
-            <li><strong>堆解法</strong>：维护一个大小为K的最小堆，遍历数组，每个元素和堆顶比较，比堆顶大就pop堆顶再push新元素。遍历结束后，堆顶就是第K大的元素。O(n log K)。</li>
-            <li><strong>快速选择（Quick Select）</strong>：类似快排的分区思想，平均O(n)。效率最高但最坏O(n²)。</li>
-        </ul>
-
-        <pre><code>import heapq
-
-def find_kth_largest(nums, k):
-    """第K个最大元素，用最小堆"""
-    heap = nums[:k]
-    heapq.heapify(heap)  # 建一个大小为k的最小堆
-    for num in nums[k:]:
-        if num > heap[0]:      # 当前元素比堆顶大
-            heapq.heapreplace(heap, num)  # pop堆顶，push新元素
-    return heap[0]  # 堆顶就是第K大的
-
-# 对比：如果要求第K个最小元素，用最大堆（或者对负数建最小堆）
-
-def top_k_frequent(nums, k):
-    """前K个高频元素，LeetCode 347"""
-    from collections import Counter
-    count = Counter(nums)
-    # 用最小堆维护前K个高频元素
-    heap = []
-    for num, freq in count.items():
-        heapq.heappush(heap, (freq, num))
-        if len(heap) > k:
-            heapq.heappop(heap)
-    return [num for _, num in heap]</code></pre>
-
-        <p>为什么堆解法比排序法更好？</p>
-        <ul>
-            <li>当 n 很大而 K 很小时（比如 n=10⁹, K=100），堆的空间只有 O(K)，而排序需要 O(n) 空间。</li>
-            <li>堆是<strong>在线算法</strong>——你可以一个一个地接收数据，不需要一开始就看到全部数据。这在处理数据流（data stream）时非常有用。</li>
-        </ul>
-
-        <div class="highlight">
-            <strong>面试中的Top-K策略：</strong>面试官问Top-K时，先答"排序法"（最简单），然后提"堆解法"（常规最优），最后如果能说出"快速选择可以做到平均O(n)，但最坏O(n²)"，面试官会眼前一亮。三种方法展现出你思维的深度。
-        </div>
-
-        <h2>优先队列的实际应用</h2>
-
-        <p>Python 的 <code>heapq</code> 模块提供了堆操作，我们可以直接用：</p>
-
-        <pre><code>import heapq
-
-# 基本操作
-heap = []
-heapq.heappush(heap, 3)     # 插入
-heapq.heappush(heap, 1)
-heapq.heappush(heap, 4)
-print(heapq.heappop(heap))  # 1，弹出最小值
-print(heap[0])              # 3，peek最小值
-
-# 对已有列表堆化
-arr = [5, 2, 8, 1, 9]
-heapq.heapify(arr)          # O(n)
-print(arr)                  # [1, 2, 8, 5, 9]
-
-# 最大堆：插入负值
-max_heap = []
-heapq.heappush(max_heap, -3)
-heapq.heappush(max_heap, -1)
-heapq.heappush(max_heap, -4)
-print(-heapq.heappop(max_heap))  # 4</code></pre>
-
-        <p>一个经典的堆应用——<strong>合并K个有序链表</strong>（LeetCode 23）：</p>
-
-        <pre><code>def merge_k_lists(lists):
-    """合并K个有序链表（每个链表已排序）"""
-    import heapq
-    dummy = ListNode(0)
-    curr = dummy
-    heap = []
-
-    for i, lst in enumerate(lists):
-        if lst:
-            heapq.heappush(heap, (lst.val, i, lst))
-
-    while heap:
-        val, i, node = heapq.heappop(heap)
-        curr.next = ListNode(val)
-        curr = curr.next
-        if node.next:
-            heapq.heappush(heap, (node.next.val, i, node.next))
-
-    return dummy.next</code></pre>
-
-        <p>堆 vs 有序数组操作复杂度对比：</p>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>操作</th>
-                    <th>堆（最小堆）</th>
-                    <th>有序数组</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>插入 (Insert)</td>
-                    <td>O(log n)</td>
-                    <td>O(n)（需要移动元素）</td>
-                </tr>
-                <tr>
-                    <td>获取最小值 (peek)</td>
-                    <td>O(1)</td>
-                    <td>O(1)</td>
-                </tr>
-                <tr>
-                    <td>删除最小值 (pop)</td>
-                    <td>O(log n)</td>
-                    <td>O(n)（需要移动元素）</td>
-                </tr>
-                <tr>
-                    <td>构建 (Build)</td>
-                    <td>O(n)</td>
-                    <td>O(n log n)（排序）</td>
-                </tr>
-                <tr>
-                    <td>查找任意值</td>
-                    <td>O(n)</td>
-                    <td>O(log n)（二分查找）</td>
-                </tr>
-                <tr>
-                    <td>合并两个结构</td>
-                    <td>O(n)</td>
-                    <td>O(m + n)</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <p>堆的强项在于"频繁插入 + 频繁取最小值"的场景——优先队列、任务调度、Dijkstra算法中的节点选择都是典型的应用。如果主要需求是"快速查找任意元素"，那应该使用平衡BST或哈希表。</p>
-
-        <h2>本章小结</h2>
-
-        <p>这一章我们学习了堆与优先队列：</p>
-        <ul>
-            <li>通过医院急诊室的类比理解<strong>优先队列</strong>的需求，以及为什么堆是实现它的理想结构。</li>
-            <li>掌握了<strong>堆的核心性质</strong>——完全二叉树 + 堆序（父≥子或父≤子）。</li>
-            <li>实现了<strong>堆的数组存储</strong>（父子下标关系）和两个核心操作<strong>上浮（swim）与下沉（sink）</strong>。</li>
-            <li>用堆实现了<strong>堆排序</strong>——O(n log n) 原地排序，不稳定。</li>
-            <li>用堆解决<strong>Top-K问题</strong>和<strong>合并K个有序链表</strong>，展示了堆在数据流场景的独特优势。</li>
-            <li>对比了<strong>堆与有序数组</strong>各操作的复杂度差异。</li>
-        </ul>
-
-        <p>堆的"完全二叉树 + 数组存储"组合非常优雅，但它的表达能力是有限的——堆只能保证根节点是最大/最小值，无法像BST那样查找任意元素。如果需要"既能快速查找任意元素，又能快速插入删除"，还是要靠平衡树。</p>
-
-        <p>下一章我们将告别树形结构，进入计算机科学中另一个重要的非线性数据结构——<strong>第12章「图基础」</strong>。如果说树是"一对多"的关系，图就是"多对多"的关系——社交网络、地图导航、网页链接，这些都是图。准备好迎接更复杂的结构了吗？</p>
-
-        <div class="footer-nav">
-            <a href="10.html">← 上一章</a>
-            <a href="index.html">📖 返回目录</a>
-            <a href="12.html">下一章 →</a>
-        </div>
-    </div>
-</div>
-</div>
+<section class="takeaways"><h2>带走三个判断准则</h2><ol><li>堆只维护“父与子”的比较关系，不维护兄弟序或全局序；这正是它比有序结构更省的地方。</li><li>堆序的约束只沿一条祖先路径展开，插入与弹出的代价是 O(log n)，对应树高。</li><li>自底向上建堆用势能式的求和论证得到 O(n)，不等于“插入 n 次”的 O(n log n)。</li></ol></section>
+<section class="references"><h2>继续学习与校验资料</h2><ul><li><a href="https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/resources/lecture-8-binary-heaps/">MIT 6.006：Binary Heaps</a> — 堆操作与建堆的线性时间论证</li><li><a href="https://docs.python.org/3/library/heapq.html">Python heapq</a> — 标准库最小堆接口，注意它是 0 基数组实现</li><li><a href="10.html">上一章：平衡二叉树</a> — 另一种维持有序的树结构</li><li><a href="12.html">下一章：图基础</a> — 从树走向一般图的表示</li></ul></section>
+<nav class="end-nav" aria-label="上一章和下一章"><a href="10.html">← 第 10 章</a><a href="../index.html">全部课程</a><a class="chapter-link" href="12.html">第 12 章 →</a></nav>
+</article></main></div>
+<footer class="article-footer"><a href="../index.html">数据结构与算法课程</a><span>弱一点的约束，换来更小的常数。</span></footer>
+<script src="../assets/js/interactive.js" defer></script>
 </body>
 </html>
