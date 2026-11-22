@@ -41,3 +41,9 @@
 - 新增 04–08 原稿在 `archive/original/`；编辑者必须保留旧 URL 和课程元数据标记 `revision`。
 - 本批算法的运行参考在 `examples/linear_structures.py`，测试在 `tests/test_linear_structures.py`，每篇交互演示在 `assets/js/interactive.js`，图形故事板在 `docs/design-system.md`。
 - 链表必须说明“已知前驱”的操作条件；栈和队列必须区分 ADT 与实现；哈希的 O(1) 必须标明假设；普通二叉树不能被写成天然有序。
+
+## 2026-11 后续精修批次（09–11）
+- 09–11（二叉搜索树、平衡二叉树、堆与优先队列）已按同一图解体系重写；12–28 仍是原稿。README 的状态表与本节必须同步更新，不得把未改章节说成已精修。
+- 本批原稿存入 `archive/original/09.html`–`11.html`；`courses.json` 中这三章的 `revision` 已改为 `illustrated`，其余保持 `original`。
+- 运行参考：`examples/bst.py`、`examples/balanced_trees.py`、`examples/heaps.py`；测试：`tests/test_bst.py`、`tests/test_balanced_trees.py`、`tests/test_heaps.py`。
+- 必须区分：BST 的全子树区间不变量与“中序升序”推论；平衡因子用边数或节点数约定时差值相同；AVL 高度上界与红黑树高度上界出处不同；堆只保证父子序、不等于有序，建堆 O(n) 是求和论证而非实测。
