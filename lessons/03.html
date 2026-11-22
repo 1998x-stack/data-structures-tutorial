@@ -1,0 +1,99 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="数组的快来自下标到槽位的直接映射；前缀和让区间查询变成两次相减；双指针与滑动窗口则利用单调推进避免重复扫描。"><title>第 03 章 · 数组与字符串：从内存到区间不变量 | 数据结构与算法</title><link rel="stylesheet" href="../assets/css/article.css"></head>
+<body><a href="#content" class="skip-link">跳转至正文</a><header class="article-top"><div class="top-inner"><a class="brand" href="../index.html">← 课程首页</a><span class="course-name">数据结构与算法 · 深度图解</span><a class="source-link" href="https://github.com/1998x-stack/data-structures-tutorial">GitHub</a></div></header>
+<div class="article-layout"><aside class="toc"><details open><summary>本章导览</summary><nav aria-label="数组与字符串：从内存到区间不变量的章节目录"><ol><li><a href="#memory"><span>01</span>数组为何能随机访问？先看存储模型</a></li><li><a href="#dynamic"><span>02</span>动态数组为什么能随时增长？</a></li><li><a href="#prefix"><span>03</span>前缀和：一次预处理，区间查询两次读取</a></li><li><a href="#hash"><span>04</span>前缀和加哈希：有负数也能找目标区间</a></li><li><a href="#two-pointers"><span>05</span>双指针：用有序性排除不可能的解</a></li><li><a href="#window"><span>06</span>滑动窗口：边界单调推进，维护局部条件</a></li><li><a href="#practice"><span>07</span>边界条件：何时该换一套结构？</a></li></ol></nav></details><div class="toc-bottom"><a href="../index.html#curriculum">查看 28 章课程</a></div></aside>
+<main id="content"><article><header class="article-heading"><div class="article-kicker">FOUNDATIONS / CHAPTER 03</div><h1>数组与字符串：从内存到区间不变量</h1><p class="dek">数组的快来自下标到槽位的直接映射；前缀和让区间查询变成两次相减；双指针与滑动窗口则利用单调推进避免重复扫描。</p><div class="topic-tags"><span>连续存储</span><span>前缀和</span><span>双指针 / 滑动窗口</span></div></header>
+<section id="memory" class="article-section" aria-labelledby="heading-memory"><span class="section-number">01 / 07</span><h2 id="heading-memory">数组为何能随机访问？先看存储模型</h2><p>设有一个固定宽度的数值数组 <code>A</code>，元素宽度为 <em>w</em> 字节，首元素地址为 <em>base</em>，从零开始的第 <em>i</em> 个元素位于 <code>base + i × w</code>。只需完成简单的地址运算，不必从头扫描，因此随机存取模型下按下标访问记为 <code>O(1)</code>。</p>
+<div class="equation" tabindex="0" aria-label="数学公式"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>addr</mi><mo>(</mo><mi>A</mi><mo>[</mo><mi>i</mi><mo>]</mo><mo>)</mo><mo>=</mo><mi>base</mi><mo>+</mo><mi>i</mi><mo>×</mo><mi>w</mi></mrow></math></div>
+<p>但“数组”一词在不同语言中指向不同的物理布局。C 的 <code>int32_t a[4]</code> 可以是连续的 4 字节整数值；<strong>CPython 的 <code>list</code> 是连续的对象引用槽位</strong>，槽位指向的 Python 整数对象本身不必在同一连续地址区间。这两者都可快速按索引访问，但不能据此误认为 Python 数字对象无额外开销。</p>
+<figure class="diagram"><div class="diagram-scroll" tabindex="0" aria-label="可横向滚动的完整图解"><img src="../assets/svg/03-memory.svg" alt="对比 C 固定宽度整数数组和 Python 列表的引用槽位" width="880" height="400" loading="lazy"></div><figcaption>图 1 · 上半部中数值本身占连续槽位；下半部中连续的是 ref 位置，引用指向的对象可分布在别处。地址标签仅用来说明偏移规律。</figcaption></figure>
+<p>访问数组中第 <em>i</em> 项是快操作；在无序数组中<strong>按值搜索</strong>却可能检查全部 <em>n</em> 项。头部插入往往需要移动后面的引用槽位，因此代价可达 <code>O(n)</code>。</p></section>
+<section id="dynamic" class="article-section" aria-labelledby="heading-dynamic"><span class="section-number">02 / 07</span><h2 id="heading-dynamic">动态数组为什么能随时增长？</h2><p>长度（已经存放的元素数）和容量（当前分配的槽位数）是两个概念。动态数组通常预留一些空槽，追加时如果有空位就直接写入；否则申请更大的存储区并搬移旧槽位。</p>
+<p>这解释了：一次尾部 <code>append</code> 可能触发 <code>O(n)</code> 搬移，但在合适的增长策略下，一串追加操作总成本是线性的，每次<strong>均摊 O(1)</strong>。不同运行时可以采用不同扩容策略，不能拿一个固定倍数宣称是全部 Python 版本的实现细节。</p>
+<pre class="code-panel"><code>a = []
+a.append(10)
+a.append(20)
+a.append(30)
+assert a[1] == 20
+a.insert(0, 5)   # 在头部插入：已有元素的槽位需要移动
+assert a == [5, 10, 20, 30]</code></pre>
+<aside class="note"><strong>复杂度来源</strong><p>Python list 的连续“指针槽位”支持索引访问，扩容时可搬移这些指针；不等于把所有 Python 对象本身逐个复制。</p></aside></section>
+<section id="prefix" class="article-section" aria-labelledby="heading-prefix"><span class="section-number">03 / 07</span><h2 id="heading-prefix">前缀和：一次预处理，区间查询两次读取</h2><p>若要反复回答数组中 <code>[l,r)</code> 的元素和，逐段求和每次都要扫描 <em>r−l</em> 个元素。预先定义前缀数组 <code>P</code>，让 <code>P[k]</code> 等于前 <em>k</em> 个元素的和，并令 <code>P[0]=0</code>，便有：</p>
+<div class="equation" tabindex="0" aria-label="数学公式"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>P</mi><mo>[</mo><mi>k</mi><mo>]</mo><mo>=</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>0</mn></mrow><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></munderover><mi>A</mi><mo>[</mo><mi>i</mi><mo>]</mo><mspace width=".8em"/><mo>;</mo><mspace width=".8em"/><mi>sum</mi><mo>(</mo><mi>l</mi><mo>,</mo><mi>r</mi><mo>)</mo><mo>=</mo><mi>P</mi><mo>[</mo><mi>r</mi><mo>]</mo><mo>−</mo><mi>P</mi><mo>[</mo><mi>l</mi><mo>]</mo></mrow></math></div>
+<p>右端是开区间：<code>[1,4)</code> 包含位置 1、2、3，不包含位置 4。选择数组 <code>[2, -1, 4, 3, -2, 5]</code>，得到 <code>P=[0,2,1,5,8,6,11]</code>，因此第 1 到第 3 项之和为 <code>P[4]-P[1]=8-2=6</code>。</p>
+<figure class="diagram"><div class="diagram-scroll" tabindex="0" aria-label="可横向滚动的完整图解"><img src="../assets/svg/03-prefix.svg" alt="前缀和数组并高亮区间1到4及所需的两个前缀" width="880" height="400" loading="lazy"></div><figcaption>图 2 · P[4] 包含从开头到索引 3 的和，减去 P[1] 恰好去掉索引 0。即使有负数，相减恒等式仍然成立。</figcaption></figure>
+<pre class="code-panel"><code>def prefix_sums(a):
+    p = [0]
+    for x in a:
+        p.append(p[-1] + x)
+    return p
+
+def range_sum(p, left, right):
+    if not 0 &lt;= left &lt;= right &lt; len(p):
+        raise ValueError(&quot;invalid half-open range&quot;)
+    return p[right] - p[left]
+
+a = [2, -1, 4, 3, -2, 5]
+p = prefix_sums(a)
+assert p == [0, 2, 1, 5, 8, 6, 11]
+assert range_sum(p, 1, 4) == 6
+assert range_sum(p, 3, 3) == 0</code></pre>
+<p>前缀和预处理需 <code>O(n)</code> 时间和 <code>O(n)</code> 空间，之后每次区间查询 <code>O(1)</code>。它适合多次查询、数组内容不频繁更改的情形；若大量区间更新与查询交织，则可以考虑树状数组或线段树。</p>
+<div class="lab" data-demo="range"><h3>移动左右边界，验证相减</h3><p>固定数组：<code>[2, -1, 4, 3, -2, 5]</code></p><div class="cells" aria-label="数组元素"><span class="cell">2</span><span class="cell selected">-1</span><span class="cell selected">4</span><span class="cell selected">3</span><span class="cell">-2</span><span class="cell">5</span></div><div class="lab-controls"><label for="range-l">左边界 l</label><input id="range-l" type="range" name="left" min="0" max="6" value="1"><label for="range-r">右边界 r（不包含）</label><input id="range-r" type="range" name="right" min="0" max="6" value="4"></div><output aria-live="polite">a[1:4] 的和 = P[4] − P[1] = 8 − 2 = 6。左闭右开；空区间和为 0。</output></div></section>
+<section id="hash" class="article-section" aria-labelledby="heading-hash"><span class="section-number">04 / 07</span><h2 id="heading-hash">前缀和加哈希：有负数也能找目标区间</h2><p>如果目标不再是“给定一个区间求和”，而是“有多少个连续子数组的和为 <em>k</em>”，可以根据恒等式 <code>P[r]-P[l]=k</code> 推出 <code>P[l]=P[r]-k</code>。从左向右扫描到第 <em>r</em> 个位置时，记录此前每个前缀值出现的次数，就能在常数预期时间内找出与当前前缀相匹配的历史起点数。</p>
+<pre class="code-panel"><code>from collections import defaultdict
+
+def count_subarrays_sum_k(a, k):
+    count = defaultdict(int)
+    count[0] = 1  # 允许从下标 0 开始的区间
+    prefix = answer = 0
+    for x in a:
+        prefix += x
+        answer += count[prefix - k]
+        count[prefix] += 1  # 先查询，再记录当前前缀
+    return answer
+
+assert count_subarrays_sum_k([1, 1, 1], 2) == 2
+assert count_subarrays_sum_k([1, -1, 0], 0) == 3</code></pre>
+<p>复杂度是预期 <code>O(n)</code> 时间与 <code>O(n)</code> 额外空间。重要的是查询发生在写入当前前缀之前，避免把空区间错算作合法子数组。由于支持负数，这个方案不能简单用“窗口和大就左移”的双指针替代。</p></section>
+<section id="two-pointers" class="article-section" aria-labelledby="heading-two-pointers"><span class="section-number">05 / 07</span><h2 id="heading-two-pointers">双指针：用有序性排除不可能的解</h2><p>在<strong>升序</strong>数组中查找两数和为目标值，指针从两端出发。如果两数和太小，左指针右移：在右端不变时，更小的左值不可能帮助达到目标；如果和太大，右指针左移。每步都淘汰一批不可能位置，因此两指针总计最多推进 <em>O(n)</em> 步。</p>
+<pre class="code-panel"><code>def two_sum_sorted(a, target):
+    left, right = 0, len(a) - 1
+    while left &lt; right:
+        total = a[left] + a[right]
+        if total == target:
+            return (left, right)
+        if total &lt; target:
+            left += 1
+        else:
+            right -= 1
+    return None
+
+assert two_sum_sorted([1, 2, 4, 7, 11], 9) == (1, 3)
+assert two_sum_sorted([1, 1], 2) == (0, 1)
+assert two_sum_sorted([], 3) is None</code></pre>
+<p>这个证明依赖排序。若数组无序，需要先排序（若允许改变顺序，通常 <code>O(n log n)</code>）或改用哈希表保存已见元素（预期 <code>O(n)</code>，额外空间 <code>O(n)</code>）。因此任何“两个指针 O(n)”的结论都必须附上<strong>操作前提</strong>。</p></section>
+<section id="window" class="article-section" aria-labelledby="heading-window"><span class="section-number">06 / 07</span><h2 id="heading-window">滑动窗口：边界单调推进，维护局部条件</h2><p>在字符串 <code>"abca"</code> 中求最长无重复字符子串。扫描到第 4 个字符 <code>a</code> 时，当前窗口 <code>"abc"</code> 包含旧的 <code>a</code>；需要让左端前进，移走旧 <code>a</code>，窗口才成为 <code>"bca"</code>。不变量是“窗口中没有重复字符”。</p>
+<figure class="diagram"><div class="diagram-scroll" tabindex="0" aria-label="可横向滚动的完整图解"><img src="../assets/svg/03-window.svg" alt="滑动窗口遍历abca时遇到重复a并移动左边界" width="880" height="400" loading="lazy"></div><figcaption>图 3 · 右指针发现冲突时，左指针只向右推进；一次字符最多进入集合一次、移出集合一次，因此整体 O(n)。</figcaption></figure>
+<pre class="code-panel"><code>def longest_unique_substring(s):
+    seen = set()
+    left = best = 0
+    for right, char in enumerate(s):
+        while char in seen:
+            seen.remove(s[left])
+            left += 1
+        seen.add(char)
+        best = max(best, right - left + 1)
+    return best
+
+assert longest_unique_substring(&quot;abca&quot;) == 3
+assert longest_unique_substring(&quot;aaaa&quot;) == 1
+assert longest_unique_substring(&quot;&quot;) == 0</code></pre>
+<p>时间为预期 <code>O(n)</code>，额外空间最多为不同字符数 <code>O(min(n, |Σ|))</code>。这里的字符串长度按 Python 字符串的 Unicode 码点计数；用户感知的一个文字可能包含多个码点，涉及复杂文本时需另外处理字素簇。</p>
+<aside class="caution"><strong>窗口技巧不能机械套用</strong><p>“窗口和超过 k 就缩小”只在符合特定单调性的场景下成立，例如全非负整数求满足上界的子数组。存在负数时，缩小窗口不一定让和变小；应重新证明不变量或改用前缀和等方法。</p></aside></section>
+<section id="practice" class="article-section" aria-labelledby="heading-practice"><span class="section-number">07 / 07</span><h2 id="heading-practice">边界条件：何时该换一套结构？</h2><p>数组常用于随机访问多、插入少的场景。维护多个动态区间查询时，前缀和的 <code>O(1)</code> 查询伴随着元素修改后需要重新计算的代价；这时第 20 章的 Fenwick Tree 或线段树能做不同的权衡。</p>
+<div class="table-scroll" tabindex="0"><table><thead><tr><th scope="col">技术</th><th scope="col">依赖条件</th><th scope="col">不适合直接使用的情形</th></tr></thead><tbody><tr><td>前缀和</td><td>多次求和、原数组基本静态</td><td>频繁单点或区间修改</td></tr><tr><td>有序双指针</td><td>排序与排除方向成立</td><td>未排序且不能重排</td></tr><tr><td>无重复滑窗</td><td>左边界移动后可恢复单调可维护条件</td><td>问题状态不能随着移动而局部更新</td></tr><tr><td>前缀和 + 哈希</td><td>重复前缀可计数</td><td>哈希空间无法承受且需更强最坏保证</td></tr></tbody></table></div>
+<p>最后按“输入为空、只有一个元素、包含重复、包含负数、边界区间、超大输入”逐一测试。一个算法是否专业，常常取决于你能不能精确说出它<strong>什么时候会失效</strong>。</p></section>
+<section id="takeaways" class="takeaways"><h2>带走三个判断准则</h2><ol><li>数组下标快，是因为槽位可定位；CPython list 存连续引用槽位，而非保证 Python 对象本体连续。</li><li>前缀和公式 P[r]−P[l] 对负数仍成立；查询 O(1) 的代价是 O(n) 预处理与额外空间。</li><li>双指针和滑动窗口的线性时间来自可证明的不变量和单调推进，不是来自模板的形状。</li></ol></section>
+<section id="further-reading" class="references"><h2>继续学习与校验资料</h2><ul><li><a href="https://docs.python.org/3/faq/design.html" rel="noopener noreferrer">Python 设计 FAQ：list 实现</a> — 连续引用槽位的官方说明</li><li><a href="https://docs.python.org/3/howto/unicode.html" rel="noopener noreferrer">Python Unicode HOWTO</a> — 码点与文本字符计数</li><li><a href="https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/resources/lecture-notes/" rel="noopener noreferrer">MIT 6.006</a> — 搜索、数组与渐进分析</li><li><a href="20.html" rel="noopener noreferrer">第 20 章</a> — 探索频繁更新下的区间数据结构</li></ul></section>
+<nav class="end-nav" aria-label="上一章和下一章"><a class="chapter-link" href="02.html">← 第 2 章</a><a href="../index.html">全部课程</a><a class="chapter-link" href="04.html">第 4 章 →</a></nav>
+</article></main></div><footer class="article-footer"><a href="../index.html">数据结构与算法课程</a><span>把概念变成可以解释和验证的操作。</span></footer><script src="../assets/js/interactive.js" defer></script></body></html>

@@ -1,0 +1,61 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="为什么一次追加会突然很慢，却仍然可以称为均摊 O(1)？从操作计数、渐进上界和容量翻倍模型出发，不用计时截图也能推导原因。"><title>第 02 章 · 复杂度分析：给增长率一个精确定义 | 数据结构与算法</title><link rel="stylesheet" href="../assets/css/article.css"></head>
+<body><a href="#content" class="skip-link">跳转至正文</a><header class="article-top"><div class="top-inner"><a class="brand" href="../index.html">← 课程首页</a><span class="course-name">数据结构与算法 · 深度图解</span><a class="source-link" href="https://github.com/1998x-stack/data-structures-tutorial">GitHub</a></div></header>
+<div class="article-layout"><aside class="toc"><details open><summary>本章导览</summary><nav aria-label="复杂度分析：给增长率一个精确定义的章节目录"><ol><li><a href="#model"><span>01</span>先决定成本模型，再说算法快慢</a></li><li><a href="#big-o"><span>02</span>大 O 是上界，不是精确运行时间</a></li><li><a href="#categories"><span>03</span>在推导中识别常见增长类型</a></li><li><a href="#amortized"><span>04</span>均摊分析：容量翻倍的元素搬移</a></li><li><a href="#space"><span>05</span>空间复杂度：额外内存也需要计数</a></li><li><a href="#measure"><span>06</span>如何用实测验证，而不把实测当证明</a></li></ol></nav></details><div class="toc-bottom"><a href="../index.html#curriculum">查看 28 章课程</a></div></aside>
+<main id="content"><article><header class="article-heading"><div class="article-kicker">FOUNDATIONS / CHAPTER 02</div><h1>复杂度分析：给增长率一个精确定义</h1><p class="dek">为什么一次追加会突然很慢，却仍然可以称为均摊 O(1)？从操作计数、渐进上界和容量翻倍模型出发，不用计时截图也能推导原因。</p><div class="topic-tags"><span>渐进分析</span><span>最坏与均摊</span><span>空间与递归</span></div></header>
+<section id="model" class="article-section" aria-labelledby="heading-model"><span class="section-number">01 / 06</span><h2 id="heading-model">先决定成本模型，再说算法快慢</h2><p>假设输入包含 <em>n</em> 个元素，我们要预测随着 <em>n</em> 变大，算法执行了多少次基本操作。这里的操作可以是一次比较、一次数组槽位读取或一次赋值。<strong>时间复杂度描述操作计数如何增长，不是某台电脑上的毫秒数。</strong></p>
+<p>例如在数组中顺序寻找目标，若目标在最后或不存在，就需要检查 <em>n</em> 个元素；在已排序数组上二分查找，每次排除约一半候选位置，比较次数随 <em>log₂ n</em> 增长。</p>
+<pre class="code-panel"><code>def linear_find(a, target):
+    for i, value in enumerate(a):
+        if value == target:
+            return i
+    return -1
+
+def binary_search_leftmost(a, target):
+    # a 必须按升序排列
+    lo, hi = 0, len(a)
+    while lo &lt; hi:
+        mid = (lo + hi) // 2
+        if a[mid] &lt; target:
+            lo = mid + 1
+        else:
+            hi = mid
+    return lo if lo &lt; len(a) and a[lo] == target else -1</code></pre>
+<p>二分查找的前置条件是序列有序，且能够以低成本通过下标访问元素；对无序输入直接二分不会得到正确答案。</p></section>
+<section id="big-o" class="article-section" aria-labelledby="heading-big-o"><span class="section-number">02 / 06</span><h2 id="heading-big-o">大 O 是上界，不是精确运行时间</h2><p>对非负成本函数 <em>T(n)</em> 和参考函数 <em>g(n)</em>，写作 <em>T(n) ∈ O(g(n))</em> 的含义是：存在正常数 <em>c</em> 和阈值 <em>n₀</em>，只要 <em>n ≥ n₀</em>，就有 <em>T(n) ≤ c g(n)</em>。它允许忽略常数因子及低阶项，但不允许跳过“足够大”的前提。</p>
+<div class="equation" tabindex="0" aria-label="数学公式"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>T</mi><mo>(</mo><mi>n</mi><mo>)</mo><mo>∈</mo><mi>O</mi><mo>(</mo><mi>g</mi><mo>(</mo><mi>n</mi><mo>)</mo><mo>)</mo><mo>⇔</mo><mo>∃</mo><mi>c</mi><mo>&gt;</mo><mn>0</mn><mo>,</mo><msub><mi>n</mi><mn>0</mn></msub><mo>:</mo><mspace width=".5em"/><mi>n</mi><mo>≥</mo><msub><mi>n</mi><mn>0</mn></msub><mo>⇒</mo><mn>0</mn><mo>≤</mo><mi>T</mi><mo>(</mo><mi>n</mi><mo>)</mo><mo>≤</mo><mi>c</mi><mi>g</mi><mo>(</mo><mi>n</mi><mo>)</mo></mrow></math></div>
+<p>例如 <code>3n² + 7n + 12</code> 属于 <code>O(n²)</code>，同时也属于较宽松的 <code>O(n³)</code>。如果要表达恰好相同的渐进增长量级，通常用 <code>Θ(n²)</code>；如果强调下界，用 <code>Ω</code>。</p>
+<figure class="diagram"><div class="diagram-scroll" tabindex="0" aria-label="可横向滚动的完整图解"><img src="../assets/svg/02-growth.svg" alt="理论规模 n 取 4 8 16 32 时对比四种函数增长值" width="880" height="400" loading="lazy"></div><figcaption>图 1 · 将函数值列成表，比把不同数量级强行绘在同一坐标轴上更清楚。n 从 4 增至 32 时，平方成本增长 64 倍，对数成本只从 2 变为 5。</figcaption></figure></section>
+<section id="categories" class="article-section" aria-labelledby="heading-categories"><span class="section-number">03 / 06</span><h2 id="heading-categories">在推导中识别常见增长类型</h2><div class="table-scroll" tabindex="0"><table><thead><tr><th scope="col">量级</th><th scope="col">典型模式</th><th scope="col">需要注意</th></tr></thead><tbody><tr><td>O(1)</td><td>一次数组下标访问</td><td>这是单次基本槽位操作的抽象模型</td></tr><tr><td>O(log n)</td><td>每一步淘汰一半搜索区间</td><td>需有单调 / 排序性质和合适的访问方式</td></tr><tr><td>O(n)</td><td>扫描全部 n 个元素</td><td>循环可提前退出，但最坏仍可线性</td></tr><tr><td>O(n log n)</td><td>n 层次上的对数分治工作</td><td>例如比较排序中的归并排序</td></tr><tr><td>O(n²)</td><td>比较所有位置对</td><td>有些双层循环依然是 O(n)，不能只数层数</td></tr><tr><td>O(2ⁿ)</td><td>枚举全部子集</td><td>指数分支可能被剪枝，但最坏仍很大</td></tr></tbody></table></div>
+<p>分析循环时要数<strong>实际执行的迭代总量</strong>。两个指针都从左到右单调推进的算法，哪怕内外两层循环，左右指针各自最多前进 <em>n</em> 次，故总次数为 <code>O(n)</code>，而不是自动判成 <code>O(n²)</code>。</p>
+<div class="lab" data-demo="growth"><h3>改变输入规模</h3><div class="lab-controls"><label for="growth-n">假想元素数 n</label><input id="growth-n" type="range" min="1" max="64" step="1" value="16"><span>1–64</span></div><output aria-live="polite">n = 16：常数 1；以 2 为底对数约 4；线性 16；平方 256。这些是抽象操作数量级，不是实测耗时。</output></div></section>
+<section id="amortized" class="article-section" aria-labelledby="heading-amortized"><span class="section-number">04 / 06</span><h2 id="heading-amortized">均摊分析：容量翻倍的元素搬移</h2><p>假设一个教学用动态数组初始容量为 1；空间满时，把容量扩大为原来的 2 倍，再将已有元素拷贝过去。大多数 <code>append</code> 只写一个空槽，代价 <code>O(1)</code>；恰好扩容的那次需要复制原有元素，单次最坏为 <code>O(n)</code>。</p>
+<figure class="diagram"><div class="diagram-scroll" tabindex="0" aria-label="可横向滚动的完整图解"><img src="../assets/svg/02-amortized.svg" alt="容量翻倍时旧元素复制数从 1 到 2 到 4" width="880" height="400" loading="lazy"></div><figcaption>图 2 · 前八次添加中的扩容搬移次数依次为 1、2、4，总计 7；即使有昂贵的单次操作，整段操作的复制总量仍受线性上界控制。</figcaption></figure>
+<p>观察任何连续的 <em>n</em> 次从空数组开始的追加：发生扩容时，旧元素搬移总数形如 <code>1 + 2 + 4 + ···</code>。如果最大一次搬移的长度小于 <em>n</em>，那么所有历史搬移总数小于 <em>2n</em>。加上每次写入本身的 <em>n</em> 次，总成本至多与 <em>3n</em> 同阶。</p>
+<div class="equation" tabindex="0" aria-label="数学公式"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mn>1</mn><mo>+</mo><mn>2</mn><mo>+</mo><mn>4</mn><mo>+</mo><mo>⋯</mo><mo>+</mo><msup><mn>2</mn><mi>k</mi></msup><mo>=</mo><msup><mn>2</mn><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msup><mo>−</mo><mn>1</mn><mo>&lt;</mo><mn>2</mn><mi>n</mi></mrow></math></div>
+<p>因此 <em>n</em> 次追加总成本 <code>O(n)</code>，平均摊到每次是 <code>O(1)</code>。这不是概率意义上的“平均情况”，而是<strong>针对操作序列</strong>的确定性总账分析。Python 列表也采用预留容量避免每次追加都重新分配，但实际增长因子不必等于这个教学模型。</p>
+<aside class="caution"><strong>一次最坏 ≠ 均摊最坏</strong><p>“append 均摊 O(1)”不保证任何单次调用都在严格恒定的时间完成。对实时延迟敏感的系统，需要另行评估扩容峰值。</p></aside></section>
+<section id="space" class="article-section" aria-labelledby="heading-space"><span class="section-number">05 / 06</span><h2 id="heading-space">空间复杂度：额外内存也需要计数</h2><p>通常讨论<strong>辅助空间</strong>时，不把输入本身计为额外分配。使用两个下标原地反转数组，只需要常数个额外变量，辅助空间 <code>O(1)</code>；创建一份新列表保存所有元素，辅助空间 <code>O(n)</code>。</p>
+<pre class="code-panel"><code>def reverse_in_place(a):
+    left, right = 0, len(a) - 1
+    while left &lt; right:
+        a[left], a[right] = a[right], a[left]
+        left += 1
+        right -= 1
+    return a
+
+assert reverse_in_place([1, 2, 3]) == [3, 2, 1]
+assert reverse_in_place([]) == []</code></pre>
+<p>递归调用还要计入调用栈：深度为 <em>n</em> 的递归可能用掉 <code>O(n)</code> 栈空间，即使函数体只声明了几个局部变量。迭代改写常能避免深层递归，但不意味着任何迭代实现的总体内存都会更少。</p></section>
+<section id="measure" class="article-section" aria-labelledby="heading-measure"><span class="section-number">06 / 06</span><h2 id="heading-measure">如何用实测验证，而不把实测当证明</h2><p>可用 Python <code>timeit</code> 对不同规模的输入重复计时，但必须保证工作真的执行、输入具有可比较的分布、计时不包含不相关的数据构建成本。比如使用 <code>list.index()</code> 时，目标越靠前，扫描越短；固定目标却让它偶然在不同位置出现，就无法控制实验。</p>
+<pre class="code-panel"><code>from timeit import repeat
+
+for n in (1_000, 10_000, 100_000):
+    a = list(range(n))
+    # 故意查找不存在的元素：观察完整扫描
+    samples = repeat(lambda: (-1 in a), number=100, repeat=5)
+    print(n, min(samples) / 100)  # 每次检查的秒数</code></pre>
+<p>观察曲线接近线性只能提供证据，不能代替对循环不变量和操作次数的数学分析。CPU 缓存、解释器、分配器、重复实验的预热状态都会影响常数。比较不同算法时，还需要验证输出相同、输入不被意外更改。</p></section>
+<section id="takeaways" class="takeaways"><h2>带走三个判断准则</h2><ol><li>大 O 表达足够大输入上的渐进上界；不要把它说成“确切耗时”或自动等于平均情况。</li><li>数总操作次数，而不是仅凭嵌套循环层数或一次基准测试做判断。</li><li>均摊分析以整个操作序列为单位；动态数组追加的单次峰值可能是 O(n)，序列均摊却是 O(1)。</li></ol></section>
+<section id="further-reading" class="references"><h2>继续学习与校验资料</h2><ul><li><a href="https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/resources/lecture-notes/" rel="noopener noreferrer">MIT 6.006 课程讲义</a> — 渐进分析、数据结构与均摊分析</li><li><a href="https://docs.python.org/3/faq/design.html" rel="noopener noreferrer">Python 设计 FAQ</a> — CPython list 使用连续的引用槽位</li><li><a href="https://docs.python.org/3/library/timeit.html" rel="noopener noreferrer">Python timeit</a> — 小代码片段测量方法</li></ul></section>
+<nav class="end-nav" aria-label="上一章和下一章"><a class="chapter-link" href="01.html">← 第 1 章</a><a href="../index.html">全部课程</a><a class="chapter-link" href="03.html">第 3 章 →</a></nav>
+</article></main></div><footer class="article-footer"><a href="../index.html">数据结构与算法课程</a><span>把概念变成可以解释和验证的操作。</span></footer><script src="../assets/js/interactive.js" defer></script></body></html>
