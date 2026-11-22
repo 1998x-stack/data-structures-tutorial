@@ -1,4 +1,4 @@
-name: Site quality and Pages
+name: Site quality
 on:
   pull_request:
   push:
@@ -29,22 +29,3 @@ jobs:
           name: browser-qa
           path: reports/browser/
           if-no-files-found: ignore
-  deploy:
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-    needs: validate
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: '.'
-      - id: deployment
-        uses: actions/deploy-pages@v4

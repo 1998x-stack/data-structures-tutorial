@@ -65,7 +65,7 @@ python3 -m unittest discover -s tests -p 'test_*.py'
 
 ## GitHub Pages
 
-工作流在 `main` 分支通过验证后可部署静态站点。需在仓库 **Settings → Pages → Build and deployment → Source** 中选择 **GitHub Actions**。工作流存在不代表网站已上线；发布后需独立检查页面和图示的 HTTP 状态。
+仓库已有 GitHub Pages 的 `pages build and deployment` 历史记录。本轮保留原有 Pages 来源设置，`site.yml` **仅运行质量检查**，不在未知配置下另建一个竞争的部署任务。合并到 `main` 后仍由仓库现有 Pages 配置负责发布；发布完成需独立检查首页、章节和 SVG 的实际 HTTP 状态。
 
 ## 内容许可与使用
 

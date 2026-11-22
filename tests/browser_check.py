@@ -40,8 +40,12 @@ with sync_playwright() as pw:
                 errors.append(f"{path} {width}px invalid main/h1: {stats}")
             for image in page.locator("img").all():
                 image.scroll_into_view_if_needed()
-                if not image.evaluate("(el) => el.complete && el.naturalWidth > 0"):
-                    errors.append(f"{path} {width}px image not decoded: {image.get_attribute('src')}")
+                try:
+                    image.evaluate("(el) => el.decode()")
+                    if not image.evaluate("(el) => el.complete && el.naturalWidth > 0"):
+                        errors.append(f"{path} {width}px image has no natural width: {image.get_attribute('src')}")
+                except Exception as ex:
+                    errors.append(f"{path} {width}px image decode failed: {image.get_attribute('src')}: {ex}")
             if path.startswith("lessons/"):
                 if page.locator("nav[aria-label]").count()==0:
                     errors.append(f"{path}: no navigation")
