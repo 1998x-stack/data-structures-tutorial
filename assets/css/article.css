@@ -22,3 +22,9 @@ main{min-width:0}article{padding:76px 0 100px;max-width:850px}.article-kicker,.s
 @media(max-width:520px){body{font-size:16px}.top-inner{width:calc(100% - 30px)}.course-name{display:none}.article-layout{width:calc(100% - 32px)}article{padding-top:29px}.article-section{margin-top:58px}.article-heading{padding-bottom:31px}.dek{font-size:17px}.toc ol{grid-template-columns:1fr}.diagram img{min-width:620px}.code-panel{padding:17px;font-size:12px}.lab{padding:17px}.article-section h2{font-size:27px}.equation{padding:14px 9px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important;animation:none!important}}
 @media print{body{font-size:12pt;background:white}.article-top,.toc,.lab-controls,.end-nav{display:none!important}.article-layout{display:block;width:100%}article{padding:0}.article-section{margin-top:24pt;break-before:auto}.diagram{break-inside:avoid}.diagram img{min-width:0!important}.code-panel{color:black;background:#f2f2f2;white-space:pre-wrap}.equation,.code-panel{break-inside:avoid}.article-footer{display:none}}
+
+/* Long-form learning steps: two-column labelled states, retained without JS. */
+.step-sequence{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin:24px 0}
+.step-sequence>*{border:1px solid var(--line);padding:16px;background:var(--soft);border-radius:9px}
+.lab input[type="range"]{min-width:170px}
+@media(max-width:520px){.lab-controls{align-items:flex-start}.lab-controls label{width:100%}}

@@ -9,7 +9,7 @@
 | `assets/css/site.css` | 首页、模块、导航、搜索框、卡片 | 不要直接影响章节正文 |
 | `assets/css/article.css` | 章节阅读列、图注、表格、代码、公式和实验卡片 | 不要把正文需要的样式复制回每个 HTML |
 | `assets/js/home.js` | 目录关键词筛选 | 必须在 JS 禁用时保留 28 个静态课程链接 |
-| `assets/js/interactive.js` | 三类概念实验 | 交互是渐进增强；默认文字和图示不依赖运行 |
+| `assets/js/interactive.js` | 八类概念实验 | 交互是渐进增强；默认文字和图示不依赖运行 |
 | `assets/svg/` | 独立教学矢量图 | 不依赖外部字体或第三方在线素材 |
 | `courses.json` | 课程数据源 | 导航与元数据保持同步 |
 
@@ -31,6 +31,21 @@
 | `03-memory.svg` | Python list 的连续对象与 C 数组有何不同？ | 连续的是 Python 对象引用槽位 |
 | `03-prefix.svg` | 前缀差为何恰好对应半开区间？ | P[r]-P[l] 与 [l,r) 严格一致 |
 | `03-window.svg` | 左指针何时移动？ | 重复字符移除与窗口不变量恢复 |
+| `04-pointer-model.svg` | 节点在物理内存中连续吗？ | next 引用的拓扑与地址无关 |
+| `04-dummy.svg` | 删除头节点需要特判吗？ | dummy.next 重接处理任意位置 |
+| `04-reverse.svg` | 怎样保留尚未处理的链表？ | nxt 保护旧链接、prev/cur 不变量 |
+| `05-stack-contract.svg` | 为什么后进入者先离开？ | top 与 LIFO 契约 |
+| `05-bracket-trace.svg` | 谁关闭最近打开的括号？ | 未闭合括号栈的六步状态 |
+| `05-monotonic.svg` | 新温度淘汰哪些旧候选？ | 下标单调栈和严格更高比较 |
+| `06-ring.svg` | 环形数组怎样利用空槽？ | front/rear/size 与回绕 |
+| `06-window-max.svg` | 哪些旧索引不再可能成为最大？ | 过期淘汰和队尾淘汰 |
+| `06-bfs.svg` | 为什么会按最少边数分层？ | FIFO 的层序扩展 |
+| `07-buckets.svg` | 不同键可以进同一个桶吗？ | 拉链碰撞仍需完整键比较 |
+| `07-probing.svg` | 冲突时如何在原表中找槽？ | 开放寻址线性探测 |
+| `07-lru.svg` | 访问顺序怎样影响淘汰？ | 哈希映射 + 顺序维护 |
+| `08-anatomy.svg` | 深度、高度各如何数边？ | 根深度0、叶高0 |
+| `08-traversal.svg` | 相同树怎样得到四种顺序？ | 前中后层序的准确节点序列 |
+| `08-dfs-bfs.svg` | 栈与队列会带来什么访问差异？ | DFS 深入、BFS 分层 |
 
 ## 响应与可访问性
 - 1440px：主列 + 吸顶目录；768px：目录改为文首导航；390/360px：正文独列，保留 16px 以上边距。

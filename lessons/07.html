@@ -1,285 +1,65 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
-    <title>第7章 哈希表</title>
-    <link rel="stylesheet" href="theme.css">
-</head>
-<body>
-<div class="double-border">
-<div class="container">
-    <div class="sidebar">
-        <h3>🧠 课程目录</h3>
-        <ul class="chapter-list">
-            <li><a href="01.html">第1章 为什么要学数据结构</a></li>
-            <li><a href="02.html">第2章 复杂度分析</a></li>
-            <li><a href="03.html">第3章 数组与字符串</a></li>
-            <li><a href="04.html">第4章 链表</a></li>
-            <li><a href="05.html">第5章 栈</a></li>
-            <li><a href="06.html">第6章 队列</a></li>
-            <li><a href="07.html" class="active">第7章 哈希表</a></li>
-            <li><a href="08.html">第8章 树基础</a></li>
-            <li><a href="09.html">第9章 二叉搜索树</a></li>
-            <li><a href="10.html">第10章 平衡二叉树</a></li>
-            <li><a href="11.html">第11章 堆与优先队列</a></li>
-            <li><a href="12.html">第12章 图基础</a></li>
-            <li><a href="13.html">第13章 图算法</a></li>
-            <li><a href="14.html">第14章 排序算法全览</a></li>
-            <li><a href="15.html">第15章 递归与分治</a></li>
-            <li><a href="16.html">第16章 回溯算法</a></li>
-            <li><a href="17.html">第17章 动态规划</a></li>
-            <li><a href="18.html">第18章 贪心算法</a></li>
-            <li><a href="19.html">第19章 并查集</a></li>
-            <li><a href="20.html">第20章 线段树与树状数组</a></li>
-            <li><a href="21.html">第21章 字典树(Trie)</a></li>
-            <li><a href="22.html">第22章 跳表与B+树</a></li>
-            <li><a href="23.html">第23章 LeetCode刷题方法论</a></li>
-            <li><a href="24.html">第24章 大厂面试高频题精讲</a></li>
-            <li><a href="25.html">第25章 系统设计中的数据结构</a></li>
-            <li><a href="26.html">第26章 数据结构性能分析</a></li>
-            <li><a href="27.html">第27章 AI与数据结构的交叉</a></li>
-            <li><a href="28.html">第28章 学习路线与综合项目</a></li>
-        </ul>
-    </div>
-    <div class="main-content">
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="从冲突、负载因子到 LRU 缓存，推导哈希查找成立的假设。"><title>第 07 章 · 哈希表与 LRU 缓存 | 数据结构与算法</title><link rel="stylesheet" href="../assets/css/article.css"></head><body><a href="#content" class="skip-link">跳转至正文</a><header class="article-top"><div class="top-inner"><a class="brand" href="../index.html">← 课程首页</a><span class="course-name">数据结构与算法 · 深度图解</span><a class="source-link" href="https://github.com/1998x-stack/data-structures-tutorial">GitHub</a></div></header><div class="article-layout"><aside class="toc"><details open><summary>本章导览</summary><nav aria-label="哈希表章节目录"><ol><li><a href="#need"><span>01</span>按键读取：为什么逐个比较不是唯一办法？</a></li><li><a href="#buckets"><span>02</span>散列冲突不可避免：同一个桶里怎么办？</a></li><li><a href="#load"><span>03</span>负载因子：为什么需要扩容与重散列？</a></li><li><a href="#probing"><span>04</span>两种冲突解决路线：链表与开放寻址</a></li><li><a href="#python"><span>05</span>Python 字典：键的相等性与哈希必须一致</a></li><li><a href="#applications"><span>06</span>用映射把两数之和从 O(n²) 降到预期 O(n)</a></li><li><a href="#lru"><span>07</span>LRU 缓存：按键查找与最近使用排序的组合</a></li><li><a href="#limits"><span>08</span>工程检查：正确性、安全性与“看起来 O(1)”</a></li></ol></nav></details><div class="toc-bottom"><a href="../index.html#curriculum">查看 28 章课程</a></div></aside><main id="content"><article><header class="article-heading"><div class="article-kicker">LINEAR STRUCTURES / CHAPTER 07</div><h1>哈希表：冲突、负载因子与 LRU 缓存</h1><p class="dek">查找能快到预期 O(1)，不是因为没有冲突，而是因为设计了冲突处理、负载控制和完整的键相等判断。再把散列映射与双向链表组合，就能实现按最近使用淘汰。</p><div class="topic-tags"><span>哈希与相等</span><span>拉链 / 探测</span><span>预期与均摊</span><span>LRU</span></div></header><section id="need" class="article-section" aria-labelledby="heading-need"><span class="section-number">01 / 08</span><h2 id="heading-need">按键读取：为什么逐个比较不是唯一办法？</h2><p>设一个在线商店保存 <code>user_id → 购物车</code>，每次请求都要通过用户 ID 找到购物车。如果把所有记录放在一个未排序数组里并线性扫描，最坏需要检查 <em>n</em> 个用户；当请求次数远大于数据构建次数时，按键定位比按位置存储更重要。</p><p>哈希表（hash table）的思路是：先把键 <em>k</em> 映射为一个整数摘要 <code>h(k)</code>，再通过桶数 <em>m</em> 计算 <code>h(k) mod m</code>，定位到一个候选桶。但这只把“到哪个桶找”变快了，不保证每个桶恰好一个元素。</p></section><section id="buckets" class="article-section" aria-labelledby="heading-buckets"><span class="section-number">02 / 08</span><h2 id="heading-buckets">散列冲突不可避免：同一个桶里怎么办？</h2><p>假设桶数 <code>m=5</code>，对整数键用教学用散列 <code>h(k)=k % 5</code>。键 12、17、22 都映射到桶 2。这是完全正常的<strong>冲突</strong>。不能因为桶索引相同就把它们当成一个键；查询时仍要比较完整键值。</p><figure class="diagram"><div class="diagram-scroll" tabindex="0" aria-label="可横向滚动的完整图"><img src="../assets/svg/07-buckets.svg" alt="桶数组索引 0 至 4，键12、17、22因取模5映射到桶2并链接成冲突链" width="880" height="400" loading="lazy"></div><figcaption>图 1 · 拉链法让多个键落在同一桶的冲突链中，定位桶是常数级，但遍历桶内链的时间取决于链长。</figcaption></figure>
+<pre class="code-panel" tabindex="0"><code>def toy_bucket(key, bucket_count=5):
+    if bucket_count &lt;= 0:
+        raise ValueError(&quot;bucket count must be positive&quot;)
+    return key % bucket_count
 
-        <h2>前言：找东西的终极方案</h2>
-        <p>大家好，我是你们的讲师。想象你有一个巨大的图书馆，需要频繁地查找一本书。如果书是按编号排好序的，你可以用二分查找——O(log n)，不错了。但如果图书馆的每一本书都有一个"唯一的位置编号"，你拿着编号直接走到那个书架上拿书——这就是 O(1)。</p>
-        <p>哈希表（hash table）提供的就是这种魔力。它通过一个<strong>哈希函数</strong>把 key 直接映射到存储位置，让你能在常数时间内完成查找、插入和删除。它是"空间换时间"这个思想最完美的体现——我们多花一些内存来存储位置映射关系，换来的是快得多的查找速度。</p>
-        <p>在 Python 中，哈希表无处不在——<code>dict</code> 和 <code>set</code> 的底层就是哈希表。你每天都在用，但你可能不知道它背后发生了什么。</p>
+assert [toy_bucket(k) for k in (12, 17, 22)] == [2, 2, 2]</code></pre>
+<p>拉链法（separate chaining）使每个桶保存一个可增长的键值集合。若哈希函数能有效分散键、负载受控，查找的预期时间常记为 O(1)；若攻击者构造大量碰撞、或桶链过长，最坏仍可能 O(n)。这也是哈希表的常数时间<strong>不能脱离概率假设和实现细节</strong>随意宣称的原因。</p></section><section id="load" class="article-section" aria-labelledby="heading-load"><span class="section-number">03 / 08</span><h2 id="heading-load">负载因子：为什么需要扩容与重散列？</h2><p>负载因子定义为 <code>α = n / m</code>，其中 <em>n</em> 是已保存的键数、<em>m</em> 是桶（或表槽）数。例如 8 个键放进 10 个桶，负载因子是 0.8。拉链法允许 α 超过 1；开放寻址法若所有槽都已占用就无法插入，需要保留空位并管理已删除槽。</p>
+<div class="equation" tabindex="0" aria-label="哈希表负载因子公式"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>α</mi><mo>=</mo><mfrac><mtext>已存储键数 n</mtext><mtext>桶或槽数 m</mtext></mfrac></mrow></math></div>
+<p>动态扩容通常重新分配更大的桶数组，再根据新桶数重新计算键的目标位置（rehashing）。所以单次插入可能耗费 O(n)，但在合适扩容策略下，许多插入操作的总成本仍可得到均摊良好保证。真实 <code>dict</code> 的容量策略、探测策略不等于这里的简化模型。</p><aside class="note"><strong>对比两个判断</strong><p>“平均常数”依赖哈希分布或随机化模型；“均摊常数”描述一个操作序列中偶发扩容的平均成本。它们是两个维度，不要混为一谈。</p></aside></section><section id="probing" class="article-section" aria-labelledby="heading-probing"><span class="section-number">04 / 08</span><h2 id="heading-probing">两种冲突解决路线：链表与开放寻址</h2><p>拉链法在桶内放一个集合/链；开放寻址法则把所有键值对直接放在同一张槽位数组中。当目标槽被别的键占用，使用探测序列寻找其他空槽。线性探测是最容易理解的示例：目标是 <code>h(k)%m</code>，若占用则尝试 <code>(h(k)+1)%m</code>，再尝试 <code>(h(k)+2)%m</code>，直到找到匹配键或可插入槽。</p><figure class="diagram"><div class="diagram-scroll" tabindex="0" aria-label="可横向滚动的完整图"><img src="../assets/svg/07-probing.svg" alt="容量5的线性探测把12、17、22依次放入槽2、3、4" width="880" height="400" loading="lazy"></div><figcaption>图 2 · 三个键的初始目标槽都是 2，后两个向右线性探测而不覆盖已有键。线性探测易形成连续占用区间（聚集）。</figcaption></figure>
+<div class="table-scroll" tabindex="0"><table><thead><tr><th scope="col">方法</th><th scope="col">碰撞时如何处理</th><th scope="col">工程注意点</th></tr></thead><tbody><tr><td>拉链法</td><td>在桶内比较完整键</td><td>节点/集合开销，极端冲突链过长</td></tr><tr><td>开放寻址</td><td>在表内寻找另一可用槽</td><td>负载高时探测长度增长，删除需特殊处理</td></tr><tr><td>扩容重散列</td><td>重建新容量下的位置</td><td>一次成本可能线性，但可摊销</td></tr></tbody></table></div>
+<p>开放寻址使用删除标记（tombstone）时不能直接把槽当成“从未使用”，否则可能使本来位于后续探测位置的键突然无法被找到。不同探测策略有不同的聚集和缓存局部性特点。</p></section><section id="python" class="article-section" aria-labelledby="heading-python"><span class="section-number">05 / 08</span><h2 id="heading-python">Python 字典：键的相等性与哈希必须一致</h2><p>Python 的 <code>dict</code> 和 <code>set</code> 使用哈希式键访问。键必须可哈希，且在作为键期间其哈希和相等性语义要稳定。<strong>若 <code>a == b</code>，必须有 <code>hash(a) == hash(b)</code></strong>；反过来 hash 值相同并不意味着两个对象相等。</p><pre class="code-panel" tabindex="0"><code>users = {&quot;u-17&quot;: &quot;cart-A&quot;, &quot;u-22&quot;: &quot;cart-B&quot;}
+assert users[&quot;u-17&quot;] == &quot;cart-A&quot;
 
-        <h2>哈希表的核心思想</h2>
-        <p>哈希表的核心逻辑可以用一个公式概括：</p>
-        <pre><code>存储位置 = hash(key) % 数组长度</code></pre>
-        <p>当你执行 <code>d["name"] = "小明"</code> 时，Python 内部做的事情是：</p>
-        <ol>
-            <li>计算 key "name" 的哈希值</li>
-            <li>取模得到数组中的索引位置</li>
-            <li>把 ("name", "小明") 这个键值对存到那个位置</li>
-        </ol>
-        <p>当你执行 <code>d["name"]</code> 时：</p>
-        <ol>
-            <li>计算 key "name" 的哈希值</li>
-            <li>取模得到数组中的索引位置</li>
-            <li>直接取出该位置的值</li>
-        </ol>
-        <p>这就是 O(1) 的秘密——不需要遍历，不需要比较，直接通过计算得到位置。当然，现实没有这么完美——不同的 key 可能计算出相同的位置（哈希冲突），这时候就需要处理冲突了。</p>
+pairs = {(1, 2): &quot;edge&quot;}
+assert pairs[(1, 2)] == &quot;edge&quot;
 
-        <h2>哈希函数设计</h2>
-        <p>一个好的哈希函数应该满足以下标准：</p>
-        <ul>
-            <li><strong>确定性</strong>：相同的输入必须产生相同的输出</li>
-            <li><strong>均匀性</strong>：不同的输入应该均匀分布到整个输出空间</li>
-            <li><strong>高效性</strong>：计算要快，不能成为性能瓶颈</li>
-        </ul>
-        <p>Python 中的 <code>hash()</code> 函数：</p>
-        <pre><code>print(hash("hello"))   # 某个整数（每次运行可能不同，因为有随机种子）
-print(hash(42))        # 42（小整数哈希为自身）
-print(hash((1, 2)))    # 元组可哈希
-# print(hash([1, 2]))  # TypeError: unhashable type: 'list'
-# 可变类型不可哈希——因为它们的值变了哈希值也要变</code></pre>
-        <p>这里有一个重要的设计选择：<strong>为什么 list 不能做 dict 的 key？</strong>因为 list 是可变的。如果你把 list 作为 key 存进去，然后修改了 list 的内容，它的哈希值就变了——你就再也找不到这个 key 了。所以 Python 要求 dict 的 key 必须是"可哈希的"（hashable），即不可变类型。</p>
-
-        <h2>冲突解决：拉链法 vs 开放寻址法</h2>
-        <p>哈希冲突是不可避免的——不同 key 算到了同一个位置。解决冲突有两种主流策略：</p>
-
-        <h3>拉链法 (Chaining)</h3>
-        <p>每个数组位置不存一个元素，而是存一个链表（或更高效的结构）。冲突的元素都放在同一个链表中：</p>
-        <pre><code># 拉链法的逻辑示意
-hash_table = [
-    0: [] -> (key1, val1) -> (key2, val2)  # key1 和 key2 冲突了
-    1: [] -> (key3, val3)
-    2: []  # 空
-]
-# 查找时先定位到链表头，再遍历链表找 key</code></pre>
-
-        <h3>开放寻址法 (Open Addressing)</h3>
-        <p>如果位置被占了，就按一定规则找下一个空位：</p>
-        <pre><code># 线性探测的逻辑示意
-# 插入 key3 时，位置 hash(key3) % size = 1 已经被占了
-# 就检查位置 2、3、4... 直到找到空位
-# 查找时也按同样的顺序找，直到找到 key 或遇到空位</code></pre>
-        <p><strong>Python 的 dict 使用的是开放寻址法</strong>（具体来说是带有随机探测的二次探测）。为什么 Python 选择开放寻址？一个主要原因是：<strong>更好的缓存局部性</strong>。开放寻址的元素都在同一个大数组里，CPU 缓存友好。而拉链法的链表节点可能散落在内存各处，缓存命中率低。</p>
-
-        <p>两种方法的优劣对比：</p>
-        <table>
-            <tr>
-                <th>特性</th>
-                <th>拉链法</th>
-                <th>开放寻址法</th>
-            </tr>
-            <tr>
-                <td>实现复杂度</td>
-                <td>简单</td>
-                <td>较复杂</td>
-            </tr>
-            <tr>
-                <td>内存使用</td>
-                <td>链表指针有额外开销</td>
-                <td>连续数组，利用率高</td>
-            </tr>
-            <tr>
-                <td>缓存友好性</td>
-                <td>低（节点分散）</td>
-                <td>高（连续内存）</td>
-            </tr>
-            <tr>
-                <td>删除操作</td>
-                <td>直接删除链表节点</td>
-                <td>需用"墓碑"标记，不能真删除</td>
-            </tr>
-            <tr>
-                <td>负载因子容忍度</td>
-                <td>可超过 1.0</td>
-                <td>通常 < 0.7，否则性能急剧下降</td>
-            </tr>
-        </table>
-
-        <h2>哈希表的经典应用</h2>
-
-        <h3>两数之和 (LeetCode 1)</h3>
-        <p>这是哈希表最经典的入门题——暴力法 O(n²)，哈希表优化到 O(n)：</p>
-        <pre><code># 暴力法 O(n²)
-def two_sum_brute(nums, target):
-    n = len(nums)
-    for i in range(n):
-        for j in range(i + 1, n):
-            if nums[i] + nums[j] == target:
-                return [i, j]
-    return []
-
-# 哈希表法 O(n)
-def two_sum_hash(nums, target):
-    seen = {}  # {num: index}
-    for i, num in enumerate(nums):
-        complement = target - num
+try:
+    users[[&quot;mutable&quot;, &quot;list&quot;]] = &quot;invalid&quot;
+except TypeError:
+    pass
+else:
+    raise AssertionError(&quot;list must not be a dict key&quot;)</code></pre>
+<p>现代 Python 字典保证插入顺序（语言层面自 Python 3.7 起）。<strong>插入顺序不是访问顺序</strong>：单纯执行 <code>users["u-17"]</code> 不会把该项移动到末尾。想实现“最近访问者优先保留”的 LRU 缓存，还需要维护独立的最近使用顺序。</p><aside class="caution"><strong>不要用 hash(k) 当稳定 ID</strong><p>Python 对某些内置类型的哈希值可能在不同进程间变化。桶位置是内部实现细节，不能用来做持久化主键或可复现的业务标识。</p></aside></section><section id="applications" class="article-section" aria-labelledby="heading-applications"><span class="section-number">06 / 08</span><h2 id="heading-applications">用映射把两数之和从 O(n²) 降到预期 O(n)</h2><p>给定无序数组 <code>nums</code> 和目标 <code>target</code>，若求两个不同下标的元素之和等于 target，暴力方法会检查位置对。遍历到元素 <code>x</code> 时，只要查询之前是否出现过 <code>target−x</code> 即可。重要不变量：<strong>映射只保存当前下标之前的元素</strong>，避免同一元素被使用两次。</p><pre class="code-panel" tabindex="0"><code>def two_sum_unsorted(nums, target):
+    seen = {}
+    for i, x in enumerate(nums):
+        complement = target - x
         if complement in seen:
-            return [seen[complement], i]
-        seen[num] = i
-    return []</code></pre>
-        <p>注意两种写法的对比：暴力法 3 行代码，哈希表法 7 行——多写了 4 行，但把 O(n²) 变成了 O(n)。在数据量大的时候，这 4 行代码的价值不可估量。</p>
+            return (seen[complement], i)
+        seen[x] = i
+    return None
 
-        <h3>字母异位词分组 (LeetCode 49)</h3>
-        <pre><code>from collections import defaultdict
-
-def group_anagrams(strs):
-    groups = defaultdict(list)
-    for s in strs:
-        # 用排序后的字符串作为 key
-        key = "".join(sorted(s))
-        groups[key].append(s)
-    return list(groups.values())
-
-# 输入: ["eat", "tea", "tan", "ate", "nat", "bat"]
-# 输出: [["eat","tea","ate"], ["tan","nat"], ["bat"]]</code></pre>
-        <p>这道题展示了哈希表的一种常见用法：<strong>把需要归类的元素映射到同一个 key 上</strong>。异位词排序后是一样的，所以它们共享同一个 key。</p>
-
-        <h3>最长连续序列 (LeetCode 128)</h3>
-        <pre><code>def longest_consecutive(nums):
-    num_set = set(nums)
-    longest = 0
-
-    for num in num_set:
-        # 如果 num-1 不在 set 中，说明 num 是连续序列的开头
-        if num - 1 not in num_set:
-            current_num = num
-            current_len = 1
-            while current_num + 1 in num_set:
-                current_num += 1
-                current_len += 1
-            longest = max(longest, current_len)
-
-    return longest
-
-# 输入 [100, 4, 200, 1, 3, 2]
-# 输出 4（连续序列 [1, 2, 3, 4]）</code></pre>
-        <p>这道题的巧妙之处在于：通过检查 <code>num - 1</code> 是否在 set 中，确保只有序列的起始元素才会进入内层循环。每个元素最多被访问两次，所以整体是 O(n)。</p>
-
-        <div class="highlight">
-            <strong>🔑 核心思维：</strong>当你写出 O(n²) 的嵌套循环时，停下来问自己一个问题——"我能用哈希表把这个内层循环优化掉吗？" 哈希表就是用来把"查找"从 O(n) 变成 O(1) 的。看到嵌套循环中内层是在"找东西"，立刻想到用哈希表。
-        </div>
-
-        <h2>LRU 缓存 (LeetCode 146)</h2>
-        <p>LRU（Least Recently Used，最近最少使用）缓存是哈希表在实际工程中的重要应用。它要求：</p>
-        <ul>
-            <li>get(key) 在 O(1) 时间内返回对应的 value</li>
-            <li>put(key, value) 在 O(1) 时间内插入/更新</li>
-            <li>缓存满时淘汰最久未使用的 key</li>
-        </ul>
-        <p>只用一个哈希表做不到"记录使用顺序"；只用一个链表做不到 O(1) 查找。所以经典的做法是<strong>哈希表 + 双向链表</strong>：</p>
-        <pre><code>class DLinkedNode:
-    def __init__(self, key=0, val=0):
-        self.key = key
-        self.val = val
-        self.prev = None
-        self.next = None
+assert two_sum_unsorted([2, 7, 11, 15], 9) == (0, 1)
+assert two_sum_unsorted([3, 3], 6) == (0, 1)
+assert two_sum_unsorted([3], 6) is None</code></pre>
+<p>在常见哈希分布模型下，时间预期 O(n)，额外空间 O(n)。它与第三章的“有序数组双指针”各有条件：前者无需排序、换取额外空间；后者依赖有序性、空间可 O(1)。</p></section><section id="lru" class="article-section" aria-labelledby="heading-lru"><span class="section-number">07 / 08</span><h2 id="heading-lru">LRU 缓存：按键查找与最近使用排序的组合</h2><p>假设缓存最多保存 3 个键。初始使用顺序从旧到新为 <code>A,B,C</code>。访问 A 后应变为 <code>B,C,A</code>；此时插入 D，要淘汰最久未用的 B，得到 <code>C,A,D</code>。这不是哈希表天然能完成的操作：哈希表负责找到一个键对应的节点，双向链表负责把已知节点移到尾部和从头部删除。</p><figure class="diagram"><div class="diagram-scroll" tabindex="0" aria-label="可横向滚动的完整图"><img src="../assets/svg/07-lru.svg" alt="容量3的 LRU 访问 A 后插入 D，淘汰 B 并更新使用顺序" width="880" height="400" loading="lazy"></div><figcaption>图 3 · 橙色标识淘汰对象 B，绿色标识最近使用的 D；一个典型实现组合哈希映射和双向链表，查找节点和局部移动分别处理。</figcaption></figure>
+<pre class="code-panel" tabindex="0"><code>from collections import OrderedDict
 
 class LRUCache:
-    def __init__(self, capacity: int):
-        self.cache = {}   # key → node
+    def __init__(self, capacity):
+        if capacity &lt;= 0:
+            raise ValueError(&quot;capacity must be positive&quot;)
         self.capacity = capacity
-        # 虚拟头尾节点，简化边界处理
-        self.head = DLinkedNode()
-        self.tail = DLinkedNode()
-        self.head.next = self.tail
-        self.tail.prev = self.head
+        self.entries = OrderedDict()
 
-    def _remove(self, node):
-        """从链表中移除节点"""
-        node.prev.next = node.next
-        node.next.prev = node.prev
+    def get(self, key):
+        if key not in self.entries:
+            return None    # 教学设计：缓存不存储 None
+        self.entries.move_to_end(key)
+        return self.entries[key]
 
-    def _add_to_head(self, node):
-        """将节点添加到头部（最近使用）"""
-        node.prev = self.head
-        node.next = self.head.next
-        self.head.next.prev = node
-        self.head.next = node
+    def put(self, key, value):
+        self.entries[key] = value
+        self.entries.move_to_end(key)
+        if len(self.entries) &gt; self.capacity:
+            self.entries.popitem(last=False)
 
-    def get(self, key: int) -> int:
-        if key not in self.cache:
-            return -1
-        node = self.cache[key]
-        self._remove(node)
-        self._add_to_head(node)
-        return node.val
-
-    def put(self, key: int, value: int) -> None:
-        if key in self.cache:
-            node = self.cache[key]
-            node.val = value
-            self._remove(node)
-            self._add_to_head(node)
-        else:
-            if len(self.cache) >= self.capacity:
-                # 淘汰尾部节点（最久未使用）
-                tail_node = self.tail.prev
-                self._remove(tail_node)
-                del self.cache[tail_node.key]
-            new_node = DLinkedNode(key, value)
-            self.cache[key] = new_node
-            self._add_to_head(new_node)</code></pre>
-        <p>这个设计为什么巧妙？因为双向链表能在 O(1) 时间内删除任意节点（因为有 prev 指针），而哈希表能在 O(1) 时间内找到任意节点。两者结合，get 和 put 都是 O(1)。这是<strong>组合式思维</strong>的典范——两个简单的数据结构组合在一起，解决了一个单独无法解决的问题。</p>
-
-        <div class="warning">
-            <strong>💥 踩坑实录：defaultdict 没 import 和遍历顺序的坑</strong><br>
-            先说第一个坑：面试中写 <code>from collections import defaultdict</code> 是很多人的肌肉记忆，但有一次我一个学生太紧张，直接在代码里用了 <code>defaultdict(list)</code> 但完全忘记 import。面试官一看代码跑不了，印象分直接归零。这个小问题反映了：<strong>面试前熟悉所有常用模块的导入路径</strong>，它是基本功的一部分。<br><br>
-            第二个坑：<code>dict</code> 的遍历顺序。在 Python 3.7+ 中，dict 会保持插入顺序，但在 3.6 及以下版本中不会。我见过一个 bug：代码在开发环境（Python 3.9）一切正常，部署到老环境（Python 3.5）后，每次运行结果顺序都不一样——因为代码依赖了 dict 的顺序。教训是：<strong>永远不要依赖 dict 的遍历顺序来做逻辑判断</strong>，除非你明确使用了 <code>OrderedDict</code> 或确认 Python 版本。更安全的做法是明确你的意图——需要顺序就用 <code>OrderedDict</code> 或 <code>list</code>。
-        </div>
-
-        <h2>本章小结</h2>
-        <p>哈希表是"空间换时间"思想的极致——它用额外的内存换来了近乎 O(1) 的查找速度。从最简单的两数之和，到经典的 LRU 缓存设计，哈希表在算法面试和工程实践中的出场率极高。</p>
-        <p>这一章结束了我们数据结构课程的第一部分——线性数据结构。你已经学完了复杂度分析、数组、链表、栈、队列和哈希表。这些都是构建更复杂数据结构的基石。</p>
-        <p>从下一章开始，我们将进入<strong>第二部分：树与图</strong>。第 8 章我们将从<strong>树基础</strong>开始——树为什么是非线性结构，二叉树的基本性质，以及树的遍历方式。准备好了吗？让我们向上生长。</p>
-
-        <div class="footer-nav">
-            <a href="06.html">← 上一章</a>
-            <a href="index.html">📖 返回目录</a>
-            <a href="08.html">下一章 →</a>
-        </div>
-    </div>
-</div>
-</div>
-</body>
-</html>
+cache = LRUCache(3)
+for k in (&quot;A&quot;, &quot;B&quot;, &quot;C&quot;):
+    cache.put(k, k.lower())
+assert cache.get(&quot;A&quot;) == &quot;a&quot;
+cache.put(&quot;D&quot;, &quot;d&quot;)
+assert list(cache.entries) == [&quot;C&quot;, &quot;A&quot;, &quot;D&quot;]</code></pre>
+<p>示例使用标准库 <code>OrderedDict</code> 表达 LRU 语义，而非声称它源码必须由某个特定双向节点类实现。在哈希查找和端点移动都具备期望常数代价的条件下，<code>get/put</code> 可达到预期 O(1)。当值允许是 <code>None</code> 时，必须为缓存未命中设计独立的标志，不能仅靠返回 None 判定。</p>
+<div class="lab" data-demo="hash-bucket"><h3>模拟一个小散列表</h3><p>容量为 5，使用教学散列 <code>h(k)=k mod 5</code>。选择一个键，查看其桶及碰撞关系。</p><div class="lab-controls"><label for="hash-key">整数键</label><select id="hash-key"><option value="12">12</option><option value="17">17</option><option value="22">22</option><option value="8">8</option></select></div><output aria-live="polite">键 12 → 桶 2；桶 2 中还有 17、22，必须逐个比较完整键。</output></div></section><section id="limits" class="article-section" aria-labelledby="heading-limits"><span class="section-number">08 / 08</span><h2 id="heading-limits">工程检查：正确性、安全性与“看起来 O(1)”</h2><p>小测试要覆盖重复键更新、冲突、删除再插入、扩容后找回全部元素、哈希相等但键不相等、缓存容量为 1、访问已存在键与缺失键。若输入来自外部不可信客户端，还需要考虑哈希碰撞拒绝服务风险及键的大小、计算成本。</p><p>最后区分四种语义：直接用整数索引的数组、按完整键查找的哈希表、有序键范围查询的树、按使用顺序淘汰的缓存。下一章的树提供层次化组织和遍历，之后的平衡搜索树则会把顺序约束与可搜索性联系起来。</p></section><section class="takeaways"><h2>带走三个判断准则</h2><ol><li>桶索引相同不意味着键相等；哈希表的预期常数时间依赖分布、负载、冲突策略和键的计算成本。</li><li>平均/预期复杂度描述分布，均摊复杂度描述操作序列；单次扩容仍可能很慢。</li><li>LRU 需要同时支持按键定位和按访问顺序移动，单纯 Python dict 的插入顺序不足以表达最近使用顺序。</li></ol></section><section class="references"><h2>继续学习与校验资料</h2><ul><li><a href="https://docs.python.org/3/library/stdtypes.html#mapping-types-dict">Python 字典官方文档</a> — 键与插入顺序的语言保证</li><li><a href="https://docs.python.org/3/reference/datamodel.html#object.__hash__">Python Data Model</a> — 哈希与相等性约束</li><li><a href="https://docs.python.org/3/library/collections.html#collections.OrderedDict">OrderedDict</a> — 访问后移动与淘汰的接口</li><li><a href="https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/resources/lecture-notes/">MIT 6.006</a> — Hashing 的建模和复杂度</li></ul></section><nav class="end-nav" aria-label="章节导航"><a href="06.html">← 第 6 章</a><a href="../index.html">全部课程</a><a href="08.html">第 8 章 →</a></nav></article></main></div><footer class="article-footer"><a href="../index.html">数据结构与算法课程</a><span>键语义、内存与时间必须一起设计。</span></footer><script src="../assets/js/interactive.js" defer></script></body></html>

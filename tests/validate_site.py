@@ -22,6 +22,7 @@ def main():
     chapters=manifest["chapters"]
     if len(chapters)!=28: errors.append("manifest chapterCount != 28")
     for i,c in enumerate(chapters,1):
+        if i<=8 and c.get("revision") != "illustrated": errors.append(f"chapter {i:02d} should be illustrated")
         num=f"{i:02d}"
         if c["num"]!=num or c["file"]!=f"lessons/{num}.html": errors.append(f"manifest {num} mismatch")
         if not (ROOT/c["file"]).is_file(): errors.append(f"missing {c['file']}")
@@ -29,8 +30,14 @@ def main():
         if not p.is_file() or f"lessons/{num}.html" not in p.read_text(encoding="utf-8"): errors.append(f"legacy redirect {num} missing")
     for path in [ROOT/"index.html", *sorted((ROOT/"lessons").glob("*.html"))]:
         obj=Parse(); obj.feed(path.read_text(encoding="utf-8"))
-        if path==ROOT/"index.html" or path.stem in ("01","02","03"):
+        if path==ROOT/"index.html" or path.stem in tuple(f"{i:02d}" for i in range(1,9)):
             if obj.h1!=1: errors.append(f"{path.relative_to(ROOT)}: expected 1 H1, got {obj.h1}")
+        if path.stem in tuple(f"{i:02d}" for i in range(1,9)):
+            content=path.read_text(encoding="utf-8")
+            if content.count("<figure") < 2:
+                errors.append(f"{path.relative_to(ROOT)}: illustrated article has fewer than 2 figures")
+            if 'class="article-section"' not in content:
+                errors.append(f"{path.relative_to(ROOT)}: missing long-form article sections")
         for tag,link in obj.links:
             if not link or link.startswith(("#","data:","mailto:","tel:","javascript:")): continue
             parsed=urlsplit(link)

@@ -1,260 +1,77 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
-    <title>第5章 栈</title>
-    <link rel="stylesheet" href="theme.css">
-</head>
-<body>
-<div class="double-border">
-<div class="container">
-    <div class="sidebar">
-        <h3>🧠 课程目录</h3>
-        <ul class="chapter-list">
-            <li><a href="01.html">第1章 为什么要学数据结构</a></li>
-            <li><a href="02.html">第2章 复杂度分析</a></li>
-            <li><a href="03.html">第3章 数组与字符串</a></li>
-            <li><a href="04.html">第4章 链表</a></li>
-            <li><a href="05.html" class="active">第5章 栈</a></li>
-            <li><a href="06.html">第6章 队列</a></li>
-            <li><a href="07.html">第7章 哈希表</a></li>
-            <li><a href="08.html">第8章 树基础</a></li>
-            <li><a href="09.html">第9章 二叉搜索树</a></li>
-            <li><a href="10.html">第10章 平衡二叉树</a></li>
-            <li><a href="11.html">第11章 堆与优先队列</a></li>
-            <li><a href="12.html">第12章 图基础</a></li>
-            <li><a href="13.html">第13章 图算法</a></li>
-            <li><a href="14.html">第14章 排序算法全览</a></li>
-            <li><a href="15.html">第15章 递归与分治</a></li>
-            <li><a href="16.html">第16章 回溯算法</a></li>
-            <li><a href="17.html">第17章 动态规划</a></li>
-            <li><a href="18.html">第18章 贪心算法</a></li>
-            <li><a href="19.html">第19章 并查集</a></li>
-            <li><a href="20.html">第20章 线段树与树状数组</a></li>
-            <li><a href="21.html">第21章 字典树(Trie)</a></li>
-            <li><a href="22.html">第22章 跳表与B+树</a></li>
-            <li><a href="23.html">第23章 LeetCode刷题方法论</a></li>
-            <li><a href="24.html">第24章 大厂面试高频题精讲</a></li>
-            <li><a href="25.html">第25章 系统设计中的数据结构</a></li>
-            <li><a href="26.html">第26章 数据结构性能分析</a></li>
-            <li><a href="27.html">第27章 AI与数据结构的交叉</a></li>
-            <li><a href="28.html">第28章 学习路线与综合项目</a></li>
-        </ul>
-    </div>
-    <div class="main-content">
-
-        <h2>前言：叠盘子的人生哲学</h2>
-        <p>大家好，我是你们的讲师。想一个场景：厨房里你刚洗完一摞盘子，一个一个往上叠。当你需要用盘子的时候，你会从哪拿？最上面那个——也就是最后放上去的那个。这就是"后进先出"（Last In First Out，LIFO）的日常写照。</p>
-        <p>栈（stack）就是计算机世界里的这摞盘子。它可能是所有数据结构中最简单的一个——只有两种基本操作：push（压栈）和 pop（弹栈）。但就是这个简单的结构，在计算机系统中扮演着极其重要的角色：函数调用靠它、浏览器的后退按钮靠它、编译器的语法分析也靠它。</p>
-
-        <h2>栈的概念与生活类比</h2>
-        <p>栈的核心特性用四个字概括就是"后进先出"。除了叠盘子，生活中还有很多例子：</p>
-        <ul>
-            <li><strong>浏览器的后退按钮</strong>：你访问了 A → B → C，点击后退时回到 B（C 先被弹出）。如果再点后退回到 A，再前进又会回到 B——但如果你在 C 后退到 B 时访问了一个新页面 D，那 C 就永远回不去了（栈顶被 D 替换了）</li>
-            <li><strong>文本编辑器中的撤销 (Ctrl+Z)</strong>：最近的一次修改被放到栈顶，撤销就是弹出栈顶操作</li>
-            <li><strong>函数调用栈</strong>：函数 A 调用函数 B，B 调用 C——C 返回后回到 B，B 返回后回到 A，完美的 LIFO 顺序</li>
-        </ul>
-        <p>理解函数调用栈对后续的学习特别重要——当你学到递归和 DFS（深度优先搜索）时，它们本质上都是在隐式或显式地使用栈。</p>
-
-        <h2>栈的实现</h2>
-        <p>在 Python 中，用 list 模拟栈是最直接的方式：</p>
-        <pre><code># Python list 就是天然栈
-stack = []
-stack.append(1)   # push → [1]
-stack.append(2)   # push → [1, 2]
-stack.append(3)   # push → [1, 2, 3]
-top = stack.pop() # pop → 3, stack = [1, 2]
-print(stack[-1])  # peek 看一眼栈顶 → 2</code></pre>
-        <p>当然，我们也可以封装一个更正式的 Stack 类：</p>
-        <pre><code>class Stack:
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="为什么递归能返回上一层？为什么最近更大元素不用扫描所有后缀？栈只暴露一端，但在合适的不变量下能把复杂搜索化成线性处理。"><title>第 05 章 · 栈：从 LIFO 到单调栈的不变量 | 数据结构与算法</title><link rel="stylesheet" href="../assets/css/article.css"></head><body><a href="#content" class="skip-link">跳转至正文</a><header class="article-top"><div class="top-inner"><a class="brand" href="../index.html">← 课程首页</a><span class="course-name">数据结构与算法 · 深度图解</span><a class="source-link" href="https://github.com/1998x-stack/data-structures-tutorial">GitHub</a></div></header><div class="article-layout"><aside class="toc"><details open><summary>本章导览</summary><nav aria-label="栈：从 LIFO 到单调栈的不变量章节目录"><ol><li><a href="#problem"><span>01</span>栈是操作约束，不是某一种物理容器</a></li><li><a href="#brackets"><span>02</span>括号匹配：保留尚未闭合的上下文</a></li><li><a href="#rpn"><span>03</span>表达式求值：把中间结果压栈</a></li><li><a href="#mono"><span>04</span>单调栈：保存仍可能成为答案的候选者</a></li><li><a href="#histogram"><span>05</span>最大矩形面积：何时知道一根柱子的右边界？</a></li><li><a href="#callstack"><span>06</span>调用栈、迭代 DFS 和显式栈的边界</a></li></ol></nav></details><div class="toc-bottom"><a href="../index.html#curriculum">查看 28 章课程</a></div></aside><main id="content"><article><header class="article-heading"><div class="article-kicker">LINEAR STRUCTURES / CHAPTER 05</div><h1>栈：从 LIFO 到单调栈的不变量</h1><p class="dek">为什么递归能返回上一层？为什么最近更大元素不用扫描所有后缀？栈只暴露一端，但在合适的不变量下能把复杂搜索化成线性处理。</p><div class="topic-tags"><span>LIFO</span><span>括号匹配</span><span>逆波兰表达式</span><span>单调栈</span></div></header><section id="problem" class="article-section" aria-labelledby="heading-problem"><span class="section-number">01 / 06</span><h2 id="heading-problem">栈是操作约束，不是某一种物理容器</h2><p>在编写文本编辑器的撤销功能时，最后一次修改必须最先撤销。假设操作顺序为 <code>写入 A → 写入 B → 删除 A</code>，点击一次“撤销”，应先恢复删除 A 的效果。这就是<strong>后进先出</strong>（Last In, First Out；LIFO）。</p><p>栈是抽象数据类型，核心操作只有 <code>push(x)</code>、<code>pop()</code> 和可选的 <code>peek()</code>。它可以由动态数组、链表甚至固定大小数组来实现。性能结论必须写明实现：Python <code>list.append</code> 均摊 O(1)、尾部 <code>pop</code> O(1)，而在列表开头 <code>insert(0,x)</code> 则要搬移槽位。</p><figure class="diagram"><div class="diagram-scroll" tabindex="0" aria-label="可横向滚动的完整图"><img src="../assets/svg/05-stack-contract.svg" alt="同一栈从空到 A B C 的入栈和逐一出栈顺序" width="880" height="400" loading="lazy"></div><figcaption>图 1 · 顶端是唯一允许取放的位置；弹出顺序 C、B、A 和写入顺序 A、B、C 相反。这是栈的接口语义，而不是某种内存布局。</figcaption></figure><pre class="code-panel" tabindex="0"><code>class Stack:
     def __init__(self):
         self._data = []
-
-    def push(self, val):
-        self._data.append(val)
-
+    def push(self, value):
+        self._data.append(value)
     def pop(self):
-        if self.is_empty():
-            raise IndexError("pop from empty stack")
+        if not self._data:
+            raise IndexError(&quot;empty stack&quot;)
         return self._data.pop()
-
     def peek(self):
-        if self.is_empty():
-            raise IndexError("peek from empty stack")
+        if not self._data:
+            raise IndexError(&quot;empty stack&quot;)
         return self._data[-1]
 
-    def is_empty(self):
-        return len(self._data) == 0
-
-    def size(self):
-        return len(self._data)</code></pre>
-        <p>用 list 模拟栈，<code>push</code> 和 <code>pop</code> 都是均摊 O(1) 的——因为底层是动态数组，偶尔需要扩容，但大多数时候都是常数时间。如果你对 O(1) 有严格需求，也可以用 <code>collections.deque</code>（双端队列），它在两端都是 O(1) 的。</p>
-
-        <h3>栈的常见操作及复杂度</h3>
-        <table>
-            <tr>
-                <th>操作</th>
-                <th>方法</th>
-                <th>时间复杂度</th>
-                <th>说明</th>
-            </tr>
-            <tr>
-                <td>入栈</td>
-                <td>push(x)</td>
-                <td>O(1)*</td>
-                <td>均摊 O(1)，偶尔扩容</td>
-            </tr>
-            <tr>
-                <td>出栈</td>
-                <td>pop()</td>
-                <td>O(1)</td>
-                <td>移除栈顶元素</td>
-            </tr>
-            <tr>
-                <td>查看栈顶</td>
-                <td>peek() / stack[-1]</td>
-                <td>O(1)</td>
-                <td>不移除</td>
-            </tr>
-            <tr>
-                <td>判空</td>
-                <td>is_empty()</td>
-                <td>O(1)</td>
-                <td>检查 len == 0</td>
-            </tr>
-            <tr>
-                <td>大小</td>
-                <td>size()</td>
-                <td>O(1)</td>
-                <td>返回元素个数</td>
-            </tr>
-        </table>
-
-        <h2>括号匹配 (LeetCode 20)</h2>
-        <p>括号匹配是栈的"Hello World"——它最直观地展示了栈为什么有用：</p>
-        <pre><code>def is_valid(s: str) -> bool:
+s = Stack()
+for x in (&quot;A&quot;, &quot;B&quot;, &quot;C&quot;):
+    s.push(x)
+assert [s.pop(), s.pop(), s.pop()] == [&quot;C&quot;, &quot;B&quot;, &quot;A&quot;]</code></pre></section><section id="brackets" class="article-section" aria-labelledby="heading-brackets"><span class="section-number">02 / 06</span><h2 id="heading-brackets">括号匹配：保留尚未闭合的上下文</h2><p>对字符串 <code>"{[()]}"</code>，每遇到左括号就把类型入栈；每遇到右括号，则要求栈顶恰好是对应的左括号。这种行为不是“算数量相等”就够：<code>"([)]"</code> 虽然两种括号数量都平衡，但最后出现的左括号 <code>[</code> 必须先被 <code>]</code> 关闭，因此是非法嵌套。</p><figure class="diagram"><div class="diagram-scroll" tabindex="0" aria-label="可横向滚动的完整图"><img src="../assets/svg/05-bracket-trace.svg" alt="括号匹配扫描六个字符时栈顶如何变化" width="880" height="400" loading="lazy"></div><figcaption>图 2 · 依次读取 { [ ( ) ] }，后 3 个字符只允许关闭最近尚未闭合的左括号，最终栈为空。</figcaption></figure><pre class="code-panel" tabindex="0"><code>def valid_brackets(text):
+    pairs = {&quot;)&quot;: &quot;(&quot;, &quot;]&quot;: &quot;[&quot;, &quot;}&quot;: &quot;{&quot;}
+    lefts = set(pairs.values())
     stack = []
-    # 配对映射表
-    pairs = {")": "(", "]": "[", "}": "{"}
-
-    for ch in s:
-        if ch in pairs:                 # 右括号
-            if not stack or stack[-1] != pairs[ch]:
-                return False            # 不匹配
-            stack.pop()                 # 匹配，弹出左括号
-        else:                           # 左括号
+    for ch in text:
+        if ch in lefts:
             stack.append(ch)
+        elif ch in pairs:
+            if not stack or stack.pop() != pairs[ch]:
+                return False
+        else:
+            raise ValueError(&quot;only bracket tokens are allowed&quot;)
+    return not stack
 
-    return not stack  # 栈为空说明全部匹配</code></pre>
-        <p>这道题的思路非常清晰：遇到左括号就入栈，遇到右括号就跟栈顶匹配——匹配上了就弹出，没匹配上或者栈空了就报错。最后如果栈不为空（说明有左括号没被匹配），也是无效的。</p>
-        <p>这是一个模板，可以推广到很多类似的场景：比如 LeetCode 856（括号的分数）、LeetCode 394（字符串解码）。核心思想都是"利用栈来跟踪需要匹配的上下文"。</p>
-
-        <h2>表达式求值</h2>
-        <p>表达式求值是栈的另一个经典应用。计算机不像人一样能一眼看出运算符优先级——它需要一种无歧义的表示方法。</p>
-
-        <h3>中缀转后缀（逆波兰表达式）</h3>
-        <p>我们平时写的 <code>3 + 4 * 5</code> 是中缀表达式。计算机更喜欢后缀表达式（逆波兰表示法，RPN）：<code>3 4 5 * +</code>。转换算法使用两个栈——一个放操作数，一个放运算符：</p>
-        <pre><code>def infix_to_postfix(expression):
-    precedence = {"+": 1, "-": 1, "*": 2, "/": 2}
-    output = []
-    ops = []
-
-    for token in expression.split():
-        if token.isdigit():
-            output.append(token)
-        elif token in precedence:
-            while (ops and ops[-1] != "("
-                   and precedence[ops[-1]] >= precedence[token]):
-                output.append(ops.pop())
-            ops.append(token)
-        elif token == "(":
-            ops.append(token)
-        elif token == ")":
-            while ops and ops[-1] != "(":
-                output.append(ops.pop())
-            ops.pop()  # 弹出 ( 丢弃
-
-    while ops:
-        output.append(ops.pop())
-
-    return " ".join(output)
-
-print(infix_to_postfix("3 + 4 * 5"))  # 3 4 5 * +</code></pre>
-
-        <h3>后缀表达式求值</h3>
-        <pre><code>def eval_rpn(tokens):
+assert valid_brackets(&quot;{[()]}&quot;) is True
+assert valid_brackets(&quot;([)]&quot;) is False
+assert valid_brackets(&quot;&quot;) is True</code></pre><p>循环不变量是：<strong>栈始终从下到上保存已经扫描、尚未配对的左括号</strong>。遇到非法右括号立刻失败；扫描完栈非空说明还有未闭合部分。时间 O(n)，最坏额外空间 O(n)。</p><div class="lab" data-demo="bracket-trace"><h3>手动推进一次扫描</h3><p>输入 <code>{[()]}</code>，改变已扫描字符数，观察“未闭合左括号”的栈内容。</p><div class="lab-controls"><label for="bracket-step">已扫描字符数</label><input id="bracket-step" type="range" min="0" max="6" value="3" step="1"></div><output aria-live="polite">读入前 3 个字符，栈自底向顶：{ [ (。</output></div></section><section id="rpn" class="article-section" aria-labelledby="heading-rpn"><span class="section-number">03 / 06</span><h2 id="heading-rpn">表达式求值：把中间结果压栈</h2><p>在<strong>后缀表达式</strong>（Reverse Polish Notation, RPN）中，操作符位于操作数之后。例如 <code>3 4 + 2 *</code> 的意义是 <code>(3+4)×2=14</code>。扫描 token：遇数字入栈；遇二元运算符依次弹出右操作数 <code>b</code> 和左操作数 <code>a</code>，算完再把结果入栈。</p><pre class="code-panel" tabindex="0"><code>def evaluate_rpn(tokens):
     stack = []
     for token in tokens:
-        if token in {"+", "-", "*", "/"}:
-            b = stack.pop()
-            a = stack.pop()
-            if token == "+":
-                stack.append(a + b)
-            elif token == "-":
-                stack.append(a - b)
-            elif token == "*":
-                stack.append(a * b)
-            else:
-                stack.append(int(a / b))  # 向零取整
+        if token in {&quot;+&quot;, &quot;-&quot;, &quot;*&quot;}:
+            if len(stack) &lt; 2:
+                raise ValueError(&quot;missing operand&quot;)
+            b, a = stack.pop(), stack.pop()
+            value = {&quot;+&quot;: lambda: a+b, &quot;-&quot;: lambda: a-b,
+                     &quot;*&quot;: lambda: a*b}[token]()
+            stack.append(value)
         else:
             stack.append(int(token))
-    return stack[0]</code></pre>
-        <p>这个算法的时间复杂度是 O(n)，空间复杂度是 O(n)。面试中如果被问到表达式求值，通常不需要你完整实现中缀转后缀，直接用双栈法处理中缀表达式即可——一个栈放数字，一个栈放运算符。</p>
+    if len(stack) != 1:
+        raise ValueError(&quot;invalid expression&quot;)
+    return stack[0]
 
-        <h2>单调栈 (Monotonic Stack)</h2>
-        <p>单调栈是栈的一种进阶用法——栈内元素保持单调递增或单调递减。它是解决"下一个更大元素""上一个更小元素"这类问题的利器。</p>
-
-        <h3>每日温度 (LeetCode 739)</h3>
-        <p>题目：给定一个温度列表，对于每一天，输出还要等多少天才能等到更高的温度。如果没有，输出 0。</p>
-        <pre><code>def daily_temperatures(temperatures):
-    n = len(temperatures)
-    result = [0] * n
-    stack = []  # 单调递减栈，存索引
-
-    for i, t in enumerate(temperatures):
-        # 当前温度比栈顶对应的温度高 → 找到了答案
-        while stack and t > temperatures[stack[-1]]:
-            prev_index = stack.pop()
-            result[prev_index] = i - prev_index
+assert evaluate_rpn([&quot;3&quot;, &quot;4&quot;, &quot;+&quot;, &quot;2&quot;, &quot;*&quot;]) == 14
+assert evaluate_rpn([&quot;6&quot;, &quot;2&quot;, &quot;-&quot;]) == 4</code></pre><p>注意先弹出的是右操作数。对于减法、除法等不满足交换律的运算符，顺序反转会改变结果。这里刻意只支持整数与三种运算，不把教学代码伪装成通用表达式解析器；现实系统还要处理一元负号、除零、函数和 token 化。</p></section><section id="mono" class="article-section" aria-labelledby="heading-mono"><span class="section-number">04 / 06</span><h2 id="heading-mono">单调栈：保存仍可能成为答案的候选者</h2><p>对温度序列 <code>[73, 74, 75, 71, 69, 72, 76, 73]</code>，问题是每一天还要等几天才能遇到<strong>严格更高</strong>的温度。如果对每个位置重新扫描后缀，最坏 O(n²)。单调栈保存尚未找到答案的<strong>下标</strong>，并保持对应温度<strong>从栈底到栈顶单调不增</strong>。</p><p>扫描新温度 <code>t[i]</code> 时，如果它比栈顶下标的温度高，该栈顶位置的答案现在首次被找到，可以弹出并记录 <code>i-j</code>。重复弹出直到不再满足条件，再把 <code>i</code> 压入。因为每个下标最多入栈一次、出栈一次，整段扫描总 O(n)。</p><figure class="diagram"><div class="diagram-scroll" tabindex="0" aria-label="可横向滚动的完整图"><img src="../assets/svg/05-monotonic.svg" alt="每日温度扫描到72时弹出温度69和71的位置并更新等待天数" width="880" height="400" loading="lazy"></div><figcaption>图 3 · 扫描到 72 时，温度 69（索引 4）和 71（索引 3）都得到首次更热的日子；温度 75（索引 2）仍需留在栈中。</figcaption></figure><pre class="code-panel" tabindex="0"><code>def daily_temperatures(t):
+    wait = [0] * len(t)
+    stack = []                 # 尚无答案的下标，温度不增
+    for i, value in enumerate(t):
+        while stack and t[stack[-1]] &lt; value:
+            j = stack.pop()
+            wait[j] = i - j
         stack.append(i)
+    return wait
 
-    return result</code></pre>
-        <p>理解这个算法的关键：栈中保存的是"还没有找到更高温度"的索引，且这些索引对应的温度是单调递减的。当一个新的高温出现时，它依次解决栈中所有比它低的温度。</p>
-
-        <h3>柱状图中最大矩形 (LeetCode 84)</h3>
-        <p>这是单调栈的进阶应用：</p>
-        <pre><code>def largest_rectangle_area(heights):
-    stack = [-1]  # 哨兵，方便计算宽度
-    max_area = 0
-    heights.append(0)  # 末尾哨兵，保证最后能触发计算
-
-    for i, h in enumerate(heights):
-        while stack and heights[stack[-1]] > h:
-            height = heights[stack.pop()]
+assert daily_temperatures([73,74,75,71,69,72,76,73]) == [1,1,4,2,1,1,0,0]
+assert daily_temperatures([5,5,5]) == [0,0,0]</code></pre><aside class="note"><strong>严格大于与重复值</strong><p>比较条件是 <code>t[stack[-1]] &lt; value</code>；如果改成 <code>&lt;=</code>，同温度也会被视为“更热”，答案立即错误。</p></aside></section><section id="histogram" class="article-section" aria-labelledby="heading-histogram"><span class="section-number">05 / 06</span><h2 id="heading-histogram">最大矩形面积：何时知道一根柱子的右边界？</h2><p>柱状图各柱宽为 1、高度非负。以第 <em>j</em> 根柱高 <em>h[j]</em> 为矩形高度，最大宽度由左右两侧<strong>第一个严格更矮</strong>的柱子限定。维护高度单调不减的下标栈：当扫描到一根更矮柱子时，弹出较高柱子，当前下标 <code>i</code> 是它的右边界；弹出后新栈顶是它的左边界。若不存在，则设左边界为 <code>-1</code>。</p><pre class="code-panel" tabindex="0"><code>def largest_rectangle_area(heights):
+    if any(h &lt; 0 for h in heights):
+        raise ValueError(&quot;heights must be nonnegative&quot;)
+    stack = [-1]  # 左侧哨兵是虚拟下标，不是真正数组元素
+    best = 0
+    for i, height in enumerate([*heights, 0]):
+        while stack[-1] != -1 and heights[stack[-1]] &gt; height:
+            h = heights[stack.pop()]
             width = i - stack[-1] - 1
-            max_area = max(max_area, height * width)
+            best = max(best, h * width)
         stack.append(i)
+    return best
 
-    heights.pop()
-    return max_area</code></pre>
-        <p>这道题的难度在于你要理解"以每个柱形为高度的最大矩形"如何计算——左边找第一个比它矮的，右边找第一个比它矮的，宽度就是两者之间的距离。单调栈恰好能高效地找到左右两边的"第一个更矮"。这个思路如果你第一次见觉得很难，非常正常——我当初也花了整整一下午来理解。</p>
-
-        <div class="tip">
-            <strong>💡 小技巧：</strong>在算法题中，如果你看到"最近的"、"下一个更大的"、"上一个更小的"这些关键词，立刻想到单调栈。具体来说，"下一个更大"用单调递减栈，"下一个更小"用单调递增栈。记住这个对应关系，能帮你快速定位解题方向。
-        </div>
-
-        <h2>本章小结</h2>
-        <p>栈虽然简单，但它的应用范围极广——从括号匹配到表达式求值，从函数调用到深度优先搜索。特别是单调栈这个进阶技巧，它把看似复杂的问题（"下一个更大元素"）变成了一个 O(n) 就能解决的简单问题。</p>
-        <p>下一章我们将学习栈的"孪生兄弟"——<strong>队列</strong>。它和栈正好相反：先进先出。你会发现，这两种看似对立的存取顺序，各自在计算机科学中占据着不可替代的位置。</p>
-
-        <div class="footer-nav">
-            <a href="04.html">← 上一章</a>
-            <a href="index.html">📖 返回目录</a>
-            <a href="06.html">下一章 →</a>
-        </div>
-    </div>
-</div>
-</div>
-</body>
-</html>
+assert largest_rectangle_area([2,1,5,6,2,3]) == 10
+assert largest_rectangle_area([]) == 0</code></pre><p>末尾的虚拟高度 0 强制结算尚未弹出的正高度柱；这里用 <code>[*heights, 0]</code> 构造新列表，<strong>不改变调用者输入</strong>。相同高度可以保留在栈中，后续结算得到相同候选面积的不同宽度；最大值仍正确。时间 O(n)，栈与哨兵副本占 O(n) 额外空间。</p></section><section id="callstack" class="article-section" aria-labelledby="heading-callstack"><span class="section-number">06 / 06</span><h2 id="heading-callstack">调用栈、迭代 DFS 和显式栈的边界</h2><p>递归调用时，解释器保存每一层调用的局部变量、返回位置等上下文，可以用“调用栈”直观理解。用显式栈模拟深度优先遍历时，必须自己保存待访问节点；它可以规避 Python 递归层数限制，但<strong>不代表一定省内存</strong>，显式栈在最坏情况下也可能有 O(n) 项。</p><div class="table-scroll" tabindex="0"><table><thead><tr><th>场景</th><th>栈保存什么</th><th>为什么 LIFO 合适</th></tr></thead><tbody><tr><td>撤销历史</td><td>尚可撤销的操作记录</td><td>最近一次操作先撤销</td></tr><tr><td>括号匹配</td><td>未关闭的左括号</td><td>先关闭最近打开的分组</td></tr><tr><td>表达式求值</td><td>尚未合并的子表达式结果</td><td>运算符消耗最近产生的操作数</td></tr><tr><td>单调栈</td><td>仍待解决的下标</td><td>发现新边界后逐个淘汰候选</td></tr><tr><td>深度优先遍历</td><td>待访问节点与上下文</td><td>先进入最近发现的分支</td></tr></tbody></table></div>
+<p>下一章的队列则把“最先进入者最先出来”作为操作契约。队列更适合任务排队与按层展开，而不是匹配尚未结束的嵌套上下文。</p></section><section class="takeaways" id="takeaways"><h2>带走三个判断准则</h2><ol><li>栈的本质是 LIFO 接口；复杂度归属底层实现，Python 列表末尾入栈通常均摊常数时间。</li><li>括号匹配维护未闭合上下文；RPN 操作数弹出顺序不能反。</li><li>单调栈的 O(n) 来自每个候选最多入栈、出栈各一次，并且比较关系必须精确。</li></ol></section><section class="references" id="further-reading"><h2>继续学习与校验资料</h2><ul><li><a href="https://docs.python.org/3/tutorial/datastructures.html">Python：Using Lists as Stacks</a> — 列表末尾操作与队列区别</li><li><a href="https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/resources/lecture-notes/">MIT 6.006</a> — 摊还分析与数据结构模型</li><li><a href="06.html">下一章：队列</a> — 比较 FIFO 与 LIFO 的适用条件</li></ul></section><nav class="end-nav" aria-label="章节导航"><a href="04.html">← 第 4 章</a><a href="../index.html">全部课程</a><a href="06.html">第 6 章 →</a></nav></article></main></div><footer class="article-footer"><a href="../index.html">数据结构与算法课程</a><span>把最近发生的变化保存起来。</span></footer><script src="../assets/js/interactive.js" defer></script></body></html>

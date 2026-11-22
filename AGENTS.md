@@ -35,3 +35,9 @@
 3. 浏览器用 Playwright/Chromium 测 1440×900、768×1024、390×844、360×800；核对横向溢出、图形可读性、图片加载、交互更新、控制台报错、打印。未执行即明确写“未验证”。
 4. 在 PR 上检查差异及 CI，再合并；Pages 的实际可访问性需 HTTP 验证，不得以 workflow 存在宣称上线。
 5. 每批完成记录“已精修/保留原版/待复查”，不要将 28 篇都声称已升级。
+
+## 2026-11-22 精修批次约定
+- 01–08 已按新的图解体系重写；09–28 仍是原稿，不要在 README 或课程首页将其当成深度精修篇。
+- 新增 04–08 原稿在 `archive/original/`；编辑者必须保留旧 URL 和课程元数据标记 `revision`。
+- 本批算法的运行参考在 `examples/linear_structures.py`，测试在 `tests/test_linear_structures.py`，每篇交互演示在 `assets/js/interactive.js`，图形故事板在 `docs/design-system.md`。
+- 链表必须说明“已知前驱”的操作条件；栈和队列必须区分 ADT 与实现；哈希的 O(1) 必须标明假设；普通二叉树不能被写成天然有序。
