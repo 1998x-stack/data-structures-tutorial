@@ -1,264 +1,53 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
-    <title>第4章 链表</title>
-    <link rel="stylesheet" href="theme.css">
-</head>
-<body>
-<div class="double-border">
-<div class="container">
-    <div class="sidebar">
-        <h3>🧠 课程目录</h3>
-        <ul class="chapter-list">
-            <li><a href="01.html">第1章 为什么要学数据结构</a></li>
-            <li><a href="02.html">第2章 复杂度分析</a></li>
-            <li><a href="03.html">第3章 数组与字符串</a></li>
-            <li><a href="04.html" class="active">第4章 链表</a></li>
-            <li><a href="05.html">第5章 栈</a></li>
-            <li><a href="06.html">第6章 队列</a></li>
-            <li><a href="07.html">第7章 哈希表</a></li>
-            <li><a href="08.html">第8章 树基础</a></li>
-            <li><a href="09.html">第9章 二叉搜索树</a></li>
-            <li><a href="10.html">第10章 平衡二叉树</a></li>
-            <li><a href="11.html">第11章 堆与优先队列</a></li>
-            <li><a href="12.html">第12章 图基础</a></li>
-            <li><a href="13.html">第13章 图算法</a></li>
-            <li><a href="14.html">第14章 排序算法全览</a></li>
-            <li><a href="15.html">第15章 递归与分治</a></li>
-            <li><a href="16.html">第16章 回溯算法</a></li>
-            <li><a href="17.html">第17章 动态规划</a></li>
-            <li><a href="18.html">第18章 贪心算法</a></li>
-            <li><a href="19.html">第19章 并查集</a></li>
-            <li><a href="20.html">第20章 线段树与树状数组</a></li>
-            <li><a href="21.html">第21章 字典树(Trie)</a></li>
-            <li><a href="22.html">第22章 跳表与B+树</a></li>
-            <li><a href="23.html">第23章 LeetCode刷题方法论</a></li>
-            <li><a href="24.html">第24章 大厂面试高频题精讲</a></li>
-            <li><a href="25.html">第25章 系统设计中的数据结构</a></li>
-            <li><a href="26.html">第26章 数据结构性能分析</a></li>
-            <li><a href="27.html">第27章 AI与数据结构的交叉</a></li>
-            <li><a href="28.html">第28章 学习路线与综合项目</a></li>
-        </ul>
-    </div>
-    <div class="main-content">
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="在数组中移动元素是数据搬移；在链表中改变顺序是链接重接。学习如何画出每一步的 next、用哨兵统一边界、用不变量证明反转和判环。"><title>第 04 章 · 链表：用指针关系维护序列 | 数据结构与算法</title><link rel="stylesheet" href="../assets/css/article.css"></head><body><a href="#content" class="skip-link">跳转至正文</a><header class="article-top"><div class="top-inner"><a class="brand" href="../index.html">← 课程首页</a><span class="course-name">数据结构与算法 · 深度图解</span><a class="source-link" href="https://github.com/1998x-stack/data-structures-tutorial">GitHub</a></div></header><div class="article-layout"><aside class="toc"><details open><summary>本章导览</summary><nav aria-label="链表：用指针关系维护序列章节目录"><ol><li><a href="#problem"><span>01</span>从一次头部插入说起</a></li><li><a href="#model"><span>02</span>链表不是连续数组：节点、引用与所有权</a></li><li><a href="#dummy"><span>03</span>哨兵节点：把“删除头”变成普通删除</a></li><li><a href="#reverse"><span>04</span>反转链表：改变箭头的顺序，而不是搬动值</a></li><li><a href="#cycle"><span>05</span>快慢指针：为什么能检测环？</a></li><li><a href="#variants"><span>06</span>双向链表与循环链表：多出的不变量</a></li><li><a href="#practice"><span>07</span>用边界情况检查“看起来正确”的指针代码</a></li></ol></nav></details><div class="toc-bottom"><a href="../index.html#curriculum">查看 28 章课程</a></div></aside><main id="content"><article><header class="article-heading"><div class="article-kicker">LINEAR STRUCTURES / CHAPTER 04</div><h1>链表：用指针关系维护序列</h1><p class="dek">在数组中移动元素是数据搬移；在链表中改变顺序是链接重接。学习如何画出每一步的 next、用哨兵统一边界、用不变量证明反转和判环。</p><div class="topic-tags"><span>单 / 双链表</span><span>哨兵节点</span><span>反转不变量</span><span>Floyd 判环</span></div></header><section id="problem" class="article-section" aria-labelledby="heading-problem"><span class="section-number">01 / 07</span><h2 id="heading-problem">从一次头部插入说起</h2><p>假设有一个按到达顺序记录消息的序列。使用动态数组时，在最前面插入消息，往往要把旧元素依次向右移动；若用<strong>单链表</strong>，只要新节点的 <code>next</code> 指向旧头节点，再把头引用改成新节点，操作就结束了。</p><p>这里的“常数时间”有严格前提：<strong>已经持有头节点引用</strong>。如果只知道“第 100 个节点”的位置而未保存引用，就必须从头走过去，仍然需要线性时间。链表适合频繁做<strong>已定位位置附近的链接变更</strong>，不适合依赖整数下标随机访问。</p></section>
+<section id="model" class="article-section" aria-labelledby="heading-model"><span class="section-number">02 / 07</span><h2 id="heading-model">链表不是连续数组：节点、引用与所有权</h2><p>一个节点保存两类信息：<code>value</code> 是数据，<code>next</code> 是后继节点引用。序列 <code>A → B → C → None</code> 的逻辑顺序由引用决定，不由物理内存地址决定。最后一个节点的 <code>next</code> 是 <code>None</code>；空链表的头引用本身就是 <code>None</code>。</p><figure class="diagram"><div class="diagram-scroll" tabindex="0" aria-label="可横向滚动的完整图"><img src="../assets/svg/04-pointer-model.svg" alt="链表 A 到 B 到 C 的节点引用与非连续存储" width="880" height="400" loading="lazy"></div><figcaption>图 1 · 箭头代表真实的 next 引用；右上角的地址标签说明节点可以离散分布。按位置访问必须逐段走过引用。</figcaption></figure><pre class="code-panel" tabindex="0"><code>from dataclasses import dataclass
+from typing import Optional
 
-        <h2>前言：指针的艺术</h2>
-        <p>大家好，我是你们的讲师。如果说数组是"老实人"——规规矩矩在内存里排好队，那么链表就是"叛逆者"——它不愿意被束缚在连续的内存里。每个元素都带有一个指向下一个元素的指针，你追我赶，串成一条链。</p>
-        <p>链表的精髓在于：<strong>你不需要搬家，只需要重新接线</strong>。在数组中插入一个元素，你得把后面的所有元素都往后挪；在链表中插入一个元素，你只需要改两个指针——这就是 O(1) 和 O(n) 的差距。</p>
-        <p>但同时，链表也有它的软肋：你要找第 5 个元素？对不起，没有捷径，你只能从头开始数。而且，每个多出来的指针也意味着额外的内存开销。这些特性决定了链表在特定场景下无可替代，但在其他场景下又远不如数组。</p>
+@dataclass
+class Node:
+    value: int
+    next: Optional[&quot;Node&quot;] = None
 
-        <h2>链表的内存模型</h2>
-        <p>链表中的每个节点（node）包含两部分：<strong>数据域</strong>和<strong>指针域</strong>。指针域存储的是下一个节点的内存地址，而不是物理上的"下一个位置"。这意味着链表中的节点在物理内存中可以散落在任何地方——它们通过指针"连接"在一起。</p>
-        <pre><code># 链表节点看起来像是这样的（在内存中）：
-# [data | next] → [data | next] → [data | next] → None
-#  ^                            ^
-#  |____ 它们不需要在内存中挨着</code></pre>
-        <p>和数组相比，链表有两个重要的后果：</p>
-        <ul>
-            <li><strong>无法随机访问</strong>——你要找第 i 个节点，必须从头遍历，O(n)</li>
-            <li><strong>不浪费连续空间</strong>——数组即使有空位也要提前分配连续内存，链表可以零碎地使用内存</li>
-        </ul>
+head = Node(10, Node(20, Node(30)))
+assert head.next.next.value == 30</code></pre><p>单链表删除一个节点通常还需要前驱引用；双向链表在节点内再保存 <code>prev</code>，换来常数个引用修改的便利，但使用更多内存，也多了必须维护的一致性约束。</p></section>
+<section id="dummy" class="article-section" aria-labelledby="heading-dummy"><span class="section-number">03 / 07</span><h2 id="heading-dummy">哨兵节点：把“删除头”变成普通删除</h2><p>考虑移除链表中全部值等于目标 <code>target</code> 的节点。直接操作头引用时，需要额外分支处理连续多个头节点被删除的情况。添加一个不存储有效业务数据的 <strong>dummy 哨兵节点</strong>，让它的 <code>next</code> 指向原头；以后每次只检查 <code>prev.next</code>，处理逻辑完全统一。</p><figure class="diagram"><div class="diagram-scroll" tabindex="0" aria-label="可横向滚动的完整图"><img src="../assets/svg/04-dummy.svg" alt="使用 dummy 节点删除首节点和中间节点并更新 next 引用" width="880" height="400" loading="lazy"></div><figcaption>图 2 · 当要移除节点 A 时，让 dummy.next 改指向 B；删除中间节点同理让它的前驱越过待删节点。</figcaption></figure><pre class="code-panel" tabindex="0"><code>def remove_value(head, target):
+    dummy = Node(0, head)
+    prev = dummy
+    while prev.next is not None:
+        if prev.next.value == target:
+            prev.next = prev.next.next
+        else:
+            prev = prev.next
+    return dummy.next
 
-        <h2>单链表的实现</h2>
-        <p>我们先来手写一个最简单的单链表。</p>
-        <pre><code>class ListNode:
-    def __init__(self, val=0, next=None):
-        self.val = val
-        self.next = next
-
-class LinkedList:
-    def __init__(self):
-        self.head = None
-
-    def insert_at_head(self, val):
-        """头插法：O(1)"""
-        new_node = ListNode(val)
-        new_node.next = self.head
-        self.head = new_node
-
-    def insert_at_tail(self, val):
-        """尾插法：O(n) — 因为需要遍历到末尾"""
-        if not self.head:
-            self.head = ListNode(val)
-            return
-        cur = self.head
-        while cur.next:
-            cur = cur.next
-        cur.next = ListNode(val)
-
-    def delete(self, val):
-        """删除第一个值为 val 的节点：O(n)"""
-        if not self.head:
-            return
-        if self.head.val == val:
-            self.head = self.head.next
-            return
-        cur = self.head
-        while cur.next and cur.next.val != val:
-            cur = cur.next
-        if cur.next:
-            cur.next = cur.next.next
-
-    def search(self, val):
-        """查找：O(n)"""
-        cur = self.head
-        while cur:
-            if cur.val == val:
-                return cur
-            cur = cur.next
-        return None</code></pre>
-        <p>注意一个细节：<code>insert_at_tail</code> 是 O(n)——因为每次都要遍历到末尾。如果你频繁需要在尾部插入，可以考虑<strong>维护一个 tail 指针</strong>，这样尾部插入也能变成 O(1)。</p>
-
-        <h2>哨兵节点技巧 (Dummy Node)</h2>
-        <p>哨兵节点是链表题中最重要的技巧之一，它的作用是<strong>消除对头节点的特殊处理</strong>。来看一个例子——<strong>LeetCode 206. 反转链表</strong>：</p>
-        <pre><code># 不使用哨兵节点
-def reverse_list(head):
+head = Node(2, Node(2, Node(5, Node(2))))
+head = remove_value(head, 2)
+assert head.value == 5 and head.next is None</code></pre><p>循环不变量：<strong>在 <code>prev</code> 之前已经处理过的节点都应保留，且链表中已经不存在需要删除的旧节点</strong>。命中删除条件时不移动 <code>prev</code>，因为新连上来的后继仍可能要删除。</p></section>
+<section id="reverse" class="article-section" aria-labelledby="heading-reverse"><span class="section-number">04 / 07</span><h2 id="heading-reverse">反转链表：改变箭头的顺序，而不是搬动值</h2><p>要把 <code>A → B → C → None</code> 反转为 <code>C → B → A → None</code>，遍历时同时维护 <code>prev</code> 和 <code>cur</code>。每次先缓存原 <code>cur.next</code> 为 <code>nxt</code>，再执行 <code>cur.next = prev</code>，最后一起推进两个指针。<strong>如果先改链接再读取原后继，就可能永远丢失尚未访问的节点。</strong></p><figure class="diagram"><div class="diagram-scroll" tabindex="0" aria-label="可横向滚动的完整图"><img src="../assets/svg/04-reverse.svg" alt="展示链表反转中的 prev cur nxt 三种指针及单步重接" width="880" height="400" loading="lazy"></div><figcaption>图 3 · 蓝色部分已经反转，紫色节点正在处理，虚线展示旧的后继路径。先保存 nxt，再将 cur.next 指向 prev。</figcaption></figure><pre class="code-panel" tabindex="0"><code>def reverse_list(head):
     prev = None
     cur = head
-    while cur:
-        next_temp = cur.next
-        cur.next = prev
+    while cur is not None:
+        nxt = cur.next      # 先保留未处理链表的入口
+        cur.next = prev     # 把当前节点并入反转前缀
         prev = cur
-        cur = next_temp
-    return prev   # 新的头节点</code></pre>
-        <p>这个解法已经算简洁了。但有些题目中，你可能需要在头部之前插入节点，或者删除节点时头节点需要特殊处理。这时候 dummy node 就派上用场了：</p>
-        <pre><code># 使用哨兵节点的模式
-dummy = ListNode(0)
-dummy.next = head
-# ... 在 dummy 后面做各种操作 ...
-return dummy.next   # 不管怎么操作，dummy.next 就是新链表的头</code></pre>
-        <p><strong>什么时候该用哨兵节点？</strong>当你需要修改链表头，或者需要删除节点且被删除的可能是头节点时。比如 LeetCode 82（删除排序链表中的重复元素 II），用 dummy node 可以把头节点的处理统一到循环逻辑中，避免写两套代码。</p>
-
-        <h2>快慢指针</h2>
-        <p>快慢指针是链表第二大技巧。想象两个人跑步——一个跑得快（每次走两步），一个跑得慢（每次走一步）。它们之间的相对速度差可以帮我们解决很多问题。</p>
-
-        <h3>判环 (LeetCode 141)</h3>
-        <pre><code>def has_cycle(head):
-    slow = fast = head
-    while fast and fast.next:
-        slow = slow.next
-        fast = fast.next.next
-        if slow == fast:
-            return True
-    return False
-# 如果链表有环，快慢指针最终会在环中相遇</code></pre>
-
-        <h3>找环入口 (LeetCode 142)</h3>
-        <p>快慢指针相遇后，把其中一个指针移回头节点，然后两个指针每次都走一步——它们再次相遇的位置就是环的入口。这个推导很有意思（可以画个图），本质是数学证明：快指针走的路程是慢指针的两倍。我们在工作中记住结论就好，但面试中建议把推导过程也说出来。</p>
-
-        <h3>找链表中点</h3>
-        <pre><code>def middle_node(head):
-    slow = fast = head
-    while fast and fast.next:
-        slow = slow.next
-        fast = fast.next.next
-    return slow  # slow 就是中点
-# 这个技巧在"对链表进行归并排序"中很关键</code></pre>
-
-        <div class="highlight">
-            <strong>🔑 核心规律：</strong>链表题中约 80% 的问题可以用快慢指针 + 哨兵节点解决。判环、找中点、找倒数第 k 个节点——这些都是快慢指针的经典应用。如果你面试中遇到链表题，第一反应应该是"这题能不能用快慢指针？能不能用 dummy node？"
-        </div>
-
-        <h2>链表类型对比</h2>
-        <table>
-            <tr>
-                <th>特性</th>
-                <th>单链表</th>
-                <th>双向链表</th>
-                <th>循环链表</th>
-            </tr>
-            <tr>
-                <td>每个节点存储</td>
-                <td>data + next</td>
-                <td>prev + data + next</td>
-                <td>同单/双向</td>
-            </tr>
-            <tr>
-                <td>内存占用</td>
-                <td>较小</td>
-                <td>较大（多一个指针）</td>
-                <td>同对应类型</td>
-            </tr>
-            <tr>
-                <td>删除给定节点</td>
-                <td>O(n) 需找前驱</td>
-                <td>O(1) 有 prev 指针</td>
-                <td>同对应类型</td>
-            </tr>
-            <tr>
-                <td>遍历终点判断</td>
-                <td>next == None</td>
-                <td>next == None</td>
-                <td>回到头节点</td>
-            </tr>
-            <tr>
-                <td>典型应用</td>
-                <td>哈希表拉链</td>
-                <td>LRU 缓存</td>
-                <td>约瑟夫问题、轮转调度</td>
-            </tr>
-        </table>
-
-        <h2>双向链表与循环链表</h2>
-
-        <h3>双向链表</h3>
-        <p>双向链表中的每个节点不仅有 <code>next</code> 指针，还有一个 <code>prev</code> 指向前一个节点：</p>
-        <pre><code>class DoublyListNode:
-    def __init__(self, val=0, prev=None, next=None):
-        self.val = val
-        self.prev = prev
-        self.next = next</code></pre>
-        <p>双向链表的优势在于<strong>删除效率更高</strong>——如果你有一个节点的引用，单链表无法 O(1) 删除它（因为拿不到前驱节点），但双向链表可以（通过 prev 指针拿到前驱）。</p>
-
-        <h3>循环链表</h3>
-        <p>循环链表是另一种变体——尾节点的 next 指向头节点，形成一个环。这种结构在以下场景中很实用：</p>
-        <ul>
-            <li><strong>约瑟夫问题</strong>：N 个人围成一圈，每隔 M 个人杀掉一个——循环链表可以很好地模拟这个过程</li>
-            <li><strong>操作系统的任务调度</strong>：时间片轮转调度算法通常会使用循环链表</li>
-            <li><strong>音乐播放器的播放列表</strong>：循环播放模式本质上就是一个循环链表</li>
-        </ul>
-
-        <h2>链表的反转——迭代与递归</h2>
-        <p>反转链表是面试中的"Hello World"，但很多人在面试中写到一半会卡住。我们来仔细看两种写法：</p>
-        <pre><code># 迭代法（三个指针）
-def reverse_iterative(head):
-    prev = None
-    cur = head
-    while cur:
-        next_node = cur.next   # 先保存下一个节点
-        cur.next = prev        # 指向前一个
-        prev = cur             # 前移
-        cur = next_node        # 前移
+        cur = nxt
     return prev
 
-# 递归法（更优雅，但更难理解）
-def reverse_recursive(head):
-    if not head or not head.next:
-        return head
-    new_head = reverse_recursive(head.next)
-    head.next.next = head   # 让下一个节点指向自己
-    head.next = None        # 自己的 next 置空
-    return new_head</code></pre>
-        <p>递归写法的关键理解：<code>reverse_recursive(head.next)</code> 返回的是"以 head.next 为头节点的子链表反转后的新头"。这个思路需要多画几张图来消化——不要着急，多画几次就理解了。</p>
+a = Node(1, Node(2, Node(3)))
+rev = reverse_list(a)
+assert (rev.value, rev.next.value, rev.next.next.value) == (3, 2, 1)
+assert rev.next.next.next is None</code></pre><p>每轮结束时的不变量是：<code>prev</code> 指向已反转的前缀，<code>cur</code> 指向尚未处理的后缀；两个部分合起来恰好包含原始全部节点且没有丢失。遍历一次，共 <code>O(n)</code> 时间、<code>O(1)</code> 辅助空间。</p><div class="lab" data-demo="reverse-links"><h3>逐步追踪三个指针</h3><p>观察 <code>A → B → C → None</code> 在每次链接重接之后的状态。</p><div class="lab-controls"><label for="reverse-step">已完成的迭代</label><input type="range" id="reverse-step" min="0" max="3" step="1" value="1"></div><output aria-live="polite">第 1 步：prev = A → None；cur = B → C；已处理 1 个节点。</output></div></section>
+<section id="cycle" class="article-section" aria-labelledby="heading-cycle"><span class="section-number">05 / 07</span><h2 id="heading-cycle">快慢指针：为什么能检测环？</h2><p>链表也可能不是以 <code>None</code> 结尾，而是某个节点重新指向之前的节点。用两个指针从头出发：<code>slow</code> 每轮走一步、<code>fast</code> 每轮走两步。若链表无环，<code>fast</code> 必然先到尾部；若有环，两指针进入环以后，它们的相对位置在有限长度的环上每轮相差一步，最终必然相遇。</p><pre class="code-panel" tabindex="0"><code>def has_cycle(head):
+    slow = fast = head
+    while fast is not None and fast.next is not None:
+        slow = slow.next
+        fast = fast.next.next
+        if slow is fast:
+            return True
+    return False
 
-        <div class="warning">
-            <strong>💥 踩坑实录：被遗忘的 prev 指针</strong><br>
-            我自己的一个血泪教训：有一次在实现双向链表的删除操作时，只更新了 <code>cur.prev.next = cur.next</code>，忘了更新 <code>cur.next.prev = cur.prev</code>。结果链表后半部分的 prev 指针全部指向了一个已删除的节点。这个 bug 让我排查了整整两个小时——因为程序没有立刻崩溃，而是在后续的某个操作中才表现出奇怪的行为。教训是：<strong>链表的指针操作必须成对出现</strong>——你改了几个"正向"指针，就要改几个"反向"指针。写完后逐行检查每一个指针更新，不要想当然。
-        </div>
-
-        <h2>本章小结</h2>
-        <p>链表的难点不在于代码量（实际上链表题的代码都很短），而在于<strong>指针操作的顺序和边界条件</strong>。多画图、多练习是掌握链表的唯一路径。记住两个核心技巧：哨兵节点简化头节点处理，快慢指针解决一大类查找问题。</p>
-        <p>下一章，我们将学习一种特殊的线性表——<strong>栈</strong>。它是一种"后进先出"的结构，但你能用栈解决的问题远比你想象的多。</p>
-
-        <div class="footer-nav">
-            <a href="03.html">← 上一章</a>
-            <a href="index.html">📖 返回目录</a>
-            <a href="05.html">下一章 →</a>
-        </div>
-    </div>
-</div>
-</div>
-</body>
-</html>
+x = Node(1, Node(2, Node(3)))
+assert not has_cycle(x)
+x.next.next.next = x.next
+assert has_cycle(x)</code></pre><p>在含环链表里，若环外前缀长度为 <em>μ</em>，环长为 <em>λ</em>，入口可通过相遇后把一个指针重新放回头部，两指针改成每轮都走一步得到。推导来自：相遇时快指针比慢指针多走整圈的长度，<code>2t−t=t=kλ</code>，而慢指针在环内位置是 <code>(t−μ) mod λ</code>，因此从头走 <em>μ</em> 步与从相遇点走 <em>μ</em> 步会同时到入口。</p><aside class="caution"><strong>边界条件</strong><p>判断相遇必须使用节点身份（Python 的 <code>is</code>），不能比较值；两个不同节点完全可以存储相同的值。空链表和单节点无环都应该返回 False。</p></aside></section>
+<section id="variants" class="article-section" aria-labelledby="heading-variants"><span class="section-number">06 / 07</span><h2 id="heading-variants">双向链表与循环链表：多出的不变量</h2><p>双向链表节点拥有 <code>prev</code> 和 <code>next</code> 两条引用。正常情况下，若 <code>x.next is y</code>，则还应有 <code>y.prev is x</code>。删除已知的内部节点时要同时更新前驱和后继的两个方向；忘改其中一侧，就会让正向遍历与反向遍历不一致。</p><p>循环链表把末节点的 <code>next</code> 连回首节点：遍历终止条件不再是 <code>None</code>，而是再次遇到约定的哨兵/头节点。如果没有清晰的终止条件，错误的遍历很容易成为死循环。生产实现通常借助专门的头尾哨兵降低这些边界风险。</p><div class="table-scroll" tabindex="0"><table><thead><tr><th scope="col">结构</th><th scope="col">已持有节点时的局部改链</th><th scope="col">访问第 i 项</th><th scope="col">额外约束</th></tr></thead><tbody><tr><td>单链表</td><td>已知前驱即可 O(1) 插删</td><td>O(n)</td><td>维护 next，边界为 None</td></tr><tr><td>双向链表</td><td>已知节点时可 O(1) 删除</td><td>O(n)</td><td>prev/next 双向一致</td></tr><tr><td>循环链表</td><td>取决于已知节点与前驱</td><td>O(n)</td><td>明确何处终止，防止无穷遍历</td></tr><tr><td>动态数组</td><td>尾部追加均摊 O(1)；中间 O(n)</td><td>O(1)</td><td>容量与整体搬移</td></tr></tbody></table></div></section>
+<section id="practice" class="article-section" aria-labelledby="heading-practice"><span class="section-number">07 / 07</span><h2 id="heading-practice">用边界情况检查“看起来正确”的指针代码</h2><p>建议每次都按同一张清单验证：空链表、单节点、删除全部节点、重复值、删除头和尾、偶数长度与奇数长度、无环与有环。链表错误最常发生在“原本可达的节点因顺序不对而丢失”。</p><p>例如 <code>reverse_list(None)</code> 应返回 <code>None</code>；<code>remove_value</code> 当所有值都匹配时应返回 <code>None</code>。进行内存分析时还应知道：Python 节点对象带有实例开销，链表“仅改变指针很快”不等于实际遍历比连续数组快。</p><p>下一章的栈提供更严格的操作限制：只能从一端取放。了解链表的局部链接之后，就能看清“抽象接口”和“实现容器”的区别。</p></section><section class="takeaways" id="takeaways"><h2>带走三个判断准则</h2><ol><li>链接修改只在已持有目标或前驱引用时为 O(1)；寻找那个位置仍可能 O(n)。</li><li>反转链表的核心是先保留 nxt，保持“已反转前缀 + 未处理后缀”不变量。</li><li>哨兵统一边界；双向链表维护两个方向；判环必须比较节点身份。</li></ol></section><section class="references" id="further-reading"><h2>继续学习与校验资料</h2><ul><li><a href="https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/resources/lecture-notes/">MIT 6.006：Sequence Data Structures</a> — 链表、动态数组的操作模型</li><li><a href="https://docs.python.org/3/library/dataclasses.html">Python dataclasses</a> — 节点示例中的 dataclass 语法</li><li><a href="05.html">下一章：栈</a> — 从节点链接转向抽象存取规则</li></ul></section><nav class="end-nav" aria-label="上一章和下一章"><a href="03.html">← 第 3 章</a><a href="../index.html">全部课程</a><a href="05.html">第 5 章 →</a></nav></article></main></div><footer class="article-footer"><a href="../index.html">数据结构与算法课程</a><span>从状态与不变量推导正确性。</span></footer><script src="../assets/js/interactive.js" defer></script></body></html>
