@@ -129,4 +129,18 @@
   select.addEventListener("change",update);update();
  }
 
+ // Chapter 10: describe the AVL fix for each of the four imbalance shapes.
+ const avl=document.querySelector('[data-demo="avl-rotate"]');
+ if(avl){
+  const select=avl.querySelector("select"),out=avl.querySelector("output");
+  const steps={
+   LL:"插入 3,2,1：根 3 平衡因子 2，需 LL，对 3 右旋；结果根 2，中序 1,2,3。",
+   RR:"插入 1,2,3：根 1 平衡因子 −2，需 RR，对 1 左旋；结果根 2，中序 1,2,3。",
+   LR:"插入 3,1,2：根 3 平衡因子 2，左孩子 1 偏右，需 LR：先对 1 左旋，再对 3 右旋；结果根 2，中序 1,2,3。",
+   RL:"插入 1,3,2：根 1 平衡因子 −2，右孩子 3 偏左，需 RL：先对 3 右旋，再对 1 左旋；结果根 2，中序 1,2,3。"
+  };
+  const update=()=>{out.textContent=steps[select.value];};
+  select.addEventListener("change",update);update();
+ }
+
 })();
