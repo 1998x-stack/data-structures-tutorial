@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 440" role="img" aria-labelledby="t d">
+<title id="t">带权无向图的最小生成树</title>
+<desc id="d">无向图有顶点 0 到 4 和六条带权边：0-1 权 4、0-2 权 2、1-2 权 1、1-3 权 5、2-3 权 8、3-4 权 3。最小生成树选用 1-2、0-2、1-3、3-4 四条边，总权重 2+1+5+3=11，恰好连通五个顶点且无环。</desc>
+<rect width="880" height="440" rx="14" fill="#f9fcf9"/>
+<g font-family="system-ui,Arial,sans-serif"><text x="24" y="34" font-size="20" font-weight="750" fill="#234649">最小生成树：用最低总成本连通所有顶点</text><text x="24" y="56" font-size="13" fill="#667a7d">加粗边属于最小生成树；虚线边被舍弃，因为加入它会成环或成本更高</text></g>
+<g stroke="#c2ccc9" stroke-width="2.5" stroke-dasharray="7 6" fill="none"><line x1="140" y1="108" x2="320" y2="104"/><line x1="140" y1="322" x2="342" y2="312"/></g>
+<g stroke="#147f80" stroke-width="5" fill="none" stroke-linecap="round"><line x1="120" y1="144" x2="120" y2="276"/><line x1="332" y1="125" x2="138" y2="286"/><line x1="350" y1="134" x2="360" y2="276"/><line x1="382" y1="296" x2="580" y2="222"/></g>
+<g fill="#e3f2ed" stroke="#147f80" stroke-width="2.5"><circle cx="120" cy="120" r="24"/><circle cx="350" cy="110" r="24"/><circle cx="120" cy="300" r="24"/><circle cx="360" cy="300" r="24"/><circle cx="600" cy="210" r="24"/></g>
+<g font-family="system-ui,Arial,sans-serif" font-size="17" font-weight="800" fill="#245250" text-anchor="middle"><text x="120" y="126">0</text><text x="350" y="116">1</text><text x="120" y="306">2</text><text x="360" y="306">3</text><text x="600" y="216">4</text></g>
+<g font-family="system-ui,Arial,sans-serif" font-size="13" font-weight="750" fill="#b25a3a"><text x="218" y="94">4</text><text x="88" y="216">2</text><text x="204" y="176">1</text><text x="372" y="216">5</text><text x="224" y="298">8</text><text x="500" y="242">3</text></g>
+<text x="620" y="120" font-size="14" font-weight="750" fill="#137976" font-family="system-ui,Arial,sans-serif">选边顺序（Kruskal）</text>
+<text x="620" y="150" font-size="13" fill="#526f71" font-family="ui-monospace,monospace">1-2 (1)</text>
+<text x="620" y="174" font-size="13" fill="#526f71" font-family="ui-monospace,monospace">0-2 (2)</text>
+<text x="620" y="198" font-size="13" fill="#526f71" font-family="ui-monospace,monospace">3-4 (3)</text>
+<text x="620" y="222" font-size="13" fill="#526f71" font-family="ui-monospace,monospace">1-3 (5)</text>
+<text x="620" y="252" font-size="13" fill="#b25a3a" font-family="system-ui,Arial,sans-serif">舍弃 0-1(4)、2-3(8)</text>
+<text x="620" y="286" font-size="14" font-weight="750" fill="#234649" font-family="system-ui,Arial,sans-serif">总权重 = 11</text>
+<text x="24" y="400" font-size="13" fill="#526f71" font-family="system-ui,Arial,sans-serif">边数恰好 n−1=4；每选一条可用并查集判断两端是否已连通，成环就跳过。</text></svg>

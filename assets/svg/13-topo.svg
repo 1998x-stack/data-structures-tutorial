@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 440" role="img" aria-labelledby="t d">
+<title id="t">有向无环图的拓扑排序与入度</title>
+<desc id="d">有向无环图含顶点 0 到 4，边 0→1、0→2、1→3、2→3、3→4。入度为 0 的只有顶点 0，取出后 1、2 入度归零，随后依次取出 3、4，得到一个合法拓扑序 0,1,2,3,4。环上的顶点永远等不到入度为 0，因此有环时无法完成排序。</desc>
+<rect width="880" height="440" rx="14" fill="#f9fcf9"/>
+<g font-family="system-ui,Arial,sans-serif"><text x="24" y="34" font-size="20" font-weight="750" fill="#234649">拓扑排序：只排出“先修后修”的合法顺序</text><text x="24" y="56" font-size="13" fill="#667a7d">Kahn 算法反复取出入度为 0 的顶点，并让它的出边邻居入度减 1</text></g>
+<defs><marker id="ah2" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#7d8fb3"/></marker></defs>
+<g stroke="#7d8fb3" stroke-width="2.5" fill="none" marker-end="url(#ah2)"><line x1="112" y1="200" x2="228" y2="128"/><line x1="112" y1="220" x2="228" y2="292"/><line x1="272" y1="122" x2="408" y2="196"/><line x1="272" y1="298" x2="408" y2="224"/><line x1="452" y1="210" x2="578" y2="210"/></g>
+<g fill="#eef0fa" stroke="#7461ba" stroke-width="2.5"><circle cx="90" cy="210" r="24"/><circle cx="250" cy="110" r="24"/><circle cx="250" cy="310" r="24"/><circle cx="430" cy="210" r="24"/><circle cx="600" cy="210" r="24"/></g>
+<g font-family="system-ui,Arial,sans-serif" font-size="17" font-weight="800" fill="#4d3f86" text-anchor="middle"><text x="90" y="216">0</text><text x="250" y="116">1</text><text x="250" y="316">2</text><text x="430" y="216">3</text><text x="600" y="216">4</text></g>
+<g font-family="system-ui,Arial,sans-serif" font-size="12" fill="#667a7d" text-anchor="middle"><text x="90" y="252">入度 0</text><text x="250" y="152">入度 1</text><text x="250" y="352">入度 1</text><text x="430" y="252">入度 2</text><text x="600" y="252">入度 1</text></g>
+<text x="24" y="392" font-size="13" fill="#526f71" font-family="system-ui,Arial,sans-serif">取出顺序：0 → 1 → 2 → 3 → 4（也可 0 → 2 → 1 → 3 → 4，拓扑序不唯一）</text>
+<text x="620" y="392" font-size="13" fill="#b25a3a" font-family="system-ui,Arial,sans-serif">有环则排不出</text></svg>

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 470" role="img" aria-labelledby="t d">
+<title id="t">Dijkstra 在带权有向图上的逐步松弛</title>
+<desc id="d">有向图 A 到 B 权 4、A 到 C 权 2、B 到 C 权 1、B 到 D 权 5、C 到 D 权 8。右侧表格按“每次取出当前距离最小的未定顶点”依次松弛，最终距离 A=0、C=2、B=4、D=9。若边的权可以为负，这种贪心就不再成立。</desc>
+<rect width="880" height="470" rx="14" fill="#f9fcf9"/>
+<g font-family="system-ui,Arial,sans-serif"><text x="24" y="34" font-size="20" font-weight="750" fill="#234649">Dijkstra：每步“确定”一个最近的顶点</text><text x="24" y="56" font-size="13" fill="#667a7d">边的数字是权重；右侧每一步只松弛当前确定顶点的出边</text></g>
+<defs><marker id="ah" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#5d9e93"/></marker></defs>
+<g stroke="#5d9e93" stroke-width="2.5" fill="none" marker-end="url(#ah)"><line x1="150" y1="128" x2="300" y2="118"/><line x1="140" y1="158" x2="172" y2="250"/><line x1="318" y1="140" x2="196" y2="255"/><line x1="352" y1="130" x2="392" y2="242"/><line x1="212" y1="288" x2="372" y2="284"/></g>
+<g fill="#e3f2ed" stroke="#147f80" stroke-width="2.5"><circle cx="130" cy="130" r="24"/><circle cx="330" cy="118" r="24"/><circle cx="182" cy="278" r="24"/><circle cx="402" cy="272" r="24"/></g>
+<g font-family="system-ui,Arial,sans-serif" font-size="17" font-weight="800" fill="#245250" text-anchor="middle"><text x="130" y="136">A</text><text x="330" y="124">B</text><text x="182" y="284">C</text><text x="402" y="278">D</text></g>
+<g font-family="system-ui,Arial,sans-serif" font-size="13" font-weight="750" fill="#b25a3a"><text x="214" y="112">4</text><text x="136" y="212">2</text><text x="266" y="196">1</text><text x="384" y="188">5</text><text x="272" y="272">8</text></g>
+<g font-family="system-ui,Arial,sans-serif" font-size="14" fill="#245250"><text x="118" y="330">起点 A；目标：A 到各点的最短距离</text></g>
+<g font-family="system-ui,Arial,sans-serif" font-size="14"><text x="480" y="96" font-weight="750" fill="#137976">步骤：取出 → 松弛</text>
+<text x="480" y="130" fill="#526f71">① 取出 A(0)：B←4，C←2</text>
+<text x="480" y="160" fill="#526f71">② 取出 C(2)：D←10</text>
+<text x="480" y="190" fill="#526f71">③ 取出 B(4)：C 不变，D←9</text>
+<text x="480" y="220" fill="#526f71">④ 取出 D(9)：无出边，结束</text>
+<text x="480" y="262" font-weight="750" fill="#234649">最终距离：A=0，C=2，B=4，D=9</text>
+<text x="480" y="292" fill="#526f71">路径：A→C→D 权 10，A→B→D 权 9，取 9</text>
+<text x="480" y="322" fill="#b25a3a">前提：所有权重非负；有负权边用 Bellman-Ford</text></g></svg>
