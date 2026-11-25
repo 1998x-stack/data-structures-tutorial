@@ -1,488 +1,152 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
-    <title>第12章 图基础</title>
-    <link rel="stylesheet" href="theme.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="图把任意实体关系建模成顶点与边：有向与无向、加权、度的概念，邻接表与邻接矩阵的取舍，以及 DFS/BFS、连通分量与有向环检测。">
+<title>第 12 章 · 图基础：用顶点和边描述任意关系 | 数据结构与算法</title>
+<link rel="stylesheet" href="../assets/css/article.css">
 </head>
 <body>
-<div class="double-border">
-<div class="container">
-    <div class="sidebar">
-        <h3>🧠 课程目录</h3>
-        <ul class="chapter-list">
-            <li><a href="01.html">第1章 为什么要学数据结构</a></li>
-            <li><a href="02.html">第2章 复杂度分析</a></li>
-            <li><a href="03.html">第3章 数组与字符串</a></li>
-            <li><a href="04.html">第4章 链表</a></li>
-            <li><a href="05.html">第5章 栈</a></li>
-            <li><a href="06.html">第6章 队列</a></li>
-            <li><a href="07.html">第7章 哈希表</a></li>
-            <li><a href="08.html">第8章 树基础</a></li>
-            <li><a href="09.html">第9章 二叉搜索树</a></li>
-            <li><a href="10.html">第10章 平衡二叉树</a></li>
-            <li><a href="11.html">第11章 堆与优先队列</a></li>
-            <li><a href="12.html" class="active">第12章 图基础</a></li>
-            <li><a href="13.html">第13章 图算法</a></li>
-            <li><a href="14.html">第14章 排序算法全览</a></li>
-            <li><a href="15.html">第15章 递归与分治</a></li>
-            <li><a href="16.html">第16章 回溯算法</a></li>
-            <li><a href="17.html">第17章 动态规划</a></li>
-            <li><a href="18.html">第18章 贪心算法</a></li>
-            <li><a href="19.html">第19章 并查集</a></li>
-            <li><a href="20.html">第20章 线段树与树状数组</a></li>
-            <li><a href="21.html">第21章 字典树(Trie)</a></li>
-            <li><a href="22.html">第22章 跳表与B+树</a></li>
-            <li><a href="23.html">第23章 LeetCode刷题方法论</a></li>
-            <li><a href="24.html">第24章 大厂面试高频题精讲</a></li>
-            <li><a href="25.html">第25章 系统设计中的数据结构</a></li>
-            <li><a href="26.html">第26章 数据结构性能分析</a></li>
-            <li><a href="27.html">第27章 AI与数据结构的交叉</a></li>
-            <li><a href="28.html">第28章 学习路线与综合项目</a></li>
-        </ul>
-    </div>
-    <div class="main-content">
+<a href="#content" class="skip-link">跳转至正文</a>
+<header class="article-top"><div class="top-inner"><a class="brand" href="../index.html">← 课程首页</a><span class="course-name">数据结构与算法 · 深度图解</span><a class="source-link" href="https://github.com/1998x-stack/data-structures-tutorial">GitHub</a></div></header>
+<div class="article-layout">
+<aside class="toc"><details open><summary>本章导览</summary><nav aria-label="图基础章节目录"><ol>
+<li><a href="#why"><span>01</span>为什么需要图：关系不是线性的</a></li>
+<li><a href="#concepts"><span>02</span>顶点、边与几个关键术语</a></li>
+<li><a href="#store"><span>03</span>两种存储：邻接表与邻接矩阵</a></li>
+<li><a href="#traverse"><span>04</span>DFS 与 BFS：一条路走到底，还是层层推进</a></li>
+<li><a href="#components"><span>05</span>连通分量与有向环检测</a></li>
+<li><a href="#grid"><span>06</span>把网格看成图：岛屿数量</a></li>
+<li><a href="#limits"><span>07</span>适用边界与常见误区</a></li>
+</ol></nav></details><div class="toc-bottom"><a href="../index.html#curriculum">查看 28 章课程</a></div></aside>
+<main id="content"><article>
+<header class="article-heading"><div class="article-kicker">TREES &amp; GRAPHS / CHAPTER 12</div><h1>图基础：用顶点和边描述任意关系</h1><p class="dek">数组描述顺序，树描述层次，而图描述任意关系：谁认识谁、哪条路通向哪条路。只要搞清顶点、边和方向这几件事，DFS 与 BFS 就能把整个网络走一遍。</p><div class="topic-tags"><span>顶点与边</span><span>有向 / 无向 / 加权</span><span>邻接表与矩阵</span><span>DFS / BFS</span><span>连通分量</span></div></header>
+<section id="why" class="article-section" aria-labelledby="heading-why"><span class="section-number">01 / 07</span><h2 id="heading-why">为什么需要图：关系不是线性的</h2>
+<p>前面几章的结构各有形状：数组是一排槽位，链表靠指针连成线，树是一层层向下分叉。它们都在回答“谁在谁旁边、谁是谁的上级”。但现实里大量关系并不服从这两种形状：社交网络里 A 认识 B、B 也认识 C，彼此却没有上下级；地图上一个路口能通向好几个方向，又可能绕回原点。</p>
+<p>把这类对象抽象成<strong>顶点</strong>（vertex），把关系抽象成<strong>边</strong>（edge），得到的结构就是<strong>图</strong>（graph），记作 <em>G</em> = (<em>V</em>, <em>E</em>)。树其实是图的一个特例（连通的、无环的图），链表又是树的特例——所以学会图，前面的结构都能看成它的约束版本。</p>
+<p>代价也随之而来：图可以有环、可以不连通、边还可能有方向和权重。本章先建立描述图的词汇，再给出两种存储方式和两种遍历方法。</p></section>
+<section id="concepts" class="article-section" aria-labelledby="heading-concepts"><span class="section-number">02 / 07</span><h2 id="heading-concepts">顶点、边与几个关键术语</h2>
+<p>图的词汇都在描述“边能表达多少信息”。方向、权重、度，分别回答三个不同的问题：</p>
+<ul><li><strong>有向图</strong>：边分为 u→v 和 v→u 两条不同的边。Twitter 的“关注”是有向的：你关注对方，对方不一定关注你。</li><li><strong>无向图</strong>：边没有方向，(u, v) 与 (v, u) 是同一条。微信好友是双向的，一旦同意，双方都能看到对方。</li><li><strong>带权图</strong>：每条边附带一个数值（cost / length）。地图里这个值可以是距离、通行时间或过路费。</li><li><strong>度</strong>：无向图中顶点相邻边的条数；有向图里拆成<strong>入度</strong>（指向它的边）和<strong>出度</strong>（从它出发的边）。</li></ul>
+<p><strong>路径</strong>是一串首尾相接的边；顶点不重复的路径叫<strong>简单路径</strong>。起点和终点重合的路径叫<strong>环</strong>。不含环的有向图叫<strong>有向无环图（DAG）</strong>，第 13 章的拓扑排序正需要它。</p>
+<figure class="diagram"><div class="diagram-scroll" tabindex="0" aria-label="可横向滚动查看图示"><img src="../assets/svg/12-anatomy.svg" alt="一个四点成环的连通分量，标注路径、环和度；右侧是另一个只有一条边的连通分量" width="880" height="400" loading="lazy"></div><figcaption>图 1 · 路径、环、度、连通分量都落在同一组顶点和边上。左侧四个点互相可达，右侧两点只连彼此，两块之间没有任何路径，所以整张图有两个连通分量。</figcaption></figure>
+<aside class="caution"><strong>树是图，但图不一定是树</strong><p>树 = 连通的 + 无环的无向图。一旦允许环或不连通，树的许多“唯一路径”结论就不再成立，遍历也必须增加“已访问”标记。</p></aside><section id="store" class="article-section" aria-labelledby="heading-store"><span class="section-number">03 / 07</span><h2 id="heading-store">两种存储：邻接表与邻接矩阵</h2>
+<p>图本身是对关系的抽象，落到代码里要选一种表示。最常用的两种是<strong>邻接表</strong>和<strong>邻接矩阵</strong>；它们维同一张图，却把代价花在不同的地方。</p>
+<p><strong>邻接表</strong>为每个顶点维护一张邻居表。它只存实际存在的边，所以空间与 n + m 成正比（m 是边数），稀疏图里非常省；遍历一个顶点的邻居只需 O(度)，但查“u 与 v 之间有没有边”要扫描 u 的邻居表。</p>
+<pre class="code-panel" tabindex="0"><code>graph = {0: [1, 3], 1: [0, 2], 2: [1, 3], 3: [0, 2]}   # 图 1 左侧那个四点环
 
-        <h2>从"六度分隔"说起</h2>
+def neighbors(g, u):
+    return g[u]                      # O(度)
 
-        <p>你听说过"六度分隔（Six Degrees of Separation）"理论吗？这个理论认为，世界上任意两个人之间最多通过六个中间人就能建立起联系。你的朋友的朋友的朋友的朋友的朋友的朋友——可能和地球上任何一个人相连。</p>
+def has_edge_list(g, u, v):
+    return v in g[u]                 # 最坏 O(度)
+ 
+# 带权图：邻居表里存 (终点, 权重)
+weighted = {0: [(1, 4), (2, 2)], 1: [(2, 1)], 2: []}</code></pre>
+<p><strong>邻接矩阵</strong>用一个 n×n 数组记录每一对顶点之间是否有边（或边的权重）。查任意一条边是 O(1)，但不管图多稀疏都要占 n² 个槽位，遍历某点的邻居也得扫整行 O(n)。</p>
+<figure class="diagram"><div class="diagram-scroll" tabindex="0" aria-label="可横向滚动查看图示"><img src="../assets/svg/12-representation.svg" alt="同一张四边形图的邻接表与 4×4 邻接矩阵对照，标注 O(n+m) 与 O(n²)" width="880" height="480" loading="lazy"></div><figcaption>图 2 · 同一张无向图。邻接表只列存在的边；邻接矩阵对称，对角线为 0（顶点不与自己相邻）。选哪个取决于你要频繁“查边”还是“遍历邻居”。</figcaption></figure>
+<div class="table-scroll"><table><thead><tr><th>特性</th><th>邻接表</th><th>邻接矩阵</th></tr></thead><tbody><tr><td>空间</td><td>O(n + m)</td><td>O(n²)</td></tr><tr><td>查边 (u, v)</td><td>O(度(u))</td><td>O(1)</td></tr><tr><td>遍历邻居</td><td>O(度(u))</td><td>O(n)</td></tr><tr><td>适合</td><td>稀疏图，m ≪ n²</td><td>稠密图，且需频繁查边</td></tr></tbody></table></div>
+<p>工程与面试中邻接表是默认选择，因为绝大多数真实图是稀疏的；只有 Floyd-Warshall 这类需要反复 O(1) 查边的算法才优先用矩阵（见第 13 章）。下面代码只用标准库就能建出邻接表：</p>
+<pre class="code-panel" tabindex="0"><code>def build_adjacency(edges, directed=False):
+    graph = {}
+    for u, v in edges:
+        graph.setdefault(u, [])
+        graph.setdefault(v, [])
+        graph[u].append(v)
+        if not directed:          # 无向图两个方向都记
+            graph[v].append(u)
+    return graph</code></pre><section id="traverse" class="article-section" aria-labelledby="heading-traverse"><span class="section-number">04 / 07</span><h2 id="heading-traverse">DFS 与 BFS：一条路走到底，还是层层推进</h2>
+<p>图的遍历和树的遍历目标一样：从起点出发，不重不漏地访问所有可达顶点。与树不同的是，图有环、也可能不连通，所以必须用一个<strong>已访问集合</strong>防止兜圈。两种经典策略只差在“下一个访问谁”：</p>
+<ul><li><strong>深度优先（DFS）</strong>用栈（或递归调用栈）：总是先扎入最新发现的邻居，走不动了再回溯。</li><li><strong>广度优先（BFS）</strong>用队列：先把当前顶点的所有邻居都看一眼，再逐层向外。</li></ul>
+<figure class="diagram"><div class="diagram-scroll" tabindex="0" aria-label="可横向滚动查看图示"><img src="../assets/svg/12-traversal.svg" alt="起点 0 的无向图，BFS 按层访问 0,1,2,3,4；DFS 深入访问 0,1,3,2,4" width="880" height="420" loading="lazy"></div><figcaption>图 3 · 同一张图、同一个起点，因容器不同而得到不同访问顺序。BFS 只走最少的边就能到达目标，DFS 则适合探索整条分支。</figcaption></figure>
+<pre class="code-panel" tabindex="0"><code>from collections import deque
 
-        <p>这个理论的核心是什么？是<strong>图（Graph）</strong>。每个人是一个"顶点"（Vertex），人与人之间的认识关系是一条"边"（Edge）。整个社交网络就是一张巨大的图。</p>
+def bfs_order(graph, start):
+    seen = {start}; order = []; queue = deque([start])
+    while queue:
+        node = queue.popleft()      # 先入先出
+        order.append(node)
+        for nxt in graph[node]:
+            if nxt not in seen:
+                seen.add(nxt); queue.append(nxt)
+    return order
 
-        <p>图是计算机科学中<strong>最具表达能力</strong>的数据结构。树实际上是图的一种特例（没有环的连通图），链表是图的一种更特例（每个节点最多只有一个邻居）。当你需要表达任意两个实体之间的任意关系时——用图就对了。</p>
-
-        <p>从<strong>地图导航</strong>（路口=顶点，道路=边）到<strong>社交推荐</strong>（用户=顶点，关注=边），从<strong>网页排名</strong>（页面=顶点，超链接=边）到<strong>电路设计</strong>（元件引脚=顶点，导线=边）——图无处不在。</p>
-
-        <h2>图的概念</h2>
-
-        <p>让我们正式定义图以及相关的核心术语：</p>
-
-        <p>一个<strong>图（Graph）</strong> G = (V, E) 由两个集合组成：</p>
-        <ul>
-            <li><strong>V（Vertex）</strong>：顶点的有限集合。</li>
-            <li><strong>E（Edge）</strong>：边的有限集合，每条边是顶点对 (u, v)。</li>
-        </ul>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>术语</th>
-                    <th>英文</th>
-                    <th>含义</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>有向图</td>
-                    <td>Directed Graph / Digraph</td>
-                    <td>边有方向，如 (u→v) 和 (v→u) 是两条不同的边。Twitter关注关系是有向图——你关注了对方，对方不一定关注你。</td>
-                </tr>
-                <tr>
-                    <td>无向图</td>
-                    <td>Undirected Graph</td>
-                    <td>边没有方向，(u, v) 和 (v, u) 是同一条边。Facebook好友关系是无向图——如果A是B的好友，B也一定是A的好友。</td>
-                </tr>
-                <tr>
-                    <td>带权图</td>
-                    <td>Weighted Graph</td>
-                    <td>每条边有一个权重（cost/length）。地图导航中，边权可以是距离或时间。</td>
-                </tr>
-                <tr>
-                    <td>度</td>
-                    <td>Degree</td>
-                    <td>无向图中，一个顶点的邻居个数。有向图中分为入度（In-degree）和出度（Out-degree）。</td>
-                </tr>
-                <tr>
-                    <td>路径</td>
-                    <td>Path</td>
-                    <td>从一个顶点到另一个顶点经过的顶点序列。路径上顶点不重复称为"简单路径"。</td>
-                </tr>
-                <tr>
-                    <td>环</td>
-                    <td>Cycle</td>
-                    <td>起点和终点相同的路径。没有环的图称为"无环图"（Acyclic Graph）。</td>
-                </tr>
-                <tr>
-                    <td>连通分量</td>
-                    <td>Connected Component</td>
-                    <td>无向图中，互相可达的最大顶点子集。一个图可以有多个连通分量。</td>
-                </tr>
-                <tr>
-                    <td>强连通分量</td>
-                    <td>Strongly Connected Component</td>
-                    <td>有向图中，任意两个顶点互相可达的最大子图。</td>
-                </tr>
-                <tr>
-                    <td>森林</td>
-                    <td>Forest</td>
-                    <td>没有环的图（无向无环图）。一棵树是一个连通的森林。</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <div class="tip">
-            <strong>一个记忆技巧：</strong>树是特殊的图——树是"连通的无环图"。如果你学会了图的所有概念和应用，树就自动被你"降维打击"了。反过来看，树中的很多算法（DFS、BFS）可以直接推广到图上。
-        </div>
-
-        <h2>图的存储方式</h2>
-
-        <p>在代码中表示图，最常用的两种方式是<strong>邻接矩阵</strong>和<strong>邻接表</strong>。</p>
-
-        <h3>邻接矩阵（Adjacency Matrix）</h3>
-
-        <p>使用一个 n×n 的二维数组来存储图，其中 matrix[i][j] 表示顶点 i 到顶点 j 是否存在边（或边的权重）。</p>
-
-        <pre><code># 无向图的邻接矩阵
-#    0 --- 1
-#    |     |
-#    3 --- 2
-# 顶点数 n = 4
-n = 4
-matrix = [
-    [0, 1, 0, 1],  # 顶点0到0(无),1(有),2(无),3(有)
-    [1, 0, 1, 0],  # 顶点1到0(有),1(无),2(有),3(无)
-    [0, 1, 0, 1],  # 顶点2...
-    [1, 0, 1, 0],  # 顶点3...
-]
-
-def has_edge(matrix, i, j):
-    return matrix[i][j] != 0  # O(1) 查边
-
-def get_neighbors(matrix, i):
-    n = len(matrix)
-    neighbors = []
-    for j in range(n):
-        if matrix[i][j] != 0:
-            neighbors.append(j)
-    return neighbors  # O(n) 遍历所有顶点</code></pre>
-
-        <h3>邻接表（Adjacency List）</h3>
-
-        <p>为每个顶点维护一个列表，存储它的所有邻居。对于稀疏图（边的数量远小于 n²），邻接表能省大量空间。</p>
-
-        <pre><code># 用邻接表表示同一张图
-#    0 --- 1
-#    |     |
-#    3 --- 2
-graph = {
-    0: [1, 3],
-    1: [0, 2],
-    2: [1, 3],
-    3: [0, 2],
-}
-
-def has_edge_adj(graph, i, j):
-    return j in graph[i]  # O(degree(i))，最坏 O(n)
-
-def get_neighbors_adj(graph, i):
-    return graph[i]  # O(degree(i))
-
-# 有向带权图的邻接表
-# 0 ---(5)--> 1
-# 0 ---(3)--> 2
-# 1 ---(2)--> 2
-weighted_graph = {
-    0: [(1, 5), (2, 3)],
-    1: [(2, 2)],
-    2: [],
-}</code></pre>
-
-        <h3>对比总结</h3>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>特性</th>
-                    <th>邻接矩阵</th>
-                    <th>邻接表</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>空间复杂度</td>
-                    <td>O(n²)</td>
-                    <td>O(n + m)（m 为边的数量）</td>
-                </tr>
-                <tr>
-                    <td>查边 (u, v)</td>
-                    <td>O(1)</td>
-                    <td>O(degree(u))</td>
-                </tr>
-                <tr>
-                    <td>遍历所有邻居</td>
-                    <td>O(n)</td>
-                    <td>O(degree(u))</td>
-                </tr>
-                <tr>
-                    <td>添加边</td>
-                    <td>O(1)</td>
-                    <td>O(1)</td>
-                </tr>
-                <tr>
-                    <td>删除边</td>
-                    <td>O(1)</td>
-                    <td>O(degree(u))</td>
-                </tr>
-                <tr>
-                    <td>适合场景</td>
-                    <td>稠密图（m ≈ n²）</td>
-                    <td>稀疏图（m << n²）</td>
-                </tr>
-                <tr>
-                    <td>算法偏好</td>
-                    <td>Floyd-Warshall（需要O(1)查边）</td>
-                    <td>DFS/BFS/Dijkstra（需要遍历邻居）</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <p>在面试和实际工程中，<strong>邻接表是绝对的主流</strong>——绝大多数图是稀疏的。当你写 <code>graph[u].append(v)</code> 时，你使用的就是邻接表。</p>
-
-        <h2>DFS遍历</h2>
-
-        <p>深度优先搜索（Depth-First Search, DFS）是图最基础的遍历方式之一。它的思想是"一条道走到黑"——从起点出发，沿着一个方向一直走，走到尽头再回溯。</p>
-
-        <p>DFS可以用递归实现，也可以用显式栈实现。我们来看两种写法：</p>
-
-        <pre><code>def dfs_recursive(graph, node, visited=None):
-    """递归DFS遍历"""
-    if visited is None:
-        visited = set()
-    visited.add(node)
-    print(node, end=' ')  # 访问节点
-    for neighbor in graph[node]:
-        if neighbor not in visited:
-            dfs_recursive(graph, neighbor, visited)
-    return visited
-
-def dfs_iterative(graph, start):
-    """栈实现DFS遍历"""
-    visited = set()
-    stack = [start]
+def dfs_order(graph, start):
+    seen = set(); order = []; stack = [start]
     while stack:
-        node = stack.pop()
-        if node not in visited:
-            visited.add(node)
-            print(node, end=' ')
-            # 逆序入栈，保持和递归一致的访问顺序
-            for neighbor in reversed(graph[node]):
-                if neighbor not in visited:
-                    stack.append(neighbor)
-    return visited</code></pre>
-
-        <h3>经典题目：岛屿数量（LeetCode 200）</h3>
-
-        <p>这是DFS最经典的面试题之一。给定一个二维网格（'1'表示陆地，'0'表示水），计算岛屿（相连的'1'形成的连通区域）的数量。每个格子只和上下左右四个方向相连。</p>
-
-        <pre><code>def num_islands(grid):
-    """DFS解法：遇到'1'就把它所在的整个岛屿'淹没'"""
-    if not grid:
-        return 0
-
-    m, n = len(grid), len(grid[0])
-    count = 0
-
-    def dfs(i, j):
-        # 越界或遇到水，返回
-        if i < 0 or i >= m or j < 0 or j >= n or grid[i][j] == '0':
-            return
-        grid[i][j] = '0'  # 标记为已访问（沉岛）
-        # 递归遍历上下左右
-        dfs(i - 1, j)
-        dfs(i + 1, j)
-        dfs(i, j - 1)
-        dfs(i, j + 1)
-
-    for i in range(m):
-        for j in range(n):
-            if grid[i][j] == '1':
-                count += 1
-                dfs(i, j)  # 淹掉整座岛
-
-    return count</code></pre>
-
-        <p>这个解法被称为<strong>"沉岛算法"</strong>——遇到一个岛就把整个岛淹掉（标记为'0'），防止重复计数。代码简洁、思路清晰，是面试中的满分答案。</p>
-
-        <h2>BFS遍历</h2>
-
-        <p>广度优先搜索（Breadth-First Search, BFS）的思想是"层层推进"——从起点出发，先访问所有距离为1的节点，再访问所有距离为2的节点……</p>
-
-        <p>BFS天然使用<strong>队列（Queue）</strong>实现：</p>
-
-        <pre><code>from collections import deque
-
-def bfs(graph, start):
-    """队列实现BFS遍历"""
-    visited = {start}
-    queue = deque([start])
+        node = stack.pop()          # 后入先出
+        if node in seen: continue
+        seen.add(node); order.append(node)
+        for nxt in reversed(graph[node]):
+            if nxt not in seen: stack.append(nxt)
+    return order</code></pre>
+<p>为什么 BFS 能求<strong>无权图的最短路径</strong>？因为它先访问距离为 1 的所有顶点，再访问距离为 2 的，依次类推。目标第一次被发现时，走过的边数一定最少。把 <code>seen</code> 换成 <code>dist</code> 记录层数即可：</p>
+<pre class="code-panel" tabindex="0"><code>def bfs_distances(graph, start):
+    dist = {start: 0}; queue = deque([start])
     while queue:
         node = queue.popleft()
-        print(node, end=' ')  # 访问节点
-        for neighbor in graph[node]:
-            if neighbor not in visited:
-                visited.add(neighbor)
-                queue.append(neighbor)
-    return visited</code></pre>
+        for nxt in graph[node]:
+            if nxt not in dist:
+                dist[nxt] = dist[node] + 1   # 第一次发现即最短层数
+                queue.append(nxt)
+    return dist</code></pre>
+<p>两种遍历都只把每个顶点和每条边处理一次，时间同是 O(n + m)。它们真正的差别在空间与用途：DFS 的栈深取决于最长分支，递归实现遇大图可能爆栈；BFS 的队列可能装下最宽的一层，但在无权图上能直接给出最短距离。</p>
+<div class="lab" data-demo="graph-bfs"><h3>逐步观察 BFS 的分层</h3><p>固定图：0–1、0–2、1–3、2–3、3–4。拖动滑块查看 BFS 每一层如何扩张。</p><div class="lab-controls"><label for="graph-bfs-step">步骤</label><input id="graph-bfs-step" type="range" min="0" max="3" value="1" step="1"></div><output aria-live="polite">第 1 步 第 1 层：队列 [1, 2]，已访问 {0,1,2}。从 0 找到邻居 1、2，距离都是 1。</output></div><section id="components" class="article-section" aria-labelledby="heading-components"><span class="section-number">05 / 07</span><h2 id="heading-components">连通分量与有向环检测</h2>
+<p>图不一定“整块”地连在一起。无向图里互相可达的最大顶点子集叫一个<strong>连通分量</strong>；统计分量数只需对每个未访问顶点发起一次遍历：</p>
+<pre class="code-panel" tabindex="0"><code>def connected_components(graph):
+    seen = set(); components = []
+    for start in graph:
+        if start in seen: continue
+        block = set(); stack = [start]
+        while stack:
+            node = stack.pop()
+            if node in block: continue
+            block.add(node); seen.add(node)
+            stack.extend(graph[node])
+        components.append(block)     # 每个分量是一块互相可达的点
+    return components</code></pre>
+<p>有向图里连通性要更严格：它不保证 u 到 v 可达时 v 也到得了 u，互相可达的子图叫<strong>强连通分量</strong>。一个常见任务是<strong>检测有向环</strong>，用三色标记实现：白色=未访问，灰色=在当前 DFS 路径上，黑色=已处理完。一旦在 DFS 中遇灰色节点，说明有一条路径绕回了自己：</p>
+<pre class="code-panel" tabindex="0"><code>WHITE, GRAY, BLACK = 0, 1, 2
 
-        <h3>为什么BFS天然适合求最短路径？</h3>
-
-        <p>因为BFS是"按层"遍历的。在<strong>无权图</strong>中（所有边的权重为1），BFS第一次访问到目标节点时，走的路径一定是<strong>最短的</strong>（边数最少的）——因为BFS确保先访问距离为d的节点，再访问距离为d+1的节点。</p>
-
-        <p>用BFS求解无权图的最短路径：</p>
-
-        <pre><code>def shortest_path_bfs(graph, start, end):
-    """BFS求无权图的最短路径（返回路径上的节点列表）"""
-    if start == end:
-        return [start]
-    visited = {start}
-    queue = deque([[start]])  # 队列中存储路径
-    while queue:
-        path = queue.popleft()
-        node = path[-1]
-        for neighbor in graph[node]:
-            if neighbor == end:
-                return path + [neighbor]
-            if neighbor not in visited:
-                visited.add(neighbor)
-                queue.append(path + [neighbor])
-    return None  # 没有路径</code></pre>
-
-        <p>对比DFS和BFS：</p>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>特性</th>
-                    <th>DFS</th>
-                    <th>BFS</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>数据结构</td>
-                    <td>栈（或递归栈）</td>
-                    <td>队列</td>
-                </tr>
-                <tr>
-                    <td>空间复杂度</td>
-                    <td>O(h)，h为深度</td>
-                    <td>O(w)，w为最大宽度（通常更大）</td>
-                </tr>
-                <tr>
-                    <td>最短路径</td>
-                    <td>不能保证</td>
-                    <td>保证（无权图）</td>
-                </tr>
-                <tr>
-                    <td>连通分量</td>
-                    <td>可以</td>
-                    <td>可以</td>
-                </tr>
-                <tr>
-                    <td>拓扑排序</td>
-                    <td>可以（后序遍历）</td>
-                    <td>可以（Kahn算法）</td>
-                </tr>
-                <tr>
-                    <td>典型例题</td>
-                    <td>岛屿数量、排列组合</td>
-                    <td>最短路径、单词接龙</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <h2>连通分量与环检测</h2>
-
-        <h3>无向图的连通分量</h3>
-
-        <p>一个图可能不是"完整"的——可能有若干个互相不连通的部分。每个内部连通的部分称为一个<strong>连通分量</strong>。计算连通分量的数量，就是对每个未被访问的节点执行一次DFS/BFS：</p>
-
-        <pre><code>def count_components(graph):
-    """计算无向图中的连通分量数量"""
-    visited = set()
-    count = 0
-
-    def dfs(node):
-        visited.add(node)
-        for neighbor in graph[node]:
-            if neighbor not in visited:
-                dfs(neighbor)
-
-    for node in graph:
-        if node not in visited:
-            count += 1
-            dfs(node)
-
-    return count</code></pre>
-
-        <p>这道题的变体出现在各种面试题中——比如"省份数量"（LeetCode 547），本质上就是连通分量计数。</p>
-
-        <h3>有向图的环检测（三色标记法）</h3>
-
-        <p>有向图中的环检测比无向图复杂一些。一种经典的思路是<strong>三色标记法</strong>：</p>
-
-        <ul>
-            <li><strong>WHITE（白色）</strong>：未访问。</li>
-            <li><strong>GRAY（灰色）</strong>：正在访问中（在当前DFS路径上）。</li>
-            <li><strong>BLACK（黑色）</strong>：已访问完毕（所有子孙都已处理）。</li>
-        </ul>
-
-        <p>如果在DFS过程中遇到了一个"灰色"节点，说明存在环——因为这意味着从当前节点出发有一条路径回到了它自己。</p>
-
-        <pre><code>WHITE, GRAY, BLACK = 0, 1, 2
-
-def has_cycle(graph):
-    """检测有向图是否有环，三色标记法"""
-    color = {node: WHITE for node in graph}
-
-    def dfs(node):
-        if color[node] == GRAY:   # 遇到灰色节点 → 有环
-            return True
-        if color[node] == BLACK:  # 已经处理过，无需重复
-            return False
-
-        color[node] = GRAY        # 标记为正在访问
-        for neighbor in graph[node]:
-            if dfs(neighbor):
+def has_cycle_directed(graph):
+    colour = {node: WHITE for node in graph}
+    def visit(node):
+        colour[node] = GRAY
+        for nxt in graph.get(node, []):
+            if colour[nxt] == GRAY:        # 绕回了当前路径
                 return True
-        color[node] = BLACK       # 标记为已处理完毕
+            if colour[nxt] == WHITE and visit(nxt):
+                return True
+        colour[node] = BLACK               # 子树处理完毕
         return False
-
-    for node in graph:
-        if color[node] == WHITE:
-            if dfs(node):
-                return True
-    return False</code></pre>
-
-        <p>"课程表"问题（LeetCode 207）就是环检测的标准应用——课程之间的先修关系构成了一个有向图，如果图中存在环，说明无法完成所有课程。</p>
-
-        <div class="warning">
-            <strong>Python递归深度警告：</strong>如果图的顶点数很大（比如超过1000个），递归DFS会触发 Python 的递归深度限制（默认 1000）。在处理大型图时，优先使用栈实现DFS或队列实现BFS。或者，通过 <code>sys.setrecursionlimit(10000)</code> 提高限制，但请确保你知道自己在做什么。
-        </div>
-
-        <h2>本章小结</h2>
-
-        <p>这一章我们建立了图的理论基础：</p>
-        <ul>
-            <li>从"六度分隔"出发，理解了<strong>图的核心概念</strong>——顶点、边、有向/无向、度、路径、环、连通分量等。</li>
-            <li>对比了<strong>邻接矩阵和邻接表</strong>两种存储方式，理解了什么时候用哪一种。</li>
-            <li>实现了<strong>DFS遍历</strong>（递归和栈两种版本），并用"沉岛算法"解决了经典的<strong>岛屿数量</strong>问题。</li>
-            <li>实现了<strong>BFS遍历</strong>（队列版本），理解了为什么BFS天然适合求无权图的最短路径。</li>
-            <li>掌握了<strong>连通分量计数</strong>和<strong>有向图环检测</strong>（三色标记法）。</li>
-        </ul>
-
-        <p>掌握了图的基本操作和两种遍历方式，你就具备了解决"图相关面试题"80%的基础。剩下的20%在于更高级的算法——我们下一章就来补齐这部分。</p>
-
-        <p><strong>第13章「图算法」</strong>将带我们进入图的"高阶玩法"：最短路径（Dijkstra、Bellman-Ford、Floyd-Warshall）、拓扑排序、最小生成树（Prim、Kruskal）和关键路径。这些算法是系统设计和高级面试中的常客。准备好了吗？</p>
-
-        <div class="footer-nav">
-            <a href="11.html">← 上一章</a>
-            <a href="index.html">📖 返回目录</a>
-            <a href="13.html">下一章 →</a>
-        </div>
-    </div>
-</div>
-</div>
+    return any(colour[n] == WHITE and visit(n) for n in graph)</code></pre>
+<aside class="caution"><strong>别把“已访问”和“在当前路径上”混为一谈</strong><p>只用一个 visited 集合只能避开重复访问，无法区分“从别的分支早就算完的黑色节点”和“正在当前路径上的灰色节点”。有向图环检测必须保留三态，否则会把普通的交叉边误判成环。</p></aside><section id="grid" class="article-section" aria-labelledby="heading-grid"><span class="section-number">06 / 07</span><h2 id="heading-grid">把网格看成图：岛屿数量</h2>
+<p>很多看似不是图的问题其实能建模成图。给定一个只包含 '1'（陆地）和 '0'（水）的二维网格，相连的陆地上下左右相邻，求岛屿个数——这就是求<strong>连通分量个数</strong>。把每个陆地格子看作顶点，相邻的陆地格之间连一条无踪边，岛屿数就是分量数。</p>
+<pre class="code-panel" tabindex="0"><code>def num_islands(grid):
+    if not grid: return 0
+    rows, cols = len(grid), len(grid[0])
+    def sink(r, c):
+        if r &lt; 0 or r &gt;= rows or c &lt; 0 or c &gt;= cols or grid[r][c] != '1':
+            return
+        grid[r][c] = '0'             # 标记已访问，相当于浅岛
+        sink(r - 1, c); sink(r + 1, c)
+        sink(r, c - 1); sink(r, c + 1)
+    count = 0
+    for r in range(rows):
+        for c in range(cols):
+            if grid[r][c] == '1':
+                count += 1
+                sink(r, c)
+    return count</code></pre>
+<p>这个写法会修改输入网格（把整岛“浅”成水）。如果不允许改变输入，就把已访问格子记到单独的 <code>set</code> 里，而不改写 grid。</p></section>
+<section id="limits" class="article-section" aria-labelledby="heading-limits"><span class="section-number">07 / 07</span><h2 id="heading-limits">适用边界与常见误区</h2>
+<ul><li><strong>“图就是树加了几条边”</strong>：树是特殊的图，但图可以有环、可以不连通，树的“任意两点唯一路径”等结论不再普遍成立。</li><li><strong>“邻接矩阵总是更好”</strong>：矩阵查边是 O(1)，但无论多稀疏都要 n² 空间；稀疏图用邻接表才划算。</li><li><strong>“DFS 递归写起来简单，随便用”</strong>：递归深度等于最长路径，顶点上万时可能触发 Python 默认递归限制。大图优先用显式栈或 BFS。</li><li><strong>“遍历完了图就都访问到了”</strong>：单次遍历只能覆盖起点所在的连通分量；要遍历全图，必须对每个未访问顶点重新发起遍历。</li><li><strong>“无向图能到就一定能回”不能搬到有向图</strong>：有向图要区分可达与互达，即连通与强连通。</li></ul>
+<p>复杂度上，DFS 与 BFS 都是 O(n + m)（邻接表），因为每个顶点入一次、每条边被看一次；用邻接矩阵则是 O(n²)。这些结论都建立在“遍历邻居”这一操作上，而不是具体的递归写法。</p><section class="takeaways"><h2>带走三个判断准则</h2><ol><li>图把“关系”提升为一等公民：顶点存对象，边存关系，方向、权重、度都在描述边能承载多少信息。</li><li>邻接表与邻接矩阵不是对错，而是空间 O(n+m) 与查询 O(1) 的权衡；稀疏图默认用邻接表。</li><li>DFS 和 BFS 同是 O(n+m)，差别在“先深”还是“先广”；无权图的最短路需 BFS，因为它第一次发现即最少边数。</li></ol></section>
+<section class="references"><h2>继续学习与校验资料</h2><ul><li><a href="https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/resources/lecture-9-breadth-first-search/">MIT 6.006：Breadth-First Search</a> — BFS 分层与无权最短路径</li><li><a href="https://docs.python.org/3/library/collections.html#collections.deque">Python collections.deque</a> — BFS 队列的标准库实现，两端操作都是 O(1)</li><li><a href="13.html">下一章：图算法</a> — 最短路径、拓扑排序与最小生成树</li><li><a href="11.html">上一章：堆与优先队列</a> — 图算法里优先队列的用武之地</li></ul></section>
+<nav class="end-nav" aria-label="上一章和下一章"><a href="11.html">← 第 11 章</a><a href="../index.html">全部课程</a><a class="chapter-link" href="13.html">第 13 章 →</a></nav>
+</article></main></div>
+<footer class="article-footer"><a href="../index.html">数据结构与算法课程</a><span>关系一旦自由，遍历就要有策略。</span></footer>
+<script src="../assets/js/interactive.js" defer></script>
 </body>
 </html>
