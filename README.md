@@ -11,7 +11,7 @@
 | 树 / 堆 / 图 | 08：树基础与四种遍历 | **已精修** |
 | 树 / 堆 / 图 | 09–11：二叉搜索树、平衡二叉树、堆与优先队列 | **本批深度图解重构** |
 | 树 / 堆 / 图 | 12：图基础 | **本批深度图解重构** |
-| 树 / 堆 / 图 | 13：图算法 | 原有课程保留，待精修 |
+| 树 / 堆 / 图 | 13：图算法 | **本批深度图解重构** |
 | 算法设计 | 14–18 | 原有课程保留，待精修 |
 | 高级索引 | 19–22 | 原有课程保留，待精修 |
 | 工程应用 | 23–28 | 原有课程保留，待精修 |
@@ -39,17 +39,17 @@ python3 -m unittest discover -s tests -p 'test_*.py'
 ├── index.html                      # GitHub Pages / 课程首页
 ├── courses.json                    # 28 章机器可读课程清单
 ├── lessons/
-│   ├── 01.html .. 11.html          # 十一篇独立深度重构文章
-│   ├── 12.html .. 28.html          # 保留原内容，等待逐篇重构
+│   ├── 01.html .. 13.html          # 十三篇独立深度重构文章
+│   ├── 14.html .. 28.html          # 保留原内容，等待逐篇重构
 │   ├── theme.css                   # 原章节专用兼容样式
 │   └── index.html                  # 原章节返回首页的兼容入口
 ├── assets/
 │   ├── css/{site,article}.css      # 首页与文章各自的样式
 │   ├── js/{home,interactive}.js    # 渐进增强
 │   └── svg/*.svg                   # 可独立访问的原生矢量图
-├── examples/{algorithms,linear_structures,bst,balanced_trees,heaps}.py # 可运行参考算法
+├── examples/{algorithms,linear_structures,bst,balanced_trees,heaps,graphs,graph_algorithms}.py # 可运行参考算法
 ├── tests/                           # 内容、文件和代码测试
-├── archive/original/01.html .. 11.html # 十一篇改写前的原始版本
+├── archive/original/01.html .. 13.html # 十三篇改写前的原始版本
 ├── 01.html .. 28.html              # 老链接兼容跳转
 ├── AGENTS.md                       # 未来 Agent 编辑与验收契约
 └── .github/workflows/site.yml      # CI、浏览器质量门禁

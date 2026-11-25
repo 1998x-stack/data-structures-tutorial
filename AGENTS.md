@@ -47,3 +47,10 @@
 - 本批原稿存入 `archive/original/09.html`–`11.html`；`courses.json` 中这三章的 `revision` 已改为 `illustrated`，其余保持 `original`。
 - 运行参考：`examples/bst.py`、`examples/balanced_trees.py`、`examples/heaps.py`；测试：`tests/test_bst.py`、`tests/test_balanced_trees.py`、`tests/test_heaps.py`。
 - 必须区分：BST 的全子树区间不变量与“中序升序”推论；平衡因子用边数或节点数约定时差值相同；AVL 高度上界与红黑树高度上界出处不同；堆只保证父子序、不等于有序，建堆 O(n) 是求和论证而非实测。
+
+## 2026-11 后续精修批次（12–13）
+- 12–13（图基础、图算法）已按同一图解体系重写；14–28 仍是原稿。README 的状态表与本节必须同步更新，不得把未改章节说成已精修。
+- 本批原稿存入 `archive/original/12.html`、`archive/original/13.html`；`courses.json` 中这两章的 `revision` 已改为 `illustrated`，其余保持 `original`。
+- 运行参考：`examples/graphs.py`（表示与遍历）、`examples/graph_algorithms.py`（最短路/拓扑/MST）；测试：`tests/test_graphs.py`、`tests/test_graph_algorithms.py`。
+- 必须区分：邻接表 O(n+m) 与邻接矩阵 O(n²) 的适用边界；DFS/BFS 只在无权图、BFS 才保证最少边数最短路；Dijkstra 仅在权重非负时正确，负权用 Bellman-Ford；拓扑排序要求有向无环图且结果不唯一；最小生成树优化全树总权重、与最短路径树目标不同。
+- 图示为外链 `assets/svg/12-*.svg`、`assets/svg/13-*.svg`，与 01–11 一致（skills 自带的 `validate.py` 要求内联 `<svg>`，与本仓库外链约定冲突，此差异只在交付说明中记录）。
