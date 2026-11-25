@@ -173,4 +173,19 @@
   input.addEventListener("input",update);update();
  }
 
+ // Chapter 13: Dijkstra settling order on the figure's A..D graph.
+ const dij=document.querySelector('[data-demo="dijkstra-trace"]');
+ if(dij){
+  const input=dij.querySelector("input"),out=dij.querySelector("output");
+  const states=[
+   ["初始","A=0，B=∞，C=∞，D=∞","只有起点距离已知。"],
+   ["取出 A(0)","B=4，C=2","松弛 A 的两条出边。"],
+   ["取出 C(2)","D=10","当前未定的顶点中 C 最近。"],
+   ["取出 B(4)","D=9","经 B 到 D 是 4+5=9，比 10 更短。"],
+   ["取出 D(9)","结束","已无出边，全部距离确定。"]
+  ];
+  const update=()=>{const n=Number(input.value),s=states[n];out.textContent="第 "+n+" 步 "+s[0]+"："+s[1]+"。"+s[2];};
+  input.addEventListener("input",update);update();
+ }
+
 })();
