@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 400" role="img" aria-labelledby="t d">
+<title id="t">图的顶点、边、路径、环、度与连通分量</title>
+<desc id="d">左侧是一个四点成环的无向连通分量：加粗青绿的路径 0→1→2 与闭合回路 0-1-2-3-0 分别标注，每个顶点度为 2。右侧是另一个只有一条边的连通分量，与左侧互不可达，说明整张图有两个连通分量。</desc>
+<rect width="880" height="400" rx="14" fill="#f9fcf9"/>
+<g font-family="system-ui,Arial,sans-serif"><text x="24" y="34" font-size="20" font-weight="750" fill="#234649">一张图的两种观察：局部关系与全局可达</text><text x="24" y="56" font-size="13" fill="#667a7d">实线是边，加粗青绿是路径，闭合回路是环；两块互不可达的部分各是一个连通分量</text></g>
+<g stroke="#8fb3ac" stroke-width="2.5" fill="none"><line x1="140" y1="150" x2="330" y2="150"/><line x1="140" y1="300" x2="330" y2="300"/><line x1="140" y1="150" x2="140" y2="300"/><line x1="330" y1="150" x2="330" y2="300"/></g>
+<g stroke="#147f80" stroke-width="6" fill="none" stroke-linecap="round"><line x1="140" y1="150" x2="330" y2="150"/><line x1="330" y1="150" x2="330" y2="300"/></g>
+<g fill="#e3f2ed" stroke="#147f80" stroke-width="2.5"><circle cx="140" cy="150" r="24"/><circle cx="330" cy="150" r="24"/><circle cx="330" cy="300" r="24"/><circle cx="140" cy="300" r="24"/></g>
+<g font-family="system-ui,Arial,sans-serif" font-size="17" font-weight="800" fill="#245250" text-anchor="middle"><text x="140" y="156">0</text><text x="330" y="156">1</text><text x="330" y="306">2</text><text x="140" y="306">3</text></g>
+<g font-family="system-ui,Arial,sans-serif" font-size="12" fill="#53676d" text-anchor="middle"><text x="100" y="142">度=2</text><text x="372" y="142">度=2</text><text x="372" y="318">度=2</text><text x="100" y="318">度=2</text></g>
+<text x="180" y="136" font-size="13" font-weight="750" fill="#147f80" font-family="system-ui,Arial,sans-serif">路径 0→1→2</text>
+<text x="150" y="238" font-size="13" font-weight="750" fill="#7461ba" font-family="system-ui,Arial,sans-serif">环 0-1-2-3-0</text>
+<text x="24" y="360" font-size="13" fill="#526f71" font-family="system-ui,Arial,sans-serif">连通分量 A：顶点 {0,1,2,3}，任意两点互相可达</text>
+<g stroke="#cfad82" stroke-width="3" fill="none"><line x1="620" y1="210" x2="770" y2="210"/></g>
+<g fill="#fff4e9" stroke="#cfad82" stroke-width="2.5"><circle cx="620" cy="210" r="24"/><circle cx="770" cy="210" r="24"/></g>
+<g font-family="system-ui,Arial,sans-serif" font-size="17" font-weight="800" fill="#7a5a33" text-anchor="middle"><text x="620" y="216">4</text><text x="770" y="216">5</text></g>
+<g font-family="system-ui,Arial,sans-serif" font-size="12" fill="#53676d" text-anchor="middle"><text x="620" y="255">度=1</text><text x="770" y="255">度=1</text></g>
+<text x="600" y="300" font-size="13" fill="#526f71" font-family="system-ui,Arial,sans-serif">连通分量 B：顶点 {4,5}</text>
+<text x="600" y="322" font-size="13" fill="#526f71" font-family="system-ui,Arial,sans-serif">A 与 B 之间不存在任何路径</text>
+</svg>
