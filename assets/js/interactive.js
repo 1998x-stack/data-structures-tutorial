@@ -159,4 +159,18 @@
   input.addEventListener("input",update);update();
  }
 
+ // Chapter 12: deterministic BFS layering on the figure's 0..4 graph.
+ const bfs=document.querySelector('[data-demo="graph-bfs"]');
+ if(bfs){
+  const input=bfs.querySelector("input"),out=bfs.querySelector("output");
+  const states=[
+   ["初始","队列 [0]，已访问 {0}","0 入队，距离 0。"],
+   ["第 1 层","队列 [1, 2]，已访问 {0,1,2}","从 0 找到邻居 1、2，距离都是 1。"],
+   ["第 2 层","队列 [3]，已访问 {0,1,2,3}","1、2 都指向 3，3 第一次被访问，距离 2。"],
+   ["第 3 层","队列 [4]，已访问 {0,1,2,3,4}","3 的邻居 4 距离 3，访问完毕。"]
+  ];
+  const update=()=>{const n=Number(input.value),s=states[n];out.textContent="第 "+n+" 步 "+s[0]+"："+s[1]+"。"+s[2];};
+  input.addEventListener("input",update);update();
+ }
+
 })();
