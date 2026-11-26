@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 340" width="880" height="340" role="img" aria-labelledby="sgt-title sgt-desc">
+<title id="sgt-title">线段树把数组区间组织成一棵二叉树</title>
+<desc id="sgt-desc">根节点代表整个区间 0 到 7，左右孩子各代表一半，逐层细分到单个下标的叶子；每个内部节点的值等于两个孩子值的合并，求和线段树中就是相加。</desc>
+<g font-family="-apple-system, 'PingFang SC', sans-serif" font-size="14" text-anchor="middle">
+<line x1="440" y1="67" x2="220" y2="113" stroke="#64748b"/><line x1="440" y1="67" x2="660" y2="113" stroke="#64748b"/>
+<line x1="220" y1="147" x2="110" y2="193" stroke="#64748b"/><line x1="220" y1="147" x2="330" y2="193" stroke="#64748b"/>
+<line x1="660" y1="147" x2="550" y2="193" stroke="#64748b"/><line x1="660" y1="147" x2="770" y2="193" stroke="#64748b"/>
+<line x1="110" y1="227" x2="55" y2="275" stroke="#94a3b8"/><line x1="110" y1="227" x2="165" y2="275" stroke="#94a3b8"/>
+<line x1="330" y1="227" x2="275" y2="275" stroke="#94a3b8"/><line x1="330" y1="227" x2="385" y2="275" stroke="#94a3b8"/>
+<line x1="550" y1="227" x2="495" y2="275" stroke="#94a3b8"/><line x1="550" y1="227" x2="605" y2="275" stroke="#94a3b8"/>
+<line x1="770" y1="227" x2="715" y2="275" stroke="#94a3b8"/><line x1="770" y1="227" x2="825" y2="275" stroke="#94a3b8"/>
+<rect x="395" y="33" width="90" height="34" rx="6" fill="#e0e7ff" stroke="#4338ca"/><text x="440" y="55" fill="#312e81">sum[0..7]</text>
+<rect x="175" y="113" width="90" height="34" rx="6" fill="#e0e7ff" stroke="#4338ca"/><text x="220" y="135" fill="#312e81">sum[0..3]</text>
+<rect x="615" y="113" width="90" height="34" rx="6" fill="#e0e7ff" stroke="#4338ca"/><text x="660" y="135" fill="#312e81">sum[4..7]</text>
+<rect x="65" y="193" width="90" height="34" rx="6" fill="#eef2ff" stroke="#6366f1"/><text x="110" y="215" fill="#312e81">sum[0..1]</text>
+<rect x="285" y="193" width="90" height="34" rx="6" fill="#eef2ff" stroke="#6366f1"/><text x="330" y="215" fill="#312e81">sum[2..3]</text>
+<rect x="505" y="193" width="90" height="34" rx="6" fill="#eef2ff" stroke="#6366f1"/><text x="550" y="215" fill="#312e81">sum[4..5]</text>
+<rect x="725" y="193" width="90" height="34" rx="6" fill="#eef2ff" stroke="#6366f1"/><text x="770" y="215" fill="#312e81">sum[6..7]</text>
+<rect x="35" y="275" width="40" height="30" rx="5" fill="#ffffff" stroke="#94a3b8"/><text x="55" y="295" fill="#334155">a0</text>
+<rect x="145" y="275" width="40" height="30" rx="5" fill="#ffffff" stroke="#94a3b8"/><text x="165" y="295" fill="#334155">a1</text>
+<rect x="255" y="275" width="40" height="30" rx="5" fill="#ffffff" stroke="#94a3b8"/><text x="275" y="295" fill="#334155">a2</text>
+<rect x="365" y="275" width="40" height="30" rx="5" fill="#ffffff" stroke="#94a3b8"/><text x="385" y="295" fill="#334155">a3</text>
+<rect x="475" y="275" width="40" height="30" rx="5" fill="#ffffff" stroke="#94a3b8"/><text x="495" y="295" fill="#334155">a4</text>
+<rect x="585" y="275" width="40" height="30" rx="5" fill="#ffffff" stroke="#94a3b8"/><text x="605" y="295" fill="#334155">a5</text>
+<rect x="695" y="275" width="40" height="30" rx="5" fill="#ffffff" stroke="#94a3b8"/><text x="715" y="295" fill="#334155">a6</text>
+<rect x="805" y="275" width="40" height="30" rx="5" fill="#ffffff" stroke="#94a3b8"/><text x="825" y="295" fill="#334155">a7</text>
+<text x="440" y="330" font-size="13" fill="#475569">每个内部节点 = 其左右孩子合并（求和树里就是相加）</text>
+</g></svg>

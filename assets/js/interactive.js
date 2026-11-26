@@ -280,4 +280,25 @@
   input.addEventListener("input",update);update();
  }
 
+ // Chapter 20: canonical segment-tree nodes covering a query range.
+ const seg=document.querySelector('[data-demo="seg-query"]');
+ if(seg){
+  const a=[1,3,5,7,9,11,13,15],left=seg.querySelector('[name="l"]'),right=seg.querySelector('[name="r"]'),out=seg.querySelector("output");
+  const collect=(node,lo,hi,l,r,acc)=>{
+   if(r<lo||hi<l)return;
+   if(l<=lo&&hi<=r){acc.push([lo,hi]);return;}
+   const mid=(lo+hi)>>1;
+   collect(2*node+1,lo,mid,l,r,acc);collect(2*node+2,mid+1,hi,l,r,acc);
+  };
+  const update=()=>{
+   let l=Number(left.value),r=Number(right.value);
+   if(l>r){r=l;right.value=String(r);}
+   const acc=[];collect(0,0,a.length-1,l,r,acc);
+   const parts=acc.map(([lo,hi])=>"sum["+lo+".."+hi+"]");
+   const sum=acc.reduce((s,[lo,hi])=>{let t=0;for(let i=lo;i<=hi;i++)t+=a[i];return s+t;},0);
+   out.textContent="查询 ["+l+", "+r+"]：覆盖 "+parts.join(" + ")+" = "+sum+"。共 "+parts.length+" 个节点（每层最多 2 个）。";
+  };
+  left.addEventListener("input",update);right.addEventListener("input",update);update();
+ }
+
 })();
