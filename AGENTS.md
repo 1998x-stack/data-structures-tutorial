@@ -55,9 +55,9 @@
 - 必须区分：邻接表 O(n+m) 与邻接矩阵 O(n²) 的适用边界；DFS/BFS 只在无权图、BFS 才保证最少边数最短路；Dijkstra 仅在权重非负时正确，负权用 Bellman-Ford；拓扑排序要求有向无环图且结果不唯一；最小生成树优化全树总权重、与最短路径树目标不同。
 - 图示为外链 `assets/svg/12-*.svg`、`assets/svg/13-*.svg`，与 01–11 一致（skills 自带的 `validate.py` 要求内联 `<svg>`，与本仓库外链约定冲突，此差异只在交付说明中记录）。
 
-## 2026-11 后续精修批次（14–18）
-- 14–18（排序全览、递归与分治、回溯、动态规划、贪心）已按同一图解体系重写；19–28 仍是原稿。README 的状态表与本节必须同步更新，不得把未改章节说成已精修。
-- 本批原稿存入 `archive/original/14.html`–`archive/original/18.html`；`courses.json` 中这五章的 `revision` 已改为 `illustrated`，其余保持 `original`。
-- 运行参考：`examples/sorting.py`、`examples/recursion.py`、`examples/backtracking.py`、`examples/dynamic_programming.py`、`examples/greedy.py`；测试：`tests/test_sorting.py`、`tests/test_recursion.py`、`tests/test_backtracking.py`、`tests/test_dynamic_programming.py`、`tests/test_greedy.py`。
-- 必须区分：排序的稳定/原地性质与实测速度（同阶算法常数不同）；递归的调用深度与栈溢出风险；回溯的“撤销选择”与 DP 的“状态转移”不是同一回事；DP 要求最优子结构 + 重叠子问题同时成立；贪心只在贪心选择性质 + 最优子结构成立时正确（找零 1/3/4 是反例）。
-- 图示为外链 `assets/svg/14-*.svg`–`assets/svg/18-*.svg`，与 01–13 一致（skills 自带的 `validate.py` 要求内联 `<svg>`，与本仓库外链约定冲突，此差异只在交付说明中记录）。
+## 2026-11 后续精修批次（14–19）
+- 14–18（排序全览、递归与分治、回溯、动态规划、贪心）与 19（并查集）已按同一图解体系重写；20–28 仍是原稿。README 的状态表与本节必须同步更新，不得把未改章节说成已精修。
+- 本批原稿存入 `archive/original/14.html`–`archive/original/19.html`；`courses.json` 中这六章的 `revision` 已改为 `illustrated`，其余保持 `original`。
+- 运行参考：`examples/sorting.py`、`examples/recursion.py`、`examples/backtracking.py`、`examples/dynamic_programming.py`、`examples/greedy.py`、`examples/union_find.py`；测试：`tests/test_sorting.py`、`tests/test_recursion.py`、`tests/test_backtracking.py`、`tests/test_dynamic_programming.py`、`tests/test_greedy.py`、`tests/test_union_find.py`。
+- 必须区分：排序的稳定/原地性质与实测速度（同阶算法常数不同）；递归的调用深度与栈溢出风险；回溯的“撤销选择”与 DP 的“状态转移”不是同一回事；DP 要求最优子结构 + 重叠子问题同时成立；贪心只在贪心选择性质 + 最优子结构成立时正确（找零 1/3/4 是反例）；并查集的 O(α(n)) 是摊还上界，且它只支持合并、不支持断开。
+- 图示为外链 `assets/svg/14-*.svg`–`assets/svg/19-*.svg`，与 01–13 一致（skills 自带的 `validate.py` 要求内联 `<svg>`，与本仓库外链约定冲突，此差异只在交付说明中记录）。
