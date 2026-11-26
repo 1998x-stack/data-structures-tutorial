@@ -17,9 +17,10 @@
 | 高级索引 | 20：线段树与树状数组 | **本批深度图解重构** |
 | 高级索引 | 21：字典树（Trie） | **本批深度图解重构** |
 | 高级索引 | 22：跳表与 B+ 树 | **本批深度图解重构** |
+| 工程应用 | 25：系统设计中的数据结构 | **本批深度图解重构** |
 | 工程应用 | 26：数据结构性能分析 | **本批深度图解重构** |
 | 工程应用 | 27：AI 与数据结构的交叉 | **本批深度图解重构** |
-| 工程应用 | 23–25、28 | 原有课程保留，待精修 |
+| 工程应用 | 23–24、28 | 原有课程保留，待精修 |
 
 ## 快速开始
 
@@ -45,17 +46,17 @@ python3 -m unittest discover -s tests -p 'test_*.py'
 ├── courses.json                    # 28 章机器可读课程清单
 ├── lessons/
 │   ├── 01.html .. 22.html          # 深度重构文章（01–19 及 20–22）
-│   ├── 26.html, 27.html            # 深度重构（性能分析、AI 交叉）
-│   ├── 23–25、28.html              # 保留原内容，等待逐篇重构
+│   ├── 25.html, 26.html, 27.html    # 深度重构（系统设计、性能分析、AI 交叉）
+│   ├── 23–24、28.html              # 保留原内容，等待逐篇重构
 │   ├── theme.css                   # 原章节专用兼容样式
 │   └── index.html                  # 原章节返回首页的兼容入口
 ├── assets/
 │   ├── css/{site,article}.css      # 首页与文章各自的样式
 │   ├── js/{home,interactive}.js    # 渐进增强
 │   └── svg/*.svg                   # 可独立访问的原生矢量图
-├── examples/{algorithms,linear_structures,bst,balanced_trees,heaps,graphs,graph_algorithms,sorting,recursion,backtracking,dynamic_programming,greedy,union_find,range_queries,trie,skip_list,benchmarking,learned_index}.py # 可运行参考算法
+├── examples/{algorithms,linear_structures,bst,balanced_trees,heaps,graphs,graph_algorithms,sorting,recursion,backtracking,dynamic_programming,greedy,union_find,range_queries,trie,skip_list,benchmarking,learned_index,system_design}.py # 可运行参考算法
 ├── tests/                           # 内容、文件和代码测试
-├── archive/original/01.html .. 22.html、26.html、27.html # 改写前的原始版本
+├── archive/original/01.html .. 22.html、25.html .. 27.html # 改写前的原始版本
 ├── 01.html .. 28.html              # 老链接兼容跳转
 ├── AGENTS.md                       # 未来 Agent 编辑与验收契约
 └── .github/workflows/site.yml      # CI、浏览器质量门禁

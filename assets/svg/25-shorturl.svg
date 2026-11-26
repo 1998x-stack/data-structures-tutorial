@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 320" width="880" height="320" role="img" aria-labelledby="su-title su-desc">
+<title id="su-title">短网址的两种生成思路：哈希编码与自增 ID 编码</title>
+<desc id="su-desc">哈希法把长 URL 的散列前几个字节编成 Base62 短码，可能碰撞；自增 ID 法把全局唯一 ID 编成 Base62 短码，天然唯一且有序但可被预测。</desc>
+<defs><marker id="su-arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9 z" fill="#475569"/></marker></defs>
+<g font-family="-apple-system, 'PingFang SC', sans-serif" font-size="13" text-anchor="middle">
+<text x="200" y="42" font-size="14" fill="#312e81">哈希法</text>
+<text x="660" y="42" font-size="14" fill="#14532d">自增 ID 法</text>
+<rect x="40" y="60" width="320" height="46" rx="6" fill="#e0e7ff" stroke="#4338ca"/><text x="200" y="88" fill="#312e81">长 URL（任意长度）</text>
+<line x1="200" y1="106" x2="200" y2="140" stroke="#475569" marker-end="url(#su-arrow)"/>
+<rect x="40" y="144" width="320" height="46" rx="6" fill="#e0e7ff" stroke="#4338ca"/><text x="200" y="172" fill="#312e81">散列前 6 字节 → Base62 编码</text>
+<line x1="200" y1="190" x2="200" y2="224" stroke="#475569" marker-end="url(#su-arrow)"/>
+<rect x="40" y="228" width="320" height="46" rx="6" fill="#fde68a" stroke="#b45309"/><text x="200" y="256" fill="#78350f">短码 d3g8xQ；碰撞需再哈希或加上盐</text>
+<rect x="500" y="60" width="320" height="46" rx="6" fill="#dcfce7" stroke="#15803d"/><text x="660" y="88" fill="#14532d">全局自增 ID（如雪花算法）</text>
+<line x1="660" y1="106" x2="660" y2="140" stroke="#475569" marker-end="url(#su-arrow)"/>
+<rect x="500" y="144" width="320" height="46" rx="6" fill="#dcfce7" stroke="#15803d"/><text x="660" y="172" fill="#14532d">Base62 编码</text>
+<line x1="660" y1="190" x2="660" y2="224" stroke="#475569" marker-end="url(#su-arrow)"/>
+<rect x="500" y="228" width="320" height="46" rx="6" fill="#dcfce7" stroke="#15803d"/><text x="660" y="256" fill="#14532d">短码 000001；唯一且有序，但可预测</text>
+<text x="440" y="300" fill="#475569">取舍：可预测性与“是否依赖中心化发号器”，而不只是短码长短</text>
+</g></svg>

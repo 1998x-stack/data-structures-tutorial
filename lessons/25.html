@@ -1,573 +1,144 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
-    <title>第25章 系统设计中的数据结构</title>
-    <link rel="stylesheet" href="theme.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="系统设计中的数据结构：把短网址、排行榜、限流器、Feed 流拆成具体的读写操作，再倒推出该选哪种结构，以及为什么这样选。">
+<title>第 25 章 · 系统设计中的数据结构 | 数据结构与算法</title>
+<link rel="stylesheet" href="../assets/css/article.css">
 </head>
 <body>
-<div class="double-border">
-<div class="container">
-    <div class="sidebar">
-        <h3>🧠 课程目录</h3>
-        <ul class="chapter-list">
-            <li><a href="01.html">第1章 为什么要学数据结构</a></li>
-            <li><a href="02.html">第2章 复杂度分析</a></li>
-            <li><a href="03.html">第3章 数组与字符串</a></li>
-            <li><a href="04.html">第4章 链表</a></li>
-            <li><a href="05.html">第5章 栈</a></li>
-            <li><a href="06.html">第6章 队列</a></li>
-            <li><a href="07.html">第7章 哈希表</a></li>
-            <li><a href="08.html">第8章 树基础</a></li>
-            <li><a href="09.html">第9章 二叉搜索树</a></li>
-            <li><a href="10.html">第10章 平衡二叉树</a></li>
-            <li><a href="11.html">第11章 堆与优先队列</a></li>
-            <li><a href="12.html">第12章 图基础</a></li>
-            <li><a href="13.html">第13章 图算法</a></li>
-            <li><a href="14.html">第14章 排序算法全览</a></li>
-            <li><a href="15.html">第15章 递归与分治</a></li>
-            <li><a href="16.html">第16章 回溯算法</a></li>
-            <li><a href="17.html">第17章 动态规划</a></li>
-            <li><a href="18.html">第18章 贪心算法</a></li>
-            <li><a href="19.html">第19章 并查集</a></li>
-            <li><a href="20.html">第20章 线段树与树状数组</a></li>
-            <li><a href="21.html">第21章 字典树(Trie)</a></li>
-            <li><a href="22.html">第22章 跳表与B+树</a></li>
-            <li><a href="23.html">第23章 LeetCode刷题方法论</a></li>
-            <li><a href="24.html">第24章 大厂面试高频题精讲</a></li>
-            <li><a href="25.html" class="active">第25章 系统设计中的数据结构</a></li>
-            <li><a href="26.html">第26章 数据结构性能分析</a></li>
-            <li><a href="27.html">第27章 AI与数据结构的交叉</a></li>
-            <li><a href="28.html">第28章 学习路线与综合项目</a></li>
-        </ul>
-    </div>
-    <div class="main-content">
+<a href="#content" class="skip-link">跳转至正文</a>
+<header class="article-top"><div class="top-inner"><a class="brand" href="../index.html">← 课程首页</a><span class="course-name">数据结构与算法 · 深度图解</span><a class="source-link" href="https://github.com/1998x-stack/data-structures-tutorial">GitHub</a></div></header>
+<div class="article-layout">
+<aside class="toc"><details open><summary>本章导览</summary><nav aria-label="系统设计章节目录"><ol>
+<li><a href="#method"><span>01</span>先问“为什么选这个”</a></li>
+<li><a href="#shorturl"><span>02</span>短网址：哈希 vs 自增</a></li>
+<li><a href="#rank"><span>03</span>排行榜与 Top-K</a></li>
+<li><a href="#limit"><span>04</span>限流器</a></li>
+<li><a href="#feed"><span>05</span>Feed 流：推与拉</a></li>
+<li><a href="#im"><span>06</span>未读计数与在线状态</a></li>
+<li><a href="#choose"><span>07</span>速查与边界</a></li>
+</ol></nav></details><div class="toc-bottom"><a href="../index.html#curriculum">查看 28 章课程</a></div></aside>
+<main id="content"><article>
+<header class="article-heading"><div class="article-kicker">PRACTICE / CHAPTER 25</div><h1>系统设计中的数据结构</h1><p class="dek">系统设计面试很少问“用什么数据结构”，而是问“为什么是这个”。把需求拆成一组读写操作，再对照各结构在这些操作上的代价，选择就变得可解释。</p><div class="topic-tags"><span>短网址</span><span>排行榜</span><span>限流器</span><span>Feed 流</span><span>位图</span></div></header>
+<section id="method" class="article-section" aria-labelledby="heading-method"><span class="section-number">01 / 07</span><h2 id="heading-method">先问“为什么选这个”</h2>
+<p>先拆需求：一个系统需求往往可以写成一组操作，比如“写入一个键值对”“按时间取最近 N 条”“统计区间内有多少次调用”。把这些操作列出来，再逐条问：<strong>读多还是写多？是点查还是范围查？是否需要有序？</strong> 选择就从“凭印象”变成“有依据”。</p>
+<p>还要分清两个层次：<strong>数据结构</strong>（数组、哈希、堆、跳表……）解决的是单机内的组织方式；而<strong>系统组件</strong>（缓存、分片、副本、消息队列）解决的是跨机器、容量与一致性问题。面试里常见的问题是“为什么用 A 不用 B”，其实是问你对两者代价的理解。</p>
+<p>本章的四个案例都是这个套路的练习：短网址考察<strong>唯一 ID 的生成</strong>，排行榜考察<strong>有序 + Top-K</strong>，限流器考察<strong>时间窗口</strong>，Feed 流考察<strong>推还是拉</strong>。</p></section>
+<section id="shorturl" class="article-section" aria-labelledby="heading-shorturl"><span class="section-number">02 / 07</span><h2 id="heading-shorturl">短网址：哈希 vs 自增</h2>
+<p>短网址把长 URL 映射成短字符串，访问时重定向回去。核心是：<strong>怎么生成这个短码，并保证不重复。</strong>有两条路：</p>
+<figure class="diagram"><div class="diagram-scroll" tabindex="0" aria-label="可横向滚动查看图示"><img src="../assets/svg/25-shorturl.svg" alt="哈希法：长 URL 经散列前 6 字节与 Base62 编码得到短码，可能碰撞；自增 ID 法：全局唯一 ID 经 Base62 得到短码" width="880" height="320" loading="lazy"></div><figcaption>图 1 · 两条都建立在“把整数用 Base62 表示”上；差别在于<strong>整数从哪来</strong>：散列前几字节会碰撞，自增 ID 不会但可被预测。Base62 用 a–z、A–Z、0–9 共 62 个字符。</figcaption></figure>
+<p>先把“整数 → 短码”这一步写对（下面是最小实现，完整代码与测试在仓库）：</p>
+<pre class="code-panel" tabindex="0"><code>ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-        <h2>数据结构是系统设计的骨架</h2>
-
-        <p>大家好，欢迎来到第25章。如果你之前一直在LeetCode的世界里打转，那么这一章将帮你打开一扇新的大门——<strong>真实的系统世界</strong>。</p>
-
-        <p>在系统设计面试中，面试官不会直接问你"请实现一个哈希表"，而是问你"请设计一个短网址系统"。你可能会想：这跟数据结构有什么关系？关系太大了。<strong>短网址系统的核心就是哈希函数的选择和冲突处理策略</strong>——这本质上是哈希表在分布式环境下的应用。</p>
-
-        <p>事实上，几乎所有系统设计问题都可以拆解为：<strong>选择正确的数据结构 + 设计合理的接口 + 处理边界条件</strong>。数据结构是骨架，算法是血肉。设计一个高并发系统，你对数据结构的理解深度决定了系统的天花板。</p>
-
-        <div class="highlight">
-            <strong>一个核心观点：</strong>系统设计面试不问"用什么数据结构"，而是问"为什么选这个"。你要能说出trade-off——为什么选Redis的Sorted Set而不是MySQL的B+树？为什么用跳表而不是平衡树？如果你想不明白这些，那么你对数据结构的理解只是纸上谈兵。
-        </div>
-
-        <h2>短网址系统 (TinyURL)</h2>
-
-        <p>短网址是系统设计面试的"Hello World"——几乎所有面经中都会出现。它的功能很简单：把一个长URL映射成一个短字符串（如 <code>https://tinyurl.com/abc123</code>），访问短链接时重定向到长URL。</p>
-
-        <p>核心问题就是：<strong>怎么生成这个短字符串？</strong></p>
-
-        <h3>方案一：哈希函数 + Base62编码</h3>
-
-        <p>对长URL取MD5哈希（128位），取前6个字节，转换为Base62编码（62个字符：a-z, A-Z, 0-9），得到6-7位的短字符串。</p>
-
-        <pre><code>import hashlib
-import base62  # 注意：base62需要额外安装或用自定义函数
-
-def generate_short_url(long_url: str) -> str:
-    """基于MD5+Base62的短链接生成"""
-    # 取MD5前6个字节（48位）
-    md5_hash = hashlib.md5(long_url.encode()).digest()[:6]
-    # 转为整数，再转为Base62
-    num = int.from_bytes(md5_hash, byteorder='big')
-    return base62_encode(num)
-
-def base62_encode(num: int) -> str:
-    """将整数编码为Base62字符串"""
-    chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+def base62_encode(num):
     if num == 0:
-        return chars[0]
-    result = []
+        return ALPHABET[0]
+    out = []
     while num > 0:
-        result.append(chars[num % 62])
-        num //= 62
-    return ''.join(reversed(result))
+        num, rem = divmod(num, 62)
+        out.append(ALPHABET[rem])
+    return "".join(reversed(out))
 
-# 示例
-print(generate_short_url("https://example.com/very/long/url/here"))
-# 输出类似: "d3g8xQ"</code></pre>
+def base62_decode(code):
+    num = 0
+    for ch in code:
+        num = num * 62 + ALPHABET.index(ch)
+    return num</code></pre>
+<p>正反变换互为逆运算，这是短网址能工作的前提。至于“取散列前几字节”的做法：它会<strong>碰撞</strong>（不同 URL 得到相同短码），所以要么冲突时换盐重算，要么预生成短码池。自增 ID 不会碰撞，但它可被遍历推算出其他链接，敏感场景可用随机预生成。</p></section>
+<section id="rank" class="article-section" aria-labelledby="heading-rank"><span class="section-number">03 / 07</span><h2 id="heading-rank">排行榜与 Top-K</h2>
+<p>排行榜的需求可以拆成两种：<strong>实时更新分数 + 查询任意名次</strong>，或<strong>只要前 K 名</strong>。两者选的结构不同。</p>
+<ul>
+<li><strong>需要完整排名</strong>：用有序结构。Redis 的 ZSet 底层是跳表（第 22 章），插入/更新 O(log n)，按分数范围取一段也很快。这正是“跳表换范围查询友好”的工程印证。</li>
+<li><strong>只要 Top-K</strong>：用一个大小为 k 的<strong>最小堆</strong>（第 11 章）扫一遍即可，O(n log k) 时间、O(k) 空间，比全排序 O(n log n) 更省。</li>
+</ul>
+<pre class="code-panel" tabindex="0"><code>import heapq
 
-        <p><strong>哈希冲突怎么处理？</strong></p>
-
-        <ul>
-            <li><strong>再哈希法：</strong>冲突时在长URL末尾加一个固定盐值(如时间戳)重新哈希。</li>
-            <li><strong>预生成法：</strong>预先用随机数生成一批短码，使用时直接分配——避免了在线冲突检测的性能开销。这是工业界的常用做法。</li>
-        </ul>
-
-        <h3>方案二：自增ID + Base62编码</h3>
-
-        <p>用分布式ID生成器（如雪花算法Snowflake）生成唯一自增ID，然后Base62编码。好处是<strong>不会冲突</strong>，而且ID天然有序，方便分库分表。</p>
-
-        <h3>分库分表策略</h3>
-
-        <p>当短码数量超过单库容量时，需要分库分表。常用策略是按<strong>短码的首字符</strong>分片——因为Base62的前缀分布均匀，天然适合做分片键。</p>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>维度</th>
-                    <th>哈希法</th>
-                    <th>自增ID法</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>冲突概率</td>
-                    <td>有（需处理）</td>
-                    <td>无（天然唯一）</td>
-                </tr>
-                <tr>
-                    <td>短码长度</td>
-                    <td>固定（6-7位）</td>
-                    <td>随ID增长而变长</td>
-                </tr>
-                <tr>
-                    <td>可预测性</td>
-                    <td>不可预测（安全）</td>
-                    <td>可预测（可能被遍历）</td>
-                </tr>
-                <tr>
-                    <td>性能</td>
-                    <td>无需中心化ID生成器</td>
-                    <td>依赖分布式ID生成器</td>
-                </tr>
-                <tr>
-                    <td>工程复杂度</td>
-                    <td>低</td>
-                    <td>中</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <div class="tip">
-            <strong>面试回答框架：</strong>"我会采用自增ID+Base62的方案，用雪花算法生成全局唯一ID，然后转换为Base62短码。使用MySQL存储映射关系，短码作为主键。当数据量超过单库容量时，按短码首字符水平分片。同时用Redis缓存热点短码，降低数据库查询压力。" —— 这就叫"有数据结构的系统设计"。
-        </div>
-
-        <h2>实时排行榜</h2>
-
-        <p>实时排行榜几乎是每个互联网产品的标配——游戏战力榜、直播热度榜、电商销量榜。核心需求是：<strong>大量用户的分数实时更新，我们需要快速查询Top-K排名。</strong></p>
-
-        <h3>方案一：跳表实现 Sorted Set</h3>
-
-        <p>Redis的ZSet（Sorted Set）背后就是跳表（Skip List）。跳表支持O(log n)的插入、删除和范围查询——完美的排行榜需求。每个用户的分数更新只需要O(log n)时间，查询Top-K也只需要O(k + log n)。</p>
-
-        <p>为什么Redis选择跳表而不是平衡树？因为跳表的实现更简单，范围查询更高效（平衡树需要中序遍历），而且通过概率平衡避免了复杂的旋转操作。</p>
-
-        <h3>方案二：堆实现 Top-K</h3>
-
-        <p>如果系统只需要Top-K（比如Top 10），不需要知道全部排名，那么用<strong>最小堆（Min-Heap）</strong>维护Top-K是更优的选择。时间复杂度O(n log k)，空间O(k)。</p>
-
-        <pre><code>import heapq
-
-def top_k_scores(scores: dict, k: int) -> list:
-    """从用户分数映射中找出Top-K"""
-    heap = []
+def top_k(scores, k):
+    """scores: {用户: 分数}；返回按分数降序的前 k 个。"""
+    if k &lt;= 0:
+        return []
+    heap = []                          # 最小堆，堆顶是当前第 k 名
     for user, score in scores.items():
         if len(heap) < k:
             heapq.heappush(heap, (score, user))
         elif score > heap[0][0]:
             heapq.heapreplace(heap, (score, user))
-
-    # 按分数降序返回
-    return sorted(heap, key=lambda x: -x[0])
-
-# 示例
-user_scores = {"Alice": 950, "Bob": 880, "Charlie": 990,
-               "David": 720, "Eve": 1050, "Frank": 810}
-print(top_k_scores(user_scores, 3))
-# 输出: [(1050, 'Eve'), (990, 'Charlie'), (950, 'Alice')]</code></pre>
-
-        <h3>时间分片策略</h3>
-
-        <p>对于"小时榜"和"日榜"这类需求，可以用<strong>时间分片</strong>：</p>
-
-        <ul>
-            <li><strong>时榜：</strong>用Redis Key <code>leaderboard:20260630:14</code> 存储每小时的排行榜数据。</li>
-            <li><strong>日榜：</strong>每天凌晨将24个小时榜合并为日榜。</li>
-            <li><strong>历史榜：</strong>归档到MySQL/时序数据库，提供历史查询。</li>
-        </ul>
-
-        <p>这个策略的核心思想是：<strong>把大时间窗口拆成小窗口</strong>，每个窗口独立计算，降低单次计算的数据量。这是系统设计中非常通用的方法。</p>
-
-        <h2>限流器 (Rate Limiter)</h2>
-
-        <p>限流器是保护后端系统不被流量冲垮的第一道防线。常见的限流算法有四种，数据结构的角色各不相同。</p>
-
-        <h3>固定窗口</h3>
-        <p>每个时间窗口（如1秒）内计数，到达阈值则拒绝。简单但有"毛刺"问题——窗口切换时可能突增双倍流量。</p>
-
-        <h3>滑动窗口（用 deque 实现）</h3>
-        <p>解决了固定窗口的毛刺问题——不再按固定时间点重置，而是记录每个请求的时间戳，窗口是一个滑动的时间段。</p>
-
-        <pre><code>from collections import deque
-import time
-
-class SlidingWindowRateLimiter:
-    """用双端队列实现滑动窗口限流"""
-
-    def __init__(self, max_requests: int, window_seconds: int):
-        self.max_requests = max_requests
-        self.window_seconds = window_seconds
-        self.requests = deque()  # 存储请求的时间戳
-
-    def allow_request(self) -> bool:
-        now = time.time()
-        # 移除窗口外的旧请求
-        while self.requests and self.requests[0] <= now - self.window_seconds:
-            self.requests.popleft()
-
-        if len(self.requests) >= self.max_requests:
-            return False  # 限流
-
-        self.requests.append(now)
-        return True
-
-"""
-为什么用deque？
-- 需要频繁从队首移除过期请求 —— deque的popleft是O(1)
-- 需要从队尾添加新请求 —— append是O(1)
-- 如果用list，pop(0)是O(n)，会成为性能瓶颈
-
-复杂度：每次调用平均O(1)，偶尔触发清理需要O(k)（k为过期的请求数）
-但每个请求最多被移除一次，所以均摊O(1)。
-"""</code></pre>
-
-        <h3>令牌桶 (Token Bucket)</h3>
-        <p>系统以固定速率向桶中放入令牌，请求到来时从桶中取令牌，取到则放行，取不到则拒绝。允许一定程度的突发流量——桶空时拒绝，但桶会持续补充。</p>
-
-        <pre><code>import time
-
-class TokenBucket:
-    """令牌桶限流器"""
-
-    def __init__(self, rate: float, capacity: int):
-        """
-        rate: 令牌放入速率（个/秒）
-        capacity: 桶容量（最大突发量）
-        """
-        self.rate = rate
-        self.capacity = capacity
-        self.tokens = capacity
-        self.last_refill = time.time()
-
-    def allow_request(self) -> bool:
-        now = time.time()
-        # 计算需要补充的令牌数
-        elapsed = now - self.last_refill
-        self.tokens = min(self.capacity, self.tokens + elapsed * self.rate)
-        self.last_refill = now
-
-        if self.tokens >= 1:
-            self.tokens -= 1
-            return True
-        return False</code></pre>
-
-        <h3>漏桶 (Leaky Bucket)</h3>
-        <p>请求以任意速率进入桶中，但桶以恒定速率"漏出"处理请求。桶满了则新请求被丢弃。相比令牌桶，漏桶更加严格——它强制了<strong>处理速率恒定</strong>，不能突发。</p>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>算法</th>
-                    <th>核心数据结构</th>
-                    <th>是否允许突发</th>
-                    <th>适用场景</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>固定窗口</td>
-                    <td>计数器(int)</td>
-                    <td>是（窗口边界有毛刺）</td>
-                    <td>简单需求，精度要求不高</td>
-                </tr>
-                <tr>
-                    <td>滑动窗口</td>
-                    <td>双端队列(deque)</td>
-                    <td>是（更平滑）</td>
-                    <td>大多数通用场景</td>
-                </tr>
-                <tr>
-                    <td>令牌桶</td>
-                    <td>时间戳+令牌数</td>
-                    <td>是（桶容量控制最大突发）</td>
-                    <td>允许突发的API限流</td>
-                </tr>
-                <tr>
-                    <td>漏桶</td>
-                    <td>队列+定时器</td>
-                    <td>否（严格恒定速率）</td>
-                    <td>需要平滑流量的场景，如数据库写入</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <div class="warning">
-            <strong>一个真实的踩坑故事：</strong><br>
-            我之前参与的一个项目，使用固定窗口限流器保护支付接口。上线后一切正常，直到某次大促活动开始。在每分钟切换的瞬间（比如从10:00:59到10:01:00），窗口重置导致流量瞬间暴涨——客户在最后一秒发了1000个请求（窗口内最大），下一秒钟又发了1000个请求。1秒内2000个请求涌入，支付服务直接被打挂。<br><br>
-            事后复盘：固定窗口限流的"边界毛刺"是一个经典问题。我们后来改成了滑动窗口限流（用Redis的Sorted Set实现），虽然多消耗了一点内存，但彻底解决了这个问题。从此我学到：<strong>选择限流算法时，一定要考虑业务流量的特点。</strong>
-        </div>
-
-        <h2>Feed流推送</h2>
-
-        <p>Feed流（Timeline/News Feed）是社交产品的核心功能——关注的人发布内容后，你如何看到？这里涉及三种架构模式，每种模式对数据结构有不同的要求。</p>
-
-        <h3>推模式 (Write Fanout)</h3>
-
-        <p>发布内容时，将内容写入所有关注者的Timeline中。Timeline用Redis的List或Sorted Set存储（按时间排序）。</p>
-
-        <ul>
-            <li><strong>优点：</strong>读时快（只需拉取自己的List）</li>
-            <li><strong>缺点：</strong>写时慢（大V发一条内容，要写入数百万粉丝的Timeline）</li>
-            <li><strong>适用：</strong>普通用户为主，没有超级大V的场景（如微信朋友圈）</li>
-        </ul>
-
-        <h3>拉模式 (Read Fanout)</h3>
-
-        <p>发布内容只写入自己的发件箱。阅读时，拉取所有关注者的发件箱，做归并排序。</p>
-
-        <ul>
-            <li><strong>优点：</strong>写时极快，大V没有任何写入压力</li>
-            <li><strong>缺点：</strong>读时慢（需要K路归并，K是关注人数）</li>
-            <li><strong>适用：</strong>大V粉丝极多的场景（如微博）</li>
-        </ul>
-
-        <h3>推拉结合</h3>
-
-        <p>工业界的常见做法：普通用户用推模式，大V用拉模式。具体来说，当一个用户发布内容时：</p>
-        <ul>
-            <li>如果粉丝数小于阈值（如1000），直接推送到所有粉丝的Timeline。</li>
-            <li>如果粉丝数大于阈值，只写入自己的发件箱，粉丝在拉取时"顺带"拉取大V的内容。</li>
-        </ul>
-
-        <p>这里的<strong>数据结构选择</strong>非常关键：</p>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>组件</th>
-                    <th>推荐数据结构</th>
-                    <th>为什么</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Timeline缓存</td>
-                    <td>Redis Sorted Set</td>
-                    <td>按时间排序，支持范围查询，O(log n)插入</td>
-                </tr>
-                <tr>
-                    <td>发件箱</td>
-                    <td>Redis List</td>
-                    <td>按时间顺序存储用户自己发的推文，LTRIM可以截断</td>
-                </tr>
-                <tr>
-                    <td>关注关系</td>
-                    <td>MySQL + Redis Set</td>
-                    <td>Set支持O(1)判断是否关注，MySQL做持久化存储</td>
-                </tr>
-                <tr>
-                    <td>未读计数</td>
-                    <td>Redis Hash</td>
-                    <td>Hash的field是每个关注者的ID，value是未读数</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <h2>即时通讯 (IM)</h2>
-
-        <p>IM系统是数据结构在真实系统中应用最为淋漓尽致的领域之一。</p>
-
-        <h3>消息存储：时间线模型</h3>
-
-        <p>IM的消息存储通常采用<strong>时间线模型</strong>——每个对话维护一个按时间排序的消息列表。存储上可以使用：</p>
-
-        <ul>
-            <li><strong>消息ID：</strong>用雪花算法生成全局唯一自增ID——天然有序。</li>
-            <li><strong>存储结构：</strong>每个消息用一行MySQL记录或一个Redis Sorted Set元素。</li>
-            <li><strong>分页查询：</strong>根据消息ID偏移量查询，而不是LIMIT OFFSET——避免深度分页的性能问题。</li>
-        </ul>
-
-        <h3>未读计数</h3>
-
-        <p>每个用户需要知道"我有多少条未读消息"。最直接的数据结构是<strong>哈希表</strong>：</p>
-
-        <pre><code># Redis存储结构
-# Key: "unread:{user_id}"  Hash
-# Field: "{conversation_id}"
-# Value: 未读消息数量（整数）
-
-# 发送消息时，给对话中所有其他用户的未读数+1
-# 用户打开对话时，将该对话的未读数置0
-
-# 伪代码
-def send_message(sender, conversation_id, content):
-    # 存储消息
-    msg_id = snowflake.next_id()
-    redis.zadd(f"conversation:{conversation_id}:messages",
-               {msg_id: content})
-    # 更新所有其他参与者的未读计数
-    members = get_conversation_members(conversation_id)
-    for uid in members:
-        if uid != sender:
-            redis.hincrby(f"unread:{uid}", conversation_id, 1)
-
-def open_conversation(user_id, conversation_id):
-    # 将未读数置0
-    redis.hdel(f"unread:{user_id}", conversation_id)
-    # 拉取最近的消息
-    return redis.zrevrange(f"conversation:{conversation_id}:messages",
-                           0, 19, withscores=True)</code></pre>
-
-        <h3>在线状态：心跳+位图</h3>
-
-        <p>在线状态的判断通常使用<strong>心跳机制</strong>——客户端每隔30秒发送一次心跳，服务端记录最后心跳时间。当时间差超过阈值（如70秒），判定为离线。</p>
-
-        <p>对于上亿用户的在线状态，内存消耗是一个大问题。一个巧妙的优化是用<strong>位图（Bitmap）</strong>：</p>
-
-        <pre><code># Redis位图存储在线状态
-# Key: "online:20260630:14"  — 按小时分片
-# 用户ID作为offset，1=在线，0=离线
-# 每个用户只占1个bit，1亿用户仅需约12MB
-
-# 标记用户在线
-redis.setbit(f"online:{today_hour}", user_id, 1)
-
-# 批量查询在线状态
-def is_online(user_ids):
-    results = {}
-    for uid in user_ids:
-        results[uid] = redis.getbit(f"online:{today_hour}", uid)
-    return results</code></pre>
-
-        <p>这个位图方案可以做一个粗略估算：1亿用户在线状态只需要 <code>100,000,000 / 8 / 1024 / 1024 ≈ 12MB</code>。对比哈希表（每个用户至少几十字节），内存效率提升了几个数量级。</p>
-
-        <div class="highlight">
-            <strong>系统设计面试中的数据结构和算法决策框架：</strong><br>
-            每当你在系统设计面试中面对需要选择数据结构时，问自己四个问题：<br>
-            <strong>1. 读写比例是多少？</strong> 读多写少→索引优化；写多读少→日志结构。<br>
-            <strong>2. 数据量有多大？</strong> 百万级→单机即可；十亿级→必须分片。<br>
-            <strong>3. 一致性要求有多高？</strong> 强一致→选关系型；最终一致→选NoSQL。<br>
-            <strong>4. 延迟要求是什么？</strong> 毫秒级→内存结构；秒级→磁盘结构。
-        </div>
-
-        <h2>系统设计数据结构选择速查表</h2>
-
-        <p>下面这张表汇总了常见系统设计问题中推荐的数据结构选择，以及选择的核心理由：</p>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>系统设计问题</th>
-                    <th>核心数据结构</th>
-                    <th>为什么选这个</th>
-                    <th>替代方案</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>短网址</td>
-                    <td>哈希 / Base62编码</td>
-                    <td>长→短的映射需要不可逆、均匀分布</td>
-                    <td>自增ID+编码</td>
-                </tr>
-                <tr>
-                    <td>实时排行榜</td>
-                    <td>跳表 (Sorted Set)</td>
-                    <td>O(log n)的插入和范围查询</td>
-                    <td>堆（仅Top-K）、B+树</td>
-                </tr>
-                <tr>
-                    <td>限流器</td>
-                    <td>双端队列 / 计数器</td>
-                    <td>O(1)队首移除、O(1)队尾追加</td>
-                    <td>令牌桶计数器、漏桶队列</td>
-                </tr>
-                <tr>
-                    <td>Feed流Timeline</td>
-                    <td>Sorted Set / List</td>
-                    <td>时间排序+分页取</td>
-                    <td>Merge Sort（拉模式）</td>
-                </tr>
-                <tr>
-                    <td>IM未读计数</td>
-                    <td>哈希表 (Redis Hash)</td>
-                    <td>O(1)增减，支持批量查询</td>
-                    <td>MySQL计数表</td>
-                </tr>
-                <tr>
-                    <td>在线状态</td>
-                    <td>位图 (Bitmap)</td>
-                    <td>每个用户仅1bit，超省内存</td>
-                    <td>哈希表、Redis Set</td>
-                </tr>
-                <tr>
-                    <td>全局ID生成</td>
-                    <td>雪花算法 (Snowflake)</td>
-                    <td>分布式、趋势递增、无中心化瓶颈</td>
-                    <td>UUID、数据库自增</td>
-                </tr>
-                <tr>
-                    <td>缓存系统</td>
-                    <td>哈希表 + 双向链表 (LRU)</td>
-                    <td>O(1)的get和put</td>
-                    <td>LFU、FIFO</td>
-                </tr>
-                <tr>
-                    <td>全文搜索</td>
-                    <td>倒排索引 (Inverted Index)</td>
-                    <td>O(1)找到包含某词的所有文档</td>
-                    <td>数据库LIKE查询</td>
-                </tr>
-                <tr>
-                    <td>去重系统</td>
-                    <td>布隆过滤器 (Bloom Filter)</td>
-                    <td>极省内存，允许少量误判</td>
-                    <td>哈希Set、Redis Set</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <div class="highlight">
-            <strong>面试官真正在考察什么？</strong><br>
-            系统设计面试中，当你提到一个数据结构时，面试官大概率会追问——不要慌，这是展示你思考深度的机会。比如：<br><br>
-            "你提到用Redis Sorted Set做排行榜，为什么不用MySQL的B+树？"<br>
-            你可以回答：<br>
-            "B+树在磁盘上表现很好，但每个分数更新都需要一次磁盘I/O——对于游戏排行榜这种秒级更新的场景，磁盘I/O的延迟(<10ms)远高于Redis的内存操作(<1ms)。而且Sorted Set的跳表实现使得范围查询（也就是Top-N查询）非常高效，只需要遍历链表即可，而B+树需要多次磁盘寻道。所以在这个低延迟、高并发的场景下，Redis Sorted Set是更合适的选择。"<br><br>
-            这就是"为什么选这个"的回答框架：<strong>延迟对比 + 数据结构特性 + 场景匹配</strong>。
-        </div>
-
-        <h2>本章小结</h2>
-
-        <p>在这一章中，我们走出了LeetCode的题目世界，进入了真实的系统设计场景。你学到了：</p>
-
-        <ul>
-            <li><strong>短网址系统</strong>——哈希函数的选择、冲突处理策略、分库分表策略</li>
-            <li><strong>实时排行榜</strong>——跳表Sorted Set、堆方案、时间分片</li>
-            <li><strong>限流器</strong>——四种限流算法的数据结构选择和代码实现</li>
-            <li><strong>Feed流推送</strong>——推模式vs拉模式vs推拉结合的数据结构选型</li>
-            <li><strong>即时通讯</strong>——消息存储、未读计数、在线状态的位图优化</li>
-            <li>一份<strong>系统设计数据结构选择速查表</strong>和面试中的决策框架</li>
-        </ul>
-
-        <p>至此，我们完成了Part 5「实战篇」的全部内容。从第23章的方法论到第24章的高频题精讲，再到第25章的系统设计实战，你已经具备了完整的数据结构面试备战体系。</p>
-
-        <p>接下来，进入本课程的最后一个大篇章——<strong>Part 6「拓展篇」</strong>。在第26章，我们将从性能分析的角度审视数据结构——什么时候用B+树优于跳表？Redis的内存效率为什么这么高？这些问题将帮你建立更全面的性能意识。</p>
-
-        <p>我们第26章见。</p>
-
-        <div class="footer-nav">
-            <a href="24.html">← 上一章</a>
-            <a href="index.html">📖 返回目录</a>
-            <a href="26.html">下一章 →</a>
-        </div>
-    </div>
-</div>
-</div>
+    return sorted(heap, key=lambda item: -item[0])</code></pre>
+<p>为什么用最小堆而不是最大堆？因为我们关心的是“当前第 k 名是多少”，当堆满 k 个之后，只需和新元素比一下堆顶就能决定要不要替换。<strong>堆只保证父子序、不等于整体有序</strong>，所以最后要再排一次序得到展示顺序。</p>
+<p>对于“小时榜/日榜”，可以把大时间窗拆成小窗，每个小窗单独算，再合并——这是把数据量降到可处理规模的通用技巧。</p></section>
+<section id="limit" class="article-section" aria-labelledby="heading-limit"><span class="section-number">04 / 07</span><h2 id="heading-limit">限流器</h2>
+<p>限流器保护后端不被流量打垮。不同算法的差别，直接对应到“用什么结构记录请求”。</p>
+<figure class="diagram"><div class="diagram-scroll" tabindex="0" aria-label="可横向滚动查看图示"><img src="../assets/svg/25-window.svg" alt="固定窗口在切换瞬间可能叠加两波流量；滑动窗口只统计最近 1 秒内的请求" width="880" height="280" loading="lazy"></div><figcaption>图 2 · 固定窗口在每个格子里独立计数，切换瞬间可能叠加两波；滑动窗口不按固定时间点重置，而是只看“距今最近一段时间”，边界更平滑。</figcaption></figure>
+<p>滑动窗口可以用双端队列实现：队列里存每个请求的时间戳，新请求到来时先把过期的从队首弹出。</p>
+<pre class="code-panel" tabindex="0"><code>from collections import deque
+
+class SlidingWindowLimiter:
+    def __init__(self, limit, window):
+        self.limit = limit
+        self.window = window
+        self.times = deque()          # 只存时间戳
+
+    def allow(self, now):
+        while self.times and self.times[0] &lt;= now - self.window:
+            self.times.popleft()      # 弹出窗口外的旧请求
+        if len(self.times) >= self.limit:
+            return False
+        self.times.append(now)
+        return True</code></pre>
+<p>为什么用 <code>deque</code> 而不是 <code>list</code>？因为要从<strong>队首</strong>频繁删除：<code>deque.popleft()</code> 是 O(1)，而 <code>list.pop(0)</code> 是 O(n)。每个请求最多入队、出队各一次，所以单次操作<strong>摊还</strong>为 O(1)——注意这里又是摊还，而不是每次都是严格 O(1)。</p>
+<div class="table-scroll"><table><thead><tr><th>算法</th><th>核心数据结构</th><th>允许突发？</th></tr></thead><tbody>
+<tr><td>固定窗口</td><td>一个计数器</td><td>是，但窗口切换时有毛刺</td></tr>
+<tr><td>滑动窗口</td><td>双端队列（存时间戳）</td><td>较平滑</td></tr>
+<tr><td>令牌桶</td><td>上次补充时间 + 当前令牌数</td><td>是，突发受桶容量限制</td></tr>
+<tr><td>漏桶</td><td>队列 + 定时器</td><td>否，强制恒定速率</td></tr>
+</tbody></table></div>
+<div class="lab" data-demo="rate-limit"><h3>看滑动窗口逐步放行/拒绝</h3><p>限制为“任意 1 秒内最多 4 个请求”。请求时间依次为 0, 200, 400, 600, 800, 1000, 1200, 1400（单位：毫秒，整数避免浮点误差）。拖动滑块逐个处理。</p><div class="lab-controls"><label for="rl-step">第几个请求</label><input id="rl-step" type="range" min="0" max="8" value="0" step="1"></div><output aria-live="polite">处理前：窗口为空。</output></div></section>
+<section id="feed" class="article-section" aria-labelledby="heading-feed"><span class="section-number">05 / 07</span><h2 id="heading-feed">Feed 流：推与拉</h2>
+<p>关注的人发了内容，你如何看到？有两种基本模式，它们的代价恰好相反：</p>
+<ul>
+<li><strong>推模式（写扩散）</strong>：发布时把内容写入每个粉丝的收件箱（如每人的有序时间线）。读时只需拉自己的收件箱，读得快；但写时很重——一个千万粉丝的大 V 发一条就要写千万次。</li>
+<li><strong>拉模式（读扩散）</strong>：发布只写一份，用户读时去合并自己关注的人的列表。写轻；但读时要合并很多源，尤其是关注很多人时。</li>
+</ul>
+<p>真实系统常用<strong>混合模式</strong>：普通用户走推模式（粉丝少，写扩散代价可控），大 V 走拉模式（避免一次写千万次）。判断依据是<strong>粉丝数分布</strong>——这正是第 7 章讲过的“平均情况与极端情况不一样”。</p>
+<p>时间线本身通常用有序结构（如按时间排好的列表/有序集合），取出时按时间倒序截断，类似于排行榜的区间查询。</p>
+<div class="callout"><p><strong>不要简单背“推好还是拉好”。</strong>正确的是：先说清读多写多、粉丝分布如何，再说选哪种，并说清混合方案的切分依据。</p></div></section>
+<section id="im" class="article-section" aria-labelledby="heading-im"><span class="section-number">06 / 07</span><h2 id="heading-im">未读计数与在线状态</h2>
+<p>即时通讯里有两个小而典型的数据结构问题。</p>
+<p><strong>未读计数</strong>：每个会话记录一个未读数，新消息到达时加一，用户打开会话时清零。这是一个计数器——单个数字就是最好的结构，不需要列表。真正的难点在一致性（多设备、消息可能乱序到达），那是系统工程问题，而不是数据结构问题。</p>
+<p><strong>在线状态</strong>：要快速回答“用户 X 是否在线”，并为每个在线用户维护心跳过期。两种思路：</p>
+<ul>
+<li><strong>位图（bitmap）</strong>：给每个用户一个 bit，在线置 1。用户 ID 密集且数量可控时，位图内存占用小、查询 O(1)。缺点是需要知道总用户数、且 ID 稀疏时浪费空间。</li>
+<li><strong>哈希表 + 过期时间</strong>：存在线用户及其最后心跳时间，定期清理。适合大规模、稀疏 ID，但需要处理过期与并发。</li>
+</ul>
+<p>可以看到：同样是“在线吗”，<strong>ID 是稠密还是稀疏</strong>被拿来作为选择位图与否的依据——这也是工程选型的通用思路。</p></section>
+<section id="choose" class="article-section" aria-labelledby="heading-choose"><span class="section-number">07 / 07</span><h2 id="heading-choose">速查与边界</h2>
+<p>把本章的例子归成一张“需求 → 结构”的对照表：</p>
+<div class="table-scroll"><table><thead><tr><th>需求</th><th>首选结构</th><th>理由</th></tr></thead><tbody>
+<tr><td>长 URL ↔ 短码双向映射</td><td>哈希表 / 数据库索引</td><td>按唯一键点查，O(1) 平均</td></tr>
+<tr><td>完整排行榜</td><td>跳表 / 有序集合</td><td>有序 + 区间查询</td></tr>
+<tr><td>只要 Top-K</td><td>大小为 k 的最小堆</td><td>O(n log k)，比全排更省</td></tr>
+<tr><td>最近一段时间内计数</td><td>双端队列 / 计数器</td><td>需要按时间过期</td></tr>
+<tr><td>允许突发的限流</td><td>令牌桶（时间+计数）</td><td>桶容量控制突发上限</td></tr>
+<tr><td>在线状态</td><td>位图（稠密 ID）/ 哈希表</td><td>看 ID 是否稠密</td></tr>
+</tbody></table></div>
+<p>两个容易踩的边界：<strong>其一</strong>，基62短码与“自增 ID”都只是手段，真正的取舍是可预测性与是否依赖中心化发号器；<strong>其二</strong>，限流滑动窗口的 O(1) 是摊还，不是每次都严格 O(1)。</p>
+<p>别把“系统组件”和“数据结构”混为一谈：选对结构只是第一步，缓存、分片、副本、一致性那些问题在单机结构之外。本章只讲了“单机内怎么组织数据”这一层。</p></section>
+<section class="takeaways"><h2>带走三个判断准则</h2><ol>
+<li>先把需求写成一串读写操作，再对照结构的代价；先问“读多写多、点查还是范围查”。</li>
+<li>只要 Top-K 就用大小为 k 的堆，不要为了前几名而全量排序。</li>
+<li>限流与 Feed 没有万能的单一方案；按流量特点（突发性、粉丝分布）选，并说清取舍。</li>
+</ol></section>
+<section class="references"><h2>继续学习与校验资料</h2><ul>
+<li><a href="https://redis.io/docs/latest/develop/data-types/sorted-sets/">Redis Sorted Sets</a> — 跳表实现的有序集合</li>
+<li><a href="https://en.wikipedia.org/wiki/Token_bucket">Token bucket</a>、<a href="https://en.wikipedia.org/wiki/Leaky_bucket">Leaky bucket</a> — 两种限流模型</li>
+<li><a href="22.html">第 22 章：跳表与 B+ 树</a>；<a href="11.html">第 11 章：堆与优先队列</a></li>
+<li>运行参考：<code>examples/system_design.py</code>；测试：<code>tests/test_system_design.py</code></li>
+</ul></section>
+<nav class="end-nav" aria-label="上一章和下一章"><a href="24.html">← 第 24 章</a><a href="../index.html">全部课程</a><a class="chapter-link" href="26.html">第 26 章 →</a></nav>
+</article></main></div>
+<footer class="article-footer"><a href="../index.html">数据结构与算法课程</a><span>先写清读写比例与访问模式，再谈具体结构。</span></footer>
+<script src="../assets/js/interactive.js" defer></script>
 </body>
 </html>

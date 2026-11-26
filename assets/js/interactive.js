@@ -364,4 +364,26 @@
   select.addEventListener("change",update);update();
  }
 
+ // Chapter 25: sliding-window rate limiter walkthrough.
+ const rl=document.querySelector('[data-demo="rate-limit"]');
+ if(rl){
+  const input=rl.querySelector("input"),out=rl.querySelector("output");
+  const times=[0,200,400,600,800,1000,1200,1400],limit=4,window=1000;
+  const events=[]; const q=[];
+  for(const t of times){
+   while(q.length && q[0]<=t-window) q.shift();
+   const allowed=q.length<limit;
+   if(allowed) q.push(t);
+   events.push({t,allowed,queue:[...q]});
+  }
+  const fmt=a=>a.join(", ");
+  const update=()=>{
+   const k=Number(input.value);
+   if(k===0){out.textContent="处理前：窗口为空。";return;}
+   const e=events[k-1];
+   out.textContent="请求 "+e.t+"ms："+(e.allowed?"允许":"拒绝")+"；窗口内 "+e.queue.length+" 个（"+fmt(e.queue)+"）。";
+  };
+  input.addEventListener("input",update);update();
+ }
+
 })();

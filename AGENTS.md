@@ -62,10 +62,10 @@
 - 必须区分：排序的稳定/原地性质与实测速度（同阶算法常数不同）；递归的调用深度与栈溢出风险；回溯的“撤销选择”与 DP 的“状态转移”不是同一回事；DP 要求最优子结构 + 重叠子问题同时成立；贪心只在贪心选择性质 + 最优子结构成立时正确（找零 1/3/4 是反例）；并查集的 O(α(n)) 是摊还上界，且它只支持合并、不支持断开。
 - 图示为外链 `assets/svg/14-*.svg`–`assets/svg/19-*.svg`，与 01–13 一致（skills 自带的 `validate.py` 要求内联 `<svg>`，与本仓库外链约定冲突，此差异只在交付说明中记录）。
 
-## 2026-11 后续精修批次（20–22、26–27）
-- 20–22（线段树与树状数组、字典树 Trie、跳表与 B+ 树）与 26（数据结构性能分析）、27（AI 与数据结构的交叉）已按同一图解体系重写；23–25、28 仍是原稿。README 的状态表与本节必须同步更新，不得把未改章节说成已精修。
-- 本批原稿存入 `archive/original/20.html`–`archive/original/22.html`、`archive/original/26.html`、`archive/original/27.html`；`courses.json` 中这五章的 `revision` 已改为 `illustrated`，其余保持 `original`。
-- 运行参考：`examples/range_queries.py`、`examples/trie.py`、`examples/skip_list.py`、`examples/benchmarking.py`、`examples/learned_index.py`；测试：`tests/test_range_queries.py`、`tests/test_trie.py`、`tests/test_skip_list.py`、`tests/test_benchmarking.py`、`tests/test_learned_index.py`。
+## 2026-11 后续精修批次（20–22、25–27）
+- 20–22（线段树与树状数组、字典树 Trie、跳表与 B+ 树）与 25（系统设计中的数据结构）、26（数据结构性能分析）、27（AI 与数据结构的交叉）已按同一图解体系重写；23–24、28 仍是原稿。README 的状态表与本节必须同步更新，不得把未改章节说成已精修。
+- 本批原稿存入 `archive/original/20.html`–`archive/original/22.html`、`archive/original/25.html`、`archive/original/26.html`、`archive/original/27.html`；`courses.json` 中这六章的 `revision` 已改为 `illustrated`，其余保持 `original`。
+- 运行参考：`examples/range_queries.py`、`examples/trie.py`、`examples/skip_list.py`、`examples/benchmarking.py`、`examples/learned_index.py`、`examples/system_design.py`；测试：`tests/test_range_queries.py`、`tests/test_trie.py`、`tests/test_skip_list.py`、`tests/test_benchmarking.py`、`tests/test_learned_index.py`、`tests/test_system_design.py`。
 - 必须区分：线段树/树状数组的 O(log n) 与“实测耗时”（同阶常数不同）；Trie 的“前缀存在”与“完整词存在”（靠 is_end 区分）；跳表的 O(log n) 是期望而非最坏保证；B+ 树优势来自“多 key/页 + 叶链”而非渐进复杂度更低。
 - 性能与 AI 章节：硬件数量级（内存/缓存/磁盘）须标注“教学示意”，不得编造“实测”数字或来源；学习型索引的预测是近似，ANN 不保证精确最近邻。
-- 图示为外链 `assets/svg/20-*.svg`、`assets/svg/21-*.svg`、`assets/svg/22-*.svg`、`assets/svg/26-*.svg`、`assets/svg/27-*.svg`，与 01–19 一致。
+- 图示为外链 `assets/svg/20-*.svg`、`assets/svg/21-*.svg`、`assets/svg/22-*.svg`、`assets/svg/25-*.svg`、`assets/svg/26-*.svg`、`assets/svg/27-*.svg`，与 01–19 一致。
