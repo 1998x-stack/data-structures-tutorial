@@ -1,316 +1,124 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
-    <title>第19章 并查集</title>
-    <link rel="stylesheet" href="theme.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="并查集（Union-Find）：用 parent 数组维护动态连通性，通过路径压缩与按秩合并把单次操作摊还到近似常数，解决省份数量、岛屿数量与冗余连接等问题。">
+<title>第 19 章 · 并查集：动态连通性的近常数解法 | 数据结构与算法</title>
+<link rel="stylesheet" href="../assets/css/article.css">
 </head>
 <body>
-<div class="double-border">
-<div class="container">
-    <div class="sidebar">
-        <h3>🧠 课程目录</h3>
-        <ul class="chapter-list">
-            <li><a href="01.html">第1章 为什么要学数据结构</a></li>
-            <li><a href="02.html">第2章 复杂度分析</a></li>
-            <li><a href="03.html">第3章 数组与字符串</a></li>
-            <li><a href="04.html">第4章 链表</a></li>
-            <li><a href="05.html">第5章 栈</a></li>
-            <li><a href="06.html">第6章 队列</a></li>
-            <li><a href="07.html">第7章 哈希表</a></li>
-            <li><a href="08.html">第8章 树基础</a></li>
-            <li><a href="09.html">第9章 二叉搜索树</a></li>
-            <li><a href="10.html">第10章 平衡二叉树</a></li>
-            <li><a href="11.html">第11章 堆与优先队列</a></li>
-            <li><a href="12.html">第12章 图基础</a></li>
-            <li><a href="13.html">第13章 图算法</a></li>
-            <li><a href="14.html">第14章 排序算法全览</a></li>
-            <li><a href="15.html">第15章 递归与分治</a></li>
-            <li><a href="16.html">第16章 回溯算法</a></li>
-            <li><a href="17.html">第17章 动态规划</a></li>
-            <li><a href="18.html">第18章 贪心算法</a></li>
-            <li><a href="19.html" class="active">第19章 并查集</a></li>
-            <li><a href="20.html">第20章 线段树与树状数组</a></li>
-            <li><a href="21.html">第21章 字典树(Trie)</a></li>
-            <li><a href="22.html">第22章 跳表与B+树</a></li>
-            <li><a href="23.html">第23章 LeetCode刷题方法论</a></li>
-            <li><a href="24.html">第24章 大厂面试高频题精讲</a></li>
-            <li><a href="25.html">第25章 系统设计中的数据结构</a></li>
-            <li><a href="26.html">第26章 数据结构性能分析</a></li>
-            <li><a href="27.html">第27章 AI与数据结构的交叉</a></li>
-            <li><a href="28.html">第28章 学习路线与综合项目</a></li>
-        </ul>
-    </div>
-    <div class="main-content">
-
-        <h2>开篇："朋友圈"里的连通性难题</h2>
-
-        <p>假设你正在开发一个社交平台——就叫它"FriendLink"吧。上线第一周用户注册量突破了10万，产品经理跑来找你提了一个需求：</p>
-
-        <p>"我们要在用户主页展示'你们之间有多少个共同好友'，还要判断两个用户是否属于同一个社交圈——比如A和B是好友，B和C是好友，那么A和C应该被视为同一个圈子里的人。"</p>
-
-        <p>你第一反应是：这不就是图论里的连通性问题吗？用DFS或BFS遍历一下用户的好友图不就完了？确实可以。但当用户量从10万涨到1000万的时候，每次查询都做一次DFS遍历——最坏情况下要遍历整个图——这个代价太大了。你需要一种能够<strong>动态地维护连通关系</strong>、并且能在近似常数时间内回答"两个节点是否连通"的数据结构。</p>
-
-        <p>这就是<strong>并查集（Union-Find Disjoint Set）</strong>登场的时刻。</p>
-
-        <h2>并查集的由来</h2>
-
-        <p>并查集，英文叫 Disjoint Set Union（DSU）或 Union-Find，是一种用来管理<strong>不相交集合</strong>的数据结构。它解决的核心问题是<strong>动态连通性</strong>——在数据不断变化（添加新的连接关系）的过程中，高效地判断两个元素是否属于同一个集合。</p>
-
-        <p>回到"FriendLink"的例子：每一个用户初始时都是独立的——自己就是一个社交圈。当两个用户加好友时，我们把他们所在的社交圈"合并"起来。当需要判断两个用户是否在同一个社交圈时，我们只需要"查找"他们各自属于哪个圈子，然后比较一下圈子编号是否相同。这就是并查集最朴素的直觉：<strong>合并（Union）+ 查找（Find）。</strong></p>
-
-        <p>并查集在计算机科学中有着广泛的应用：<strong>社交网络的好友推荐、图像处理中的连通区域标记、Kruskal最小生成树算法、游戏中的地图连通性判断</strong>——凡是需要管理"等价关系"的场景，都能看到并查集的身影。</p>
-
-        <div class="highlight">
-            <strong>核心直觉：</strong>并查集本质上是一种"找老大"的结构。每个集合都有一个"老大"（根节点），你问一个人属于哪个帮派，他就帮你找到老大。合并两个帮派，就让一个老大认另一个老大做老大。就这么简单。
-        </div>
-
-        <h2>并查集的基本操作</h2>
-
-        <p>并查集的核心操作只有两个：<strong>查找（Find）</strong>和<strong>合并（Union）。</strong></p>
-
-        <p>在最基础的实现中，我们用<strong>数组</strong>来存储每个元素的"父节点"：</p>
-
-        <pre><code># 最基础的并查集实现
-class UnionFind:
+<a href="#content" class="skip-link">跳转至正文</a>
+<header class="article-top"><div class="top-inner"><a class="brand" href="../index.html">← 课程首页</a><span class="course-name">数据结构与算法 · 深度图解</span><a class="source-link" href="https://github.com/1998x-stack/data-structures-tutorial">GitHub</a></div></header>
+<div class="article-layout">
+<aside class="toc"><details open><summary>本章导览</summary><nav aria-label="并查集章节目录"><ol>
+<li><a href="#why"><span>01</span>动态连通性：为什么不用每次 DFS</a></li>
+<li><a href="#ops"><span>02</span>两个操作：find 与 union</a></li>
+<li><a href="#compress"><span>03</span>路径压缩：查询时顺手拍平</a></li>
+<li><a href="#rank"><span>04</span>按秩合并与近似常数</a></li>
+<li><a href="#classics"><span>05</span>经典题：连通分量、岛屿、冗余连接</a></li>
+<li><a href="#vsdfs"><span>06</span>并查集 vs DFS/BFS</a></li>
+<li><a href="#limits"><span>07</span>边界：不能断开、要离线</a></li>
+</ol></nav></details><div class="toc-bottom"><a href="../index.html#curriculum">查看 28 章课程</a></div></aside>
+<main id="content"><article>
+<header class="article-heading"><div class="article-kicker">ADVANCED INDEX / CHAPTER 19</div><h1>并查集：动态连通性的近常数解法</h1><p class="dek">“A 和 B 是朋友，B 和 C 是朋友，A 和 C 是否同属一个圈子？”如果边会不断新增、问题会被反复问，每次做一遍 DFS 就太慢了。并查集用几十行代码把“合并”和“查询”都做到接近 O(1)。</p><div class="topic-tags"><span>Union-Find</span><span>路径压缩</span><span>按秩合并</span><span>连通分量</span><span>环检测</span></div></header>
+<section id="why" class="article-section" aria-labelledby="heading-why"><span class="section-number">01 / 07</span><h2 id="heading-why">动态连通性：为什么不用每次 DFS</h2>
+<p>设想一个社交平台：用户之间不断新增好友关系，同时要频繁回答“这两个用户是否属于同一个社交圈”。把用户当顶点、好友关系当边，这个问题就是图的<strong>连通性</strong>。如果每次查询都跑一遍 DFS/BFS，最坏要扫完整张图，代价 O(n+m)；而边还会不断增加，重复遍历非常浪费。</p>
+<p>关键在于这类问题只需要两种信息：<strong>把两个集合合起来</strong>，以及<strong>判断两个元素是否已在同一集合</strong>。它并不要求给出两人之间的具体关系链。只要能高效维护这两件事，就能把查询降到接近常数——这就是<strong>并查集</strong>（Disjoint Set Union / Union-Find）。</p>
+<p>它把“集合”表示成一个森林：每个节点记住自己的父节点，根节点代表整个集合。问某个元素属于哪个集合，就沿父指针找到根；合并两个集合，就让一个根认另一个根做父。接下来先把这个朴素版本写出来，再逐步优化。</p></section>
+<section id="ops" class="article-section" aria-labelledby="heading-ops"><span class="section-number">02 / 07</span><h2 id="heading-ops">两个操作：find 与 union</h2>
+<p>并查集用一个 <code>parent</code> 数组保存父指针。初始化时 <code>parent[i] = i</code>，每个元素自成一派。两个核心操作：<strong>find(x)</strong> 沿父指针向上直到根；<strong>union(x, y)</strong> 先找到两个根，若不同就把一个根挂到另一个根下。</p>
+<figure class="diagram"><div class="diagram-scroll" tabindex="0" aria-label="可横向滚动查看图示"><img src="../assets/svg/19-union.svg" alt="parent 数组从 [0,1,2,3] 经三次 union 变为 [0,0,0,2]，整棵树以 0 为根" width="880" height="430" loading="lazy"></div><figcaption>图 1 · 三次 union 都只是改写一个格子。union(1,2) 时先 find(1)=0、find(2)=2，再把 parent[2] 改成 0。根节点的 parent 始终指向自己，这是 find 的终止条件。</figcaption></figure>
+<pre class="code-panel" tabindex="0"><code>class UnionFind:
     def __init__(self, n):
-        # 初始时，每个元素都是自己的父节点（自成一派）
-        self.parent = list(range(n))
+        self.parent = list(range(n))   # 初始时各自为根
 
     def find(self, x):
-        # 查找x所属集合的根节点
-        while self.parent[x] != x:   # 不断向上找父节点
+        while self.parent[x] != x:     # 一路向上找根
             x = self.parent[x]
         return x
 
     def union(self, x, y):
-        # 合并x和y所属的两个集合
-        root_x = self.find(x)
-        root_y = self.find(y)
-        if root_x != root_y:
-            self.parent[root_x] = root_y  # 将一个根挂到另一个根下</code></pre>
-
-        <p>初始时，每个元素都是自己的"老大"（parent[i] = i）。find操作沿着父节点指针一路往上走，直到找到根节点（根节点的父节点是自己）。union操作就是先找到两个元素的根，如果根不同，就把一个根挂到另一个根下面。</p>
-
-        <p>这个实现有一个严重的问题：当合并深度很大时，find操作可能退化为O(n)！想象一下：每次都把root_x挂到root_y下面，时间长了就形成了一条长长的链——查找最下面的元素需要遍历整条链。</p>
-
-        <h2>路径压缩</h2>
-
-        <p>如何解决上面说的"长链"问题？答案非常巧妙：<strong>在find的过程中，顺手把路径上的所有节点都直接指向根节点。</strong></p>
-
-        <pre><code>def find(self, x):
-    if self.parent[x] != x:
-        # 递归地找到根，并将当前节点直接指向根
-        self.parent[x] = self.find(self.parent[x])
-    return self.parent[x]</code></pre>
-
-        <p>这个优化叫做<strong>路径压缩（Path Compression）</strong>。它的效果非常惊人：经过一次find之后，从x到根路径上的所有节点，下次再find就是O(1)了。多次操作之后，整个树的形状会变得非常扁平，几乎所有的节点都直接挂在根节点下面。</p>
-
-        <p>我还记得第一次在Kruskal算法里用上路径压缩时的震撼：之前跑一个100万个节点的最小生成树需要好几秒，加上路径压缩后瞬间出结果——"O(n)到O(α(n))的飞跃"就是这么直观。</p>
-
-        <div class="tip">
-            <strong>小技巧：</strong>路径压缩有两种写法——递归和迭代。递归写法简洁易懂，但如果路径非常长（比如深度>1000），Python的递归深度限制可能导致RecursionError。生产环境建议用迭代写法：<code>while parent[x] != x: parent[x] = parent[parent[x]]; x = parent[x]</code>。这叫"两步一跳"（halving），效果和完整路径压缩几乎一样。
-        </div>
-
-        <h2>按秩合并</h2>
-
-        <p>路径压缩优化的是find操作本身，但还有一个问题：谁合并谁？我们之前的union是随意地把一个根挂到另一个根下面，这可能导致树的高度增加。有没有更好的策略？</p>
-
-        <p>答案是<strong>按秩合并（Union by Rank）</strong>。这里的"秩"通常指树的<strong>高度</strong>（或者节点数量）。合并时，总是把矮的树挂到高的树下面，这样可以避免树的高度增加。</p>
-
-        <pre><code>class UnionFind:
-    def __init__(self, n):
-        self.parent = list(range(n))
-        self.rank = [1] * n   # 记录每个根节点的树高（近似）
-
-    def find(self, x):
-        # 路径压缩
-        if self.parent[x] != x:
-            self.parent[x] = self.find(self.parent[x])
-        return self.parent[x]
-
-    def union(self, x, y):
-        root_x = self.find(x)
-        root_y = self.find(y)
-        if root_x == root_y:
-            return
-
-        # 按秩合并：将矮树挂到高树下
-        if self.rank[root_x] < self.rank[root_y]:
-            self.parent[root_x] = root_y
-        elif self.rank[root_x] > self.rank[root_y]:
-            self.parent[root_y] = root_x
-        else:
-            # 两个树一样高，合并后高度+1
-            self.parent[root_y] = root_x
-            self.rank[root_x] += 1</code></pre>
-
-        <p>当<strong>路径压缩</strong>和<strong>按秩合并</strong>同时使用时，并查集的单次操作复杂度是<strong>O(α(n))</strong>，其中α(n)是反阿克曼函数（Inverse Ackermann Function）。阿克曼函数是一个增长极其迅速的数学函数，它的反函数增长极其缓慢——对于宇宙中所有原子数量级别的输入，α(n)都不会超过5。所以你可以近似地认为并查集的操作是<strong>常数时间</strong>的。</p>
-
-        <div class="highlight">
-            <strong>并查集是解决动态连通性问题的最优数据结构，两个优化加在一起复杂度接近常数。</strong> 这是算法设计"从坏到好"的完美案例：朴素实现O(n) → 路径压缩近似O(log n) → 两者结合O(α(n))。
-        </div>
-
-        <h2>经典题目</h2>
-
-        <h3>题目一：省份数量（LeetCode 547）</h3>
-
-        <p>有n个城市，其中一些彼此相连，另一些没有相连。给你一个n×n的矩阵isConnected，其中isConnected[i][j] = 1表示第i个城市和第j个城市直接相连。返回省份数量（直接或间接相连的城市算同一个省份）。</p>
-
-        <p>这个问题的本质就是求连通分量个数。用DFS可以解，但并查集更加直观：</p>
-
-        <pre><code>def find_circle_num(isConnected):
-    n = len(isConnected)
+        rx, ry = self.find(x), self.find(y)
+        if rx != ry:
+            self.parent[rx] = ry       # 把一棵树挂到另一棵下
+            return True
+        return False                   # 已经连通</code></pre>
+<p>看懂这一段就抓住了全部直觉：<strong>问“属于哪一帮”就找根，合并“两帮”就让一个根认另一个做父</strong>。但朴素实现有个隐患：如果始终把一个根挂到另一个根下，树可能变成一条长链，find 退化为 O(n)。下面两节分别从“查询”和“合并”两个角度修补。</p></section>
+<section id="compress" class="article-section" aria-labelledby="heading-compress"><span class="section-number">03 / 07</span><h2 id="heading-compress">路径压缩：查询时顺手拍平</h2>
+<p>解决长链的办法很巧妙：<strong>在 find 的过程中，把路径上经过的每个节点都改成直接指向根</strong>。这一次 find 可能多走了几步，但下次再查同一批节点就只需一步。而且它不改变“谁能到达谁”的等价关系，只让树变扁。</p>
+<figure class="diagram"><div class="diagram-scroll" tabindex="0" aria-label="可横向滚动查看图示"><img src="../assets/svg/19-compress.svg" alt="链 3→2→1→0 在 find(3) 后变成 1、2、3 都直接指向根 0" width="880" height="430" loading="lazy"></div><figcaption>图 2 · 压缩前是四层链，压缩后变成两层。路径压缩只在 find 时“顺便”发生，不需要额外一遍遍历，因此不增加单独的花销。</figcaption></figure>
+<pre class="code-panel" tabindex="0"><code>def find(self, x):
+    root = x
+    while self.parent[root] != root:   # 先找到根
+        root = self.parent[root]
+    while self.parent[x] != root:      # 再把路径上节点改指根
+        self.parent[x], x = root, self.parent[x]
+    return root</code></pre>
+<p>递归写法更短（<code>parent[x] = find(parent[x])</code>），但路径长时有栈溢出风险；上面这种<strong>迭代写法</strong>生产环境更稳妥。路径压缩把单次 find 的摊还代价大幅降低，但它单独用仍不保证最坏情况——还需要配合下一节的合并策略。</p></section>
+<section id="rank" class="article-section" aria-labelledby="heading-rank"><span class="section-number">04 / 07</span><h2 id="heading-rank">按秩合并与近似常数</h2>
+<p>既然要挂树，就选一种更聪明的挂法：<strong>总是把矮的树挂到高的树下面</strong>，这样合并后树高不会增加。这个“高”用 <code>rank</code> 数组记录（通常取树高或节点数的上界），叫做<strong>按秩合并</strong>（union by rank）。</p>
+<pre class="code-panel" tabindex="0"><code>def union(self, x, y):
+    rx, ry = self.find(x), self.find(y)
+    if rx == ry:
+        return False
+    if self.rank[rx] &lt; self.rank[ry]:
+        rx, ry = ry, rx          # 让 rx 为较高的根
+    self.parent[ry] = rx         # 矮树挂到高树下
+    if self.rank[rx] == self.rank[ry]:
+        self.rank[rx] += 1       # 同高时合并后高度加一
+    return True</code></pre>
+<p>按秩合并单独使用，能让树高保持在 O(log n)；路径压缩单独使用，能把摊还代价降到接近 O(log n)。两者<strong>同时使用</strong>时，单次操作的摊还复杂度是 O(α(n))，其中 α 是反阿克曼函数。阿克曼函数增长极快，所以它的反函数增长极慢——在几乎所有实际可及的规模下，α(n) 都不超过 5。因此工程上可以把它当成<strong>近似常数</strong>。</p>
+<div class="lab" data-demo="uf-trace"><h3>逐步观察 union 后的父数组</h3><p>对 0..4 依次做 union(0,1)、union(2,3)、union(1,2)，拖动滑块查看每一步的 parent。</p><div class="lab-controls"><label for="uf-step">步骤</label><input id="uf-step" type="range" min="0" max="3" value="3" step="1"></div><output aria-live="polite">第 3 步：parent = [0,0,0,2,4]。</output></div>
+<p>“近似常数”不是一个可以拿秒表验证的固定值，而是对<strong>操作次数与树高</strong>的渐进结论；具体单次快慢仍取决于数据。这一点必须与“实测耗时”区分开。</p></section>
+<section id="classics" class="article-section" aria-labelledby="heading-classics"><span class="section-number">05 / 07</span><h2 id="heading-classics">经典题：连通分量、岛屿、冗余连接</h2>
+<p><strong>省份数量（LeetCode 547）</strong>：给定 n×n 的相连矩阵，求连通分量个数。只需遍历上三角，对相连的城市 union，最后数一下有多少个不同的根（即还剩多少个集合）。</p>
+<pre class="code-panel" tabindex="0"><code>def count_provinces(is_connected):
+    n = len(is_connected)
     uf = UnionFind(n)
-
-    # 遍历矩阵的上三角部分
     for i in range(n):
         for j in range(i + 1, n):
-            if isConnected[i][j] == 1:
+            if is_connected[i][j]:
                 uf.union(i, j)
-
-    # 统计不同的根节点数量
-    roots = set()
-    for i in range(n):
-        roots.add(uf.find(i))
-    return len(roots)</code></pre>
-
-        <h3>题目二：岛屿数量（LeetCode 200）</h3>
-
-        <p>给你一个由'1'（陆地）和'0'（水）组成的二维网格，请计算网格中岛屿的数量。岛屿总是被水包围，并且每座岛屿只能由水平方向和/或竖直方向上相邻的陆地连接形成。</p>
-
-        <p>这道题的经典解法是DFS/BFS，但并查集同样可解——把每个为'1'的格子初始化为一个集合，然后向右和向下检查相邻格子，如果是'1'就合并。</p>
-
-        <pre><code>def num_islands(grid):
-    if not grid:
-        return 0
-    rows, cols = len(grid), len(grid[0])
-    uf = UnionFind(rows * cols)
-
-    def index(r, c):
-        return r * cols + c
-
-    for r in range(rows):
-        for c in range(cols):
-            if grid[r][c] == '1':
-                # 检查右边和下边
-                if r + 1 < rows and grid[r+1][c] == '1':
-                    uf.union(index(r, c), index(r+1, c))
-                if c + 1 < cols and grid[r][c+1] == '1':
-                    uf.union(index(r, c), index(r, c+1))
-
-    # 统计所有为'1'且是根节点的个数
-    roots = set()
-    for r in range(rows):
-        for c in range(cols):
-            if grid[r][c] == '1':
-                roots.add(uf.find(index(r, c)))
-    return len(roots)</code></pre>
-
-        <h3>题目三：冗余连接（LeetCode 684）</h3>
-
-        <p>树可以看成是无向无环图。现在往一棵树里多加了一条边，导致出现了环。请你找出这条多余的边。</p>
-
-        <p>这道题是并查集的"杀手锏"——它完美地利用了并查集检测环的能力：在遍历边的过程中，如果发现两个节点已经连通（属于同一个集合），说明当前这条边就是多余的。</p>
-
-        <pre><code>def find_redundant_connection(edges):
-    n = len(edges)
-    uf = UnionFind(n + 1)  # 节点编号从1开始
-
+    return uf.count          # 维护的集合数就是省份数</code></pre>
+<p><strong>岛屿数量（LeetCode 200）</strong>：把每个陆地格子看成一个元素，向右、向下与相邻陆地 union，最后统计为“1”且是根的格子数。与省份数量是同一思路，只是把二维坐标映射成一维下标。</p>
+<p><strong>冗余连接（LeetCode 684）</strong>：在一棵树上多加一条边，找出多余的那条。这就是并查集检测环的看家本领：逐条加边，若某条边两端已在同一集合，它就是多余的。这也正是 Kruskal 在加边前的同一个判断（第 13 章）。</p>
+<figure class="diagram"><div class="diagram-scroll" tabindex="0" aria-label="可横向滚动查看图示"><img src="../assets/svg/19-cycle.svg" alt="三角形三边中前两条 union 成功，第三条 (2,3) 两端已连通，因此是多余边" width="880" height="430" loading="lazy"></div><figcaption>图 3 · union 返回 false 就等于“这条边会成环”。整个过程不需要重新遍历图，每加一条边只做两次 find。</figcaption></figure>
+<pre class="code-panel" tabindex="0"><code>def find_redundant_connection(edges):
+    n = max(max(u, v) for u, v in edges)
+    uf = UnionFind(n + 1)        # 节点从 1 编号
     for u, v in edges:
-        if uf.find(u) == uf.find(v):
-            # 已经连通，说明这条边是多余的
+        if not uf.union(u, v):   # 已连通：这条边多余
             return [u, v]
-        uf.union(u, v)
-    return []</code></pre>
-
-        <div class="tip">
-            <strong>踩坑实录：</strong>之前用DFS处理冗余连接问题时，每次加一条边都要重新DFS整个图来检测环，时间复杂度O(n²)。线上数据量一大就超时。换成并查集后，每次操作O(α(n))，检测200万条边不到0.1秒。从O(n²)到O(n·α(n))，这就是数据结构的价值。
-        </div>
-
-        <h2>并查集 vs DFS/BFS</h2>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>维度</th>
-                    <th>并查集</th>
-                    <th>DFS / BFS</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>核心能力</td>
-                    <td>动态连通性（随时加边，随时查询）</td>
-                    <td>静态连通性（给定图，一次遍历）</td>
-                </tr>
-                <tr>
-                    <td>单次查询复杂度</td>
-                    <td>O(α(n)) ≈ O(1)</td>
-                    <td>O(n + m)（每次都要重新遍历）</td>
-                </tr>
-                <tr>
-                    <td>空间复杂度</td>
-                    <td>O(n)</td>
-                    <td>O(n + m)（需要建图）</td>
-                </tr>
-                <tr>
-                    <td>实现难度</td>
-                    <td>极低（20行代码）</td>
-                    <td>中等（需要递归/栈）</td>
-                </tr>
-                <tr>
-                    <td>适用场景</td>
-                    <td>动态加边 + 频繁查询</td>
-                    <td>静态图的一次性遍历</td>
-                </tr>
-                <tr>
-                    <td>能否检测环</td>
-                    <td>能（union时发现已在同一集合）</td>
-                    <td>能（遇到已访问节点）</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <h2>并查集的工程实践</h2>
-
-        <p>在真实工程中，并查集往往不是单独使用的，而是作为某个更大算法的一部分：</p>
-
-        <ul>
-            <li><strong>Kruskal最小生成树</strong>：按边权重排序，用并查集判断是否会成环，是经典"贪心+并查集"的组合。</li>
-            <li><strong>图像连通区域标记</strong>：图像处理中的Connected Component Labeling（CCL），两步法中的第一步用并查集合并等价标签。</li>
-            <li><strong>社交网络分析</strong>：动态维护用户之间的连通关系，判断"你可能认识的人"。</li>
-            <li><strong>在线编译器的类型推导</strong>：某些类型系统的实现用并查集管理"类型是否等价"的关系。</li>
-        </ul>
-
-        <div class="warning">
-            <strong>小心并查集的"离线"陷阱：</strong>并查集不支持"断开"操作（无法删除已建立的连接）。如果你的场景需要频繁断开连接，并查集就不适用——你需要考虑动态图（Dynamic Graph）或Link-Cut Tree等更高级的数据结构。
-        </div>
-
-        <h2>本章小结</h2>
-
-        <p>在这一章中，我们学习了：</p>
-
-        <ul>
-            <li><strong>并查集是什么</strong>——一种管理动态连通关系的数据结构，核心操作是find和union。</li>
-            <li><strong>路径压缩</strong>——find时将路径上的节点直接指向根，将复杂度从O(n)降到近似O(log n)。</li>
-            <li><strong>按秩合并</strong>——union时将矮树挂到高树下，两者结合达到O(α(n))的惊人效率。</li>
-            <li><strong>经典题目</strong>——省份数量（连通分量计数）、岛屿数量（二维连通性）、冗余连接（环检测）。</li>
-            <li><strong>并查集 vs DFS/BFS</strong>——并查集的核心优势在于"动态"场景：随时加边、随时查询，每次操作都是常数时间。</li>
-        </ul>
-
-        <p>并查集是一种"小但美"的数据结构。它的思想简单到可以用一句话概括——"找老大，合并帮派"——但两个精妙的优化却让它达到了理论最优的复杂度。这种"用简单的思路加上巧妙优化达到极致性能"的设计哲学，是整个数据结构和算法学习的精髓。</p>
-
-        <p>下一章，我们将进入另一个强大的高级数据结构——<strong>线段树与树状数组</strong>。如果说并查集解决的是"连通性"问题，那么线段树解决的是"区间查询"问题：如何快速求出一个数组中任意区间的和、最大值、最小值，同时还能支持对数组的实时更新。这是一个在算法竞赛和工程实践中都极其常用的工具，敬请期待！</p>
-
-        <div class="footer-nav">
-            <a href="18.html">← 上一章</a>
-            <a href="index.html">📖 返回目录</a>
-            <a href="20.html">下一章 →</a>
-        </div>
-    </div>
-</div>
-</div>
+    return []</code></pre></section>
+<section id="vsdfs" class="article-section" aria-labelledby="heading-vsdfs"><span class="section-number">06 / 07</span><h2 id="heading-vsdfs">并查集 vs DFS/BFS</h2>
+<p>两种方法都能判断连通性，但适用场景不同：</p>
+<div class="table-scroll"><table><thead><tr><th>维度</th><th>并查集</th><th>DFS / BFS</th></tr></thead><tbody>
+<tr><td>适合的场景</td><td>边会动态新增，且要反复查询</td><td>图给定不变，一次遍历</td></tr>
+<tr><td>单次查询</td><td>O(α(n))，近似常数（摊还）</td><td>O(n+m)，每次都要重扫</td></tr>
+<tr><td>空间</td><td>O(n)</td><td>O(n+m)，需要建邻接表</td></tr>
+<tr><td>能否给出具体路径</td><td>不能，只知道是否同组</td><td>能，可重建路径</td></tr>
+<tr><td>能否检测环</td><td>能（union 失败即环）</td><td>能（遇到已访问节点）</td></tr>
+</tbody></table></div>
+<p>一句话：如果只需要“合并 + 是否同组”，并且合并会不断发生，选并查集；如果需要具体路径、或者图基本不变只需一次性遍历，DFS/BFS 更直接。</p></section>
+<section id="limits" class="article-section" aria-labelledby="heading-limits"><span class="section-number">07 / 07</span><h2 id="heading-limits">边界：不能断开、要离线</h2>
+<p>并查集擅长合并，但有几个必须记住的限制：</p>
+<ul><li><strong>不支持断开</strong>：一旦 union，就没办法“删边”。需要频繁断开的场景要改用动态图或 Link-Cut Tree 等结构。</li><li><strong>不记录路径</strong>：find 只能告诉你“是否同组”，无法给出两人之间的好友链。</li><li><strong>难以回滚到历史版本</strong>：普通并查集不具有可持久化能力；需要“查询某个历史时刻的连通性”时，要改用可持久化并查集（实现复杂得多）。</li><li><strong>带权/带偏移的需求要另做</strong>：若除了连通还要维护“到根的距离”等关系（如带权并查集），需要在 parent 之外再存一个偏移量，不能直接套上面的模板。</li></ul>
+<p>回看整条优化路径：<strong>朴素实现 O(n) → 路径压缩近似 O(log n) → 加按秩合并且 O(α(n))</strong>。并查集代码不到二十行，却能达到理论上的渐进最优，是“简单思路 + 两个关键优化”的典型例子。下一章进入另一个区间查询的强工具：线段树与树状数组。</p></section>
+<section class="takeaways"><h2>带走三个判断准则</h2><ol>
+<li>问题只需“合并”和“查询是否同组”，不要求找出具体路径——这正是并查集的适用面。</li>
+<li>路径压缩和按秩合并一起用，单次操作摊还复杂度是 O(α(n))，可近似当作常数。</li>
+<li>并查集只加不减：需要“断开连接”或“查询历史版本”的场景，要换其他结构。</li>
+</ol></section>
+<section class="references"><h2>继续学习与校验资料</h2><ul>
+<li><a href="https://en.wikipedia.org/wiki/Disjoint-set_data_structure">Disjoint-set data structure</a> — 路径压缩、按秩合并与反阿克曼界</li>
+<li><a href="https://cp-algorithms.com/data_structures/disjoint_set_union.html">cp-algorithms: Disjoint Set Union</a> — 迭代实现与多个变体</li>
+<li><a href="13.html">第 13 章：图算法</a> — Kruskal 用并查集判环</li>
+<li>运行参考：<code>examples/union_find.py</code>；测试：<code>tests/test_union_find.py</code></li>
+</ul></section>
+<nav class="end-nav" aria-label="上一章和下一章"><a href="18.html">← 第 18 章</a><a href="../index.html">全部课程</a><a class="chapter-link" href="20.html">第 20 章 →</a></nav>
+</article></main></div>
+<footer class="article-footer"><a href="../index.html">数据结构与算法课程</a><span>用最简单的父指针，换来近常数的连通性查询。</span></footer>
+<script src="../assets/js/interactive.js" defer></script>
 </body>
 </html>

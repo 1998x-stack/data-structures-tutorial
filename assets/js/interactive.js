@@ -266,4 +266,18 @@
   input.addEventListener("input",update);update();
  }
 
+ // Chapter 19: parent array after each union (path compression + rank).
+ const uf=document.querySelector('[data-demo="uf-trace"]');
+ if(uf){
+  const input=uf.querySelector("input"),out=uf.querySelector("output");
+  const steps=[
+   ["初始",[0,1,2,3,4],5],
+   ["union(0,1)",[0,0,2,3,4],4],
+   ["union(2,3)",[0,0,2,2,4],3],
+   ["union(1,2)",[0,0,0,2,4],2]
+  ];
+  const update=()=>{const n=Number(input.value),s=steps[n];out.textContent=s[0]+"：parent = ["+s[1].join(", ")+"]；当前集合数 = "+s[2]+"。";};
+  input.addEventListener("input",update);update();
+ }
+
 })();
