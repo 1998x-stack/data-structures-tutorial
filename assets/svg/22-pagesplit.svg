@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 320" width="880" height="320" role="img" aria-labelledby="ps-title ps-desc">
+<title id="ps-title">顺序主键只追加到最右页，随机主键会触发页分裂</title>
+<desc id="ps-desc">自增主键的新数据总落在最右叶子页，通常只追加；随机主键若落在已满的中间页，就需要把该页一分为二，产生两个半满页。</desc>
+<defs><marker id="ps-arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="#475569"/></marker></defs>
+<g font-family="-apple-system, 'PingFang SC', sans-serif" font-size="13" text-anchor="middle">
+<text x="230" y="42" font-size="14" fill="#14532d">自增主键：顺序追加</text>
+<rect x="40" y="80" width="110" height="50" rx="6" fill="#dcfce7" stroke="#15803d"/><text x="95" y="110" fill="#14532d">满页</text>
+<rect x="160" y="80" width="110" height="50" rx="6" fill="#dcfce7" stroke="#15803d"/><text x="215" y="110" fill="#14532d">满页</text>
+<rect x="280" y="80" width="110" height="50" rx="6" fill="#fde68a" stroke="#b45309"/><text x="335" y="110" fill="#78350f">最右页</text>
+<line x1="395" y1="105" x2="300" y2="105" stroke="#b45309" marker-end="url(#ps-arrow)"/>
+<text x="230" y="168" fill="#475569">新键更大，只需接到最右页末尾，不搬动旧数据</text>
+<text x="660" y="42" font-size="14" fill="#78350f">随机主键：可能命中已满的中间页</text>
+<rect x="560" y="70" width="200" height="46" rx="6" fill="#fee2e2" stroke="#b91c1c"/><text x="660" y="99" fill="#7f1d1d">10 20 30 40（已满）</text>
+<line x1="660" y1="116" x2="580" y2="196" stroke="#475569" marker-end="url(#ps-arrow)"/>
+<line x1="660" y1="116" x2="740" y2="196" stroke="#475569" marker-end="url(#ps-arrow)"/>
+<rect x="500" y="200" width="160" height="46" rx="6" fill="#ffedd5" stroke="#b45309"/><text x="580" y="229" fill="#78350f">10 20</text>
+<rect x="680" y="200" width="160" height="46" rx="6" fill="#ffedd5" stroke="#b45309"/><text x="760" y="229" fill="#78350f">25 30 40</text>
+<text x="660" y="278" fill="#475569">原页一分为二，两页都半满；上层再补一个分隔键</text>
+<text x="440" y="308" fill="#7f1d1d">关键变量是插入位置是否随机，而不是键本身“好不好”</text>
+</g></svg>

@@ -316,4 +316,18 @@
   select.addEventListener("change",update);update();
  }
 
+ // Chapter 22: search walk on the documented skip list.
+ const skip=document.querySelector('[data-demo="skip-search"]');
+ if(skip){
+  const select=skip.querySelector("select"),out=skip.querySelector("output");
+  const paths={
+   11:"L2 从 1 走到 7（下一位 13 超过）→ 降到 L1，从 7 走到 9 → 降到 L0，9 之后是 11，命中。",
+   7:"L2 从 1 直接走到 7，命中（7 在最高层就存在）。",
+   4:"L2 1 → 7（超过）降层；L1 1 → 3（下一位 7 超过）降层；L0 3 之后是 5，越过 4，未找到。",
+   13:"L2 从 1 走到 7，再走到 13，命中。"
+  };
+  const update=()=>{out.textContent="查找 "+select.value+"："+paths[select.value];};
+  select.addEventListener("change",update);update();
+ }
+
 })();
