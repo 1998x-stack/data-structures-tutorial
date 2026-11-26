@@ -188,4 +188,20 @@
   input.addEventListener("input",update);update();
  }
 
+ // Chapter 14: deterministic insertion-sort states for a fixed array.
+ const ins=document.querySelector('[data-demo="insertion-trace"]');
+ if(ins){
+  const input=ins.querySelector("input"),out=ins.querySelector("output");
+  const states=[
+   ["初始","[5, 2, 4, 6, 1, 3]","尚未开始，第一个元素视为已有序。"],
+   ["i = 1","[2, 5, 4, 6, 1, 3]","插入 2：2 小于 5，前移一位。"],
+   ["i = 2","[2, 4, 5, 6, 1, 3]","插入 4：4 落在 2 与 5 之间。"],
+   ["i = 3","[2, 4, 5, 6, 1, 3]","插入 6：已大于左侧全部，不移动。"],
+   ["i = 4","[1, 2, 4, 5, 6, 3]","插入 1：1 最小，前移到首位。"],
+   ["i = 5","[1, 2, 3, 4, 5, 6]","插入 3：落到 2 与 4 之间，完成。"]
+  ];
+  const update=()=>{const n=Number(input.value),s=states[n];out.textContent=s[0]+"：数组 "+s[1]+"。"+s[2];};
+  input.addEventListener("input",update);update();
+ }
+
 })();

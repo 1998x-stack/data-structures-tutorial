@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 400" role="img" aria-labelledby="t d">
+<title id="t">归并排序的合并步骤：双指针线性扫描</title>
+<desc id="d">两个已排好序的序列 2,5,8 与 1,4,6 通过两个指针比较各自队首，较小者先写入输出，依次得到 1,2,4,5,6,8。每次只比较一次，合并 n 个元素共 O(n) 步；因为相等时优先取左序列，排序是稳定的。</desc>
+<rect width="880" height="400" rx="14" fill="#f9fcf9"/>
+<g font-family="system-ui,Arial,sans-serif"><text x="24" y="36" font-size="20" font-weight="750" fill="#234649">归并排序：合并两个有序序列只需线性时间</text><text x="24" y="58" font-size="13" fill="#667a7d">递归把序列折半到单元素，再自底向上两两合并；每层总代价 O(n)，共 O(log n) 层</text></g>
+<g font-family="system-ui,Arial,sans-serif" font-size="13" fill="#667a7d"><text x="24" y="118">左段（已有序）</text><text x="24" y="196">右段（已有序）</text><text x="24" y="300">输出</text></g>
+<g font-family="system-ui,Arial,sans-serif" font-size="20" font-weight="800" text-anchor="middle" fill="#3f7d5a">
+<rect x="150" y="94" width="60" height="48" rx="8" fill="#e6f2ea" stroke="#3f7d5a" stroke-width="2"/><text x="180" y="126">2</text>
+<rect x="218" y="94" width="60" height="48" rx="8" fill="#e6f2ea" stroke="#3f7d5a" stroke-width="1.5"/><text x="248" y="126">5</text>
+<rect x="286" y="94" width="60" height="48" rx="8" fill="#e6f2ea" stroke="#3f7d5a" stroke-width="1.5"/><text x="316" y="126">8</text></g>
+<g font-family="system-ui,Arial,sans-serif" font-size="20" font-weight="800" text-anchor="middle" fill="#4d3f86">
+<rect x="150" y="172" width="60" height="48" rx="8" fill="#eef0fa" stroke="#7461ba" stroke-width="2"/><text x="180" y="204">1</text>
+<rect x="218" y="172" width="60" height="48" rx="8" fill="#eef0fa" stroke="#7461ba" stroke-width="1.5"/><text x="248" y="204">4</text>
+<rect x="286" y="172" width="60" height="48" rx="8" fill="#eef0fa" stroke="#7461ba" stroke-width="1.5"/><text x="316" y="204">6</text></g>
+<defs><marker id="a14m" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#b25a3a"/></marker></defs>
+<g stroke="#b25a3a" stroke-width="2" fill="none" marker-end="url(#a14m)"><path d="M180 146 L180 268"/><path d="M180 224 L214 268"/></g>
+<g font-family="system-ui,Arial,sans-serif" font-size="12" fill="#b25a3a"><text x="128" y="160">i</text><text x="196" y="164">先取较小</text></g>
+<g font-family="system-ui,Arial,sans-serif" font-size="20" font-weight="800" text-anchor="middle" fill="#234649">
+<rect x="240" y="272" width="60" height="48" rx="8" fill="#fff" stroke="#234649" stroke-width="1.5"/><text x="270" y="304">1</text>
+<rect x="308" y="272" width="60" height="48" rx="8" fill="#fff" stroke="#234649" stroke-width="1.5"/><text x="338" y="304">2</text>
+<rect x="376" y="272" width="60" height="48" rx="8" fill="#fff" stroke="#234649" stroke-width="1.5"/><text x="406" y="304">4</text>
+<rect x="444" y="272" width="60" height="48" rx="8" fill="#fff" stroke="#234649" stroke-width="1.5"/><text x="474" y="304">5</text>
+<rect x="512" y="272" width="60" height="48" rx="8" fill="#fff" stroke="#234649" stroke-width="1.5"/><text x="542" y="304">6</text>
+<rect x="580" y="272" width="60" height="48" rx="8" fill="#fff" stroke="#234649" stroke-width="1.5"/><text x="610" y="304">8</text></g>
+<text x="660" y="304" font-size="13" fill="#526f71" font-family="system-ui,Arial,sans-serif">一次合并 = 6 次比较</text>
+<text x="24" y="372" font-size="13" fill="#526f71" font-family="system-ui,Arial,sans-serif">相等时取左段（<tspan font-weight="700">&lt;=</tspan> 而非 &lt;），所以等键元素的先后顺序保持——这就是稳定性。</text>
+</svg>
