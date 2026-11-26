@@ -1,449 +1,111 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
-    <title>第15章 递归与分治</title>
-    <link rel="stylesheet" href="theme.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="递归与分治：用递归三要素保证正确性，理解调用栈的后进先出，掌握二分查找的边界变体、归并排序的分治步骤，以及用主定理估算递归复杂度。">
+<title>第 15 章 · 递归与分治：把大问题交给自己 | 数据结构与算法</title>
+<link rel="stylesheet" href="../assets/css/article.css">
 </head>
 <body>
-<div class="double-border">
-<div class="container">
-    <div class="sidebar">
-        <h3>🧠 课程目录</h3>
-        <ul class="chapter-list">
-            <li><a href="01.html">第1章 为什么要学数据结构</a></li>
-            <li><a href="02.html">第2章 复杂度分析</a></li>
-            <li><a href="03.html">第3章 数组与字符串</a></li>
-            <li><a href="04.html">第4章 链表</a></li>
-            <li><a href="05.html">第5章 栈</a></li>
-            <li><a href="06.html">第6章 队列</a></li>
-            <li><a href="07.html">第7章 哈希表</a></li>
-            <li><a href="08.html">第8章 树基础</a></li>
-            <li><a href="09.html">第9章 二叉搜索树</a></li>
-            <li><a href="10.html">第10章 平衡二叉树</a></li>
-            <li><a href="11.html">第11章 堆与优先队列</a></li>
-            <li><a href="12.html">第12章 图基础</a></li>
-            <li><a href="13.html">第13章 图算法</a></li>
-            <li><a href="14.html">第14章 排序算法全览</a></li>
-            <li><a href="15.html" class="active">第15章 递归与分治</a></li>
-            <li><a href="16.html">第16章 回溯算法</a></li>
-            <li><a href="17.html">第17章 动态规划</a></li>
-            <li><a href="18.html">第18章 贪心算法</a></li>
-            <li><a href="19.html">第19章 并查集</a></li>
-            <li><a href="20.html">第20章 线段树与树状数组</a></li>
-            <li><a href="21.html">第21章 字典树(Trie)</a></li>
-            <li><a href="22.html">第22章 跳表与B+树</a></li>
-            <li><a href="23.html">第23章 LeetCode刷题方法论</a></li>
-            <li><a href="24.html">第24章 大厂面试高频题精讲</a></li>
-            <li><a href="25.html">第25章 系统设计中的数据结构</a></li>
-            <li><a href="26.html">第26章 数据结构性能分析</a></li>
-            <li><a href="27.html">第27章 AI与数据结构的交叉</a></li>
-            <li><a href="28.html">第28章 学习路线与综合项目</a></li>
-        </ul>
-    </div>
-    <div class="main-content">
-
-        <h2>开篇：一个递归的段子</h2>
-
-        <p>网上流传着一个很有意思的段子：<strong>"要理解递归，你首先需要理解递归。"</strong>这个段子本身就是一个递归——它在用自己定义自己。笑完之后你会发现，这恰恰是递归最核心的思想：一个函数调用它自己。</p>
-
-        <p>在排序算法那章我们快速提过递归，但从这一章开始，我们要认真地和它打交道了。为什么？因为从这一章开始的回溯、动态规划、贪心——甚至后面的树和图的相关算法——几乎都建立在递归思维之上。<strong>可以这样说：没学好递归，后面几章寸步难行。</strong>这一章我们会从最基础的递归讲起，然后扩展到分治思想，为后续的所有算法思想打好地基。</p>
-
-        <h2>什么是递归？——"把大问题缩小成同结构的小问题"</h2>
-
-        <p>递归（Recursion）的概念其实非常简单：<strong>一个函数直接或间接地调用它自身。</strong>但真正理解递归，你需要的不是这句定义，而是下面这个思维方式：</p>
-
-        <p><strong>不要试图跟踪递归的全过程，而要相信递归函数能正确解决它的小号问题。</strong></p>
-
-        <p>我们用两个最经典的例子来建立直觉。</p>
-
-        <h3>阶乘：最直观的递归</h3>
-
-        <p>n的阶乘（n!）定义为：n! = n × (n-1) × (n-2) × ... × 1。用数学公式可以写成：</p>
-
-        <pre><code>n! = n × (n-1)!   （当 n > 0）
-0! = 1              （当 n = 0）</code></pre>
-
-        <p>看到没有？n! 的求值依赖于 (n-1)!，而 (n-1)! 的计算方式和 n! 完全一样——只是参数变小了。这就是一个完美的递归结构：</p>
-
-        <pre><code>def factorial(n):
-    # 终止条件
-    if n == 0:
+<a href="#content" class="skip-link">跳转至正文</a>
+<header class="article-top"><div class="top-inner"><a class="brand" href="../index.html">← 课程首页</a><span class="course-name">数据结构与算法 · 深度图解</span><a class="source-link" href="https://github.com/1998x-stack/data-structures-tutorial">GitHub</a></div></header>
+<div class="article-layout">
+<aside class="toc"><details open><summary>本章导览</summary><nav aria-label="递归与分治章节目录"><ol>
+<li><a href="#belief"><span>01</span>递归的信念：相信小号问题</a></li>
+<li><a href="#three"><span>02</span>递归三要素</a></li>
+<li><a href="#stack"><span>03</span>调用栈：递归怎样回来</a></li>
+<li><a href="#search"><span>04</span>二分查找与边界变体</a></li>
+<li><a href="#divide"><span>05</span>分治三步与归并排序</a></li>
+<li><a href="#master"><span>06</span>主定理：估算递归复杂度</a></li>
+<li><a href="#traps"><span>07</span>陷阱：栈溢出、重复计算、尾递归</a></li>
+</ol></nav></details><div class="toc-bottom"><a href="../index.html#curriculum">查看 28 章课程</a></div></aside>
+<main id="content"><article>
+<header class="article-heading"><div class="article-kicker">ALGORITHM DESIGN / CHAPTER 15</div><h1>递归与分治：把大问题交给自己</h1><p class="dek">递归不是“自己调用自己”的奇技，而是一种约定：只要终止条件正确、递推关系正确，就不必跟踪每一步。分治则是递归最有威力的用法——把问题切成同结构的小块，分别解决再合并。</p><div class="topic-tags"><span>递归三要素</span><span>调用栈</span><span>二分查找</span><span>归并排序</span><span>主定理</span></div></header>
+<section id="belief" class="article-section" aria-labelledby="heading-belief"><span class="section-number">01 / 07</span><h2 id="heading-belief">递归的信念：相信小号问题</h2>
+<p>回到第 8 章写过的二叉树遍历：遍历一棵树时，我们先把问题化为“遍历左子树”和“遍历右子树”，而子树的结构和整棵树完全一样。这种<strong>把问题缩小成一个同结构的小问题</strong>的结构，就是递归。阶乘也一样：<code>n! = n × (n−1)!</code>，右边又出现了一个阶乘。</p>
+<p>初学递归最常见的错误，是想在脑子里逐层模拟每一次调用。正确的心智模型是：<strong>假设子调用已经能正确解决它那个更小的问题</strong>，你只需负责把这一层“接”好。这听上去像循环论证，但它的合法性来自数学归纳法——终止条件成立，且“小的对⇒大的对”，那所有规模都成立。</p>
+<p>所以写递归时先不要追问“到底怎么算出来的”，而是回答三个问题：什么时候停？怎么把规模变小？小的结果怎么变成大的结果？下一节就把这三件事名字化。</p></section>
+<section id="three" class="article-section" aria-labelledby="heading-three"><span class="section-number">02 / 07</span><h2 id="heading-three">递归三要素</h2>
+<p>一个正确的递归函数必须同时具备三件事，缺一不可：</p>
+<ul><li><strong>终止条件</strong>（base case）：最简单、能直接回答的情形，不再递归。</li><li><strong>递推关系</strong>：把规模 n 的问题化成规模更小的同类问题。</li><li><strong>返回值</strong>：把子问题的结果组合成本层的结果，逐层传回去。</li></ul>
+<p>用“电影院座位号”打比方：你坐第 15 排，想问自己是第几排，但看不清编号，于是问前排；前排也不知道，再往前问……一直到第 1 排，它直接回答“第 1 排”（终止条件）。然后信息往回传：第 2 排知道自己是 2，第 3 排知道自己 3……最后你也知道自己是 15。这里的“前排排号 + 1”就是递推关系，“往前传”就是返回值。</p>
+<pre class="code-panel" tabindex="0"><code>def factorial(n):
+    if n &lt; 0:
+        raise ValueError("n 必须非负")
+    if n == 0:                 # 终止条件
         return 1
-    # 递推关系：n! = n * (n-1)!
-    return n * factorial(n - 1)</code></pre>
-
-        <h3>斐波那契数列：双路递归</h3>
-
-        <p>斐波那契数列的定义是：F(0)=0, F(1)=1, F(n)=F(n-1)+F(n-2)。这个定义天然就是递归的：</p>
-
-        <pre><code>def fibonacci(n):
-    if n <= 1:
-        return n
-    return fibonacci(n - 1) + fibonacci(n - 2)</code></pre>
-
-        <p>这段代码只有三行，但如果你是第一次接触递归，你可能完全看不懂它为什么能工作。别急，下一节我们就来拆解递归的三要素。</p>
-
-        <h2>递归三要素</h2>
-
-        <p>任何一个正确的递归函数，都必须满足三个条件。我把它们叫做<strong>递归三要素</strong>：终止条件、递推关系、返回值。</p>
-
-        <p>用一个故事来帮你记忆。<strong>"电影院的座位号"</strong>：</p>
-
-        <p>你去看电影，坐在第15排。你前面有个高个子挡着，看不清屏幕上的排数编号。你不想站起来，于是你问前面的人："请问这是第几排？"前面的人也不知道，他又问更前面的人……就这样一路问到第1排。第1排的人回头说："这是第1排。"然后信息开始往回传——第2排的人知道了自己是第2排，第3排知道了自己是第3排……最后第15排的你也知道了自己的排数。</p>
-
-        <p>这个故事的三个要素对应着递归的三要素：</p>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>三要素</th>
-                    <th>电影院故事</th>
-                    <th>代码对应</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><strong>终止条件（Base Case）</strong></td>
-                    <td>第1排的人知道自己是第1排，不用再往前问了</td>
-                    <td>定义最简单的情况，直接返回结果，不再递归</td>
-                </tr>
-                <tr>
-                    <td><strong>递推关系（Recurrence Relation）</strong></td>
-                    <td>第n排的人 = 第n-1排的人 + 1</td>
-                    <td>将原问题转化为规模更小的子问题</td>
-                </tr>
-                <tr>
-                    <td><strong>返回值（Return Value）</strong></td>
-                    <td>每一排都把自己的结果往后传</td>
-                    <td>子问题的结果传递回上一层，最终汇聚成原问题的答案</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <div class="highlight">
-            <strong>递归的核心信念：</strong>你不需要手动模拟递归的每一步。你只需要保证两件事——<strong>（1）终止条件是正确的；（2）递推关系是正确的。</strong>如果这两点成立，递归函数就一定是正确的。这就是"数学归纳法"在编程中的体现。
-        </div>
-
-        <h2>递归的执行过程——调用栈可视化</h2>
-
-        <p>递归在执行时，每一层调用都会在<strong>调用栈（Call Stack）</strong>上分配一个新的栈帧（Stack Frame），保存当前函数的局部变量和返回地址。当最深层的递归返回时，栈帧依次弹出，结果逐层传回。</p>
-
-        <p>我们可以用阶乘 factorial(3) 的执行过程来看调用栈的变化：</p>
-
-        <pre><code># factorial(3) 的调用栈变化
-# 1. 主程序调用 factorial(3)
-#    栈: [factorial(3)]
-# 2. factorial(3) 调用 factorial(2)
-#    栈: [factorial(3), factorial(2)]
-# 3. factorial(2) 调用 factorial(1)
-#    栈: [factorial(3), factorial(2), factorial(1)]
-# 4. factorial(1) 不满足递归条件，直接返回 1
-#    栈: [factorial(3), factorial(2)]
-# 5. factorial(2) 得到结果 1，返回 2*1=2
-#    栈: [factorial(3)]
-# 6. factorial(3) 得到结果 2，返回 3*2=6
-#    栈: []
-# 结果: 6
-
-def factorial(n):
-    print(f"  factorial({n}) 被调用，栈深度 = {n+1}")
-    if n == 0:
-        result = 1
-        print(f"  factorial({n}) 返回 {result}")
-        return result
-    result = n * factorial(n - 1)
-    print(f"  factorial({n}) 返回 {result}")
-    return result</code></pre>
-
-        <h3>汉诺塔问题——递归的经典舞台</h3>
-
-        <p>汉诺塔（Tower of Hanoi）是展现递归之美的最佳案例。有三根柱子A、B、C，A柱上有n个大小不同的圆盘，小的在上大的在下。目标是把所有圆盘从A移到C，每次只能移动一个，且大圆盘不能放在小圆盘上。</p>
-
-        <p>递归解法极其优雅：</p>
-
-        <pre><code>def hanoi(n, source, target, auxiliary):
-    """将 n 个圆盘从 source 移动到 target，借助 auxiliary"""
+    return n * factorial(n - 1)  # 递推关系 + 返回值</code></pre>
+<p>把终止条件写错、或递推关系不能真正缩小规模（比如写成 <code>f(n)</code> 而不减 1），递归就会无限制下降直到栈溢出。这两处就是“无限递归”的根源。</p></section>
+<section id="stack" class="article-section" aria-labelledby="heading-stack"><span class="section-number">03 / 07</span><h2 id="heading-stack">调用栈：递归怎样回来</h2>
+<p>递归之所以能“回来”，靠的是<strong>调用栈</strong>。每进入一层调用，系统就压入一个栈帧，保存这一层的参数、局部变量和“返回后从哪继续”；到达终止条件后，栈帧按<strong>后进先出</strong>的顺序逐个弹出，把结果交给上一层。</p>
+<figure class="diagram"><div class="diagram-scroll" tabindex="0" aria-label="可横向滚动查看图示"><img src="../assets/svg/15-callstack.svg" alt="factorial(3) 依次压入 f(3)、f(2)、f(1)、f(0)，然后依次返回 1、1、2、6" width="880" height="420" loading="lazy"></div><figcaption>图 1 · 下潜时逐层压栈，触底后逐层返回。同一时刻栈的深度就是“还没返回的调用层数”——这是下一节栈溢出风险的来源。</figcaption></figure>
+<p>汉诺塔把递归的分解展现得最清楚。把 n 个盘从源柱移到目标柱，只需三步：先把上面 n−1 个盘借助目标柱移到辅助柱，再把最大的盘直接移到目标柱，最后把那 n−1 个盘从辅助柱移到目标柱。后两步本身就是同样的子问题。</p>
+<figure class="diagram"><div class="diagram-scroll" tabindex="0" aria-label="可横向滚动查看图示"><img src="../assets/svg/15-hanoi.svg" alt="汉诺塔递归式 T(n)=2T(n−1)+1 展开成二叉树，解得 2 的 n 次方减一" width="880" height="420" loading="lazy"></div><figcaption>图 2 · 每次分解出两个 T(n−1) 子问题和一个直接移动，于是 T(n)=2T(n−1)+1，展开得 T(n)=2ⁿ−1。这不是实现技巧，而是问题本身的下确界：3 个盘正好 7 步。</figcaption></figure>
+<pre class="code-panel" tabindex="0"><code>def hanoi(n, source, target, auxiliary):
     if n == 1:
-        print(f"移动圆盘 1: {source} -> {target}")
-        return
-    # 将 n-1 个圆盘从 source 移到 auxiliary
-    hanoi(n - 1, source, auxiliary, target)
-    # 将最大的圆盘从 source 移到 target
-    print(f"移动圆盘 {n}: {source} -> {target}")
-    # 将 n-1 个圆盘从 auxiliary 移到 target
-    hanoi(n - 1, auxiliary, target, source)
-
-# 测试：3个圆盘
-hanoi(3, 'A', 'C', 'B')</code></pre>
-
-        <p>输出结果展示了7步移动过程。你可能觉得这像魔法——但请相信递归三要素：终止条件是 n=1，递推关系是"先把n-1个移走→移最大的→再把n-1个移回来"，每一步都是对的，整体就是对的。</p>
-
-        <h2>二分查找——递归版与迭代版</h2>
-
-        <p>二分查找（Binary Search）是分治思想的第一个应用。在一个<strong>有序数组</strong>中查找目标值，每次取中间元素比较，把搜索范围缩小一半。</p>
-
-        <h3>递归版二分查找</h3>
-
-        <pre><code>def binary_search_recursive(arr, left, right, target):
-    """递归版二分查找，返回目标值的下标，未找到返回 -1"""
-    if left > right:
-        return -1  # 终止条件：搜索区间为空
-
-    mid = left + (right - left) // 2  # 防止整数溢出
-
-    if arr[mid] == target:
-        return mid
-    elif arr[mid] < target:
-        return binary_search_recursive(arr, mid + 1, right, target)
-    else:
-        return binary_search_recursive(arr, left, mid - 1, target)</code></pre>
-
-        <h3>迭代版二分查找</h3>
-
-        <pre><code>def binary_search_iterative(arr, target):
-    """迭代版二分查找"""
-    left, right = 0, len(arr) - 1
-
-    while left <= right:
-        mid = left + (right - left) // 2
-        if arr[mid] == target:
-            return mid
-        elif arr[mid] < target:
-            left = mid + 1
+        return [(source, target)]
+    return (hanoi(n - 1, source, auxiliary, target)
+            + [(source, target)]
+            + hanoi(n - 1, auxiliary, target, source))</code></pre>
+<p>注意递归版本没用到任何循环，也没显式维护“现在到哪一步”。它只描述了三要素，而移动顺序由调用栈自动保证正确。</p></section>
+<section id="search" class="article-section" aria-labelledby="heading-search"><span class="section-number">04 / 07</span><h2 id="heading-search">二分查找与边界变体</h2>
+<p>二分查找是分治的最小例子：在<strong>有序</strong>数组上，每次看中间元素，把搜索区间丢弃一半。终止条件就是“区间为空”。写成递归很自然，但工程里几乎都用迭代，因为迭代没有函数调用开销，也不会因区间太长而爆栈。</p>
+<pre class="code-panel" tabindex="0"><code>def first_at_least(a, target):
+    # 返回第一个 ≥ target 的下标；不存在则返回 len(a)
+    lo, hi = 0, len(a)          # 半开区间 [lo, hi)
+    while lo &lt; hi:
+        mid = lo + (hi - lo) // 2
+        if a[mid] &lt; target:
+            lo = mid + 1
         else:
-            right = mid - 1
-
-    return -1</code></pre>
-
-        <div class="tip">
-            <strong>递归 vs 迭代：</strong>递归版代码更"数学化"，可读性强；迭代版性能更好（没有函数调用开销），且不会栈溢出。在实际工程中，<strong>能用迭代就用迭代</strong>，递归更多是用于理解分治思想的训练工具。
-        </div>
-
-        <h3>二分查找的四种变体</h3>
-
-        <p>真正的二分查找远不止查到一个值那么简单。面试中常考的是下面四种变体，它们也叫<strong>"二分查找边界"</strong>问题：</p>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>变体</th>
-                    <th>目标</th>
-                    <th>核心逻辑</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>标准查找</td>
-                    <td>找任意一个等于 target 的位置</td>
-                    <td>找到就返回，否则缩小范围</td>
-                </tr>
-                <tr>
-                    <td>第一个等于 target</td>
-                    <td>找最左边等于 target 的位置</td>
-                    <td>找到后不返回，继续向左收缩 right=mid-1</td>
-                </tr>
-                <tr>
-                    <td>最后一个等于 target</td>
-                    <td>找最右边等于 target 的位置</td>
-                    <td>找到后不返回，继续向右收缩 left=mid+1</td>
-                </tr>
-                <tr>
-                    <td>插入位置</td>
-                    <td>找第一个 >= target 的位置</td>
-                    <td>返回 left（即插入点）</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <pre><code>def first_equals(arr, target):
-    """第一个等于 target 的元素下标"""
-    left, right = 0, len(arr) - 1
-    result = -1
-    while left <= right:
-        mid = left + (right - left) // 2
-        if arr[mid] == target:
-            result = mid
-            right = mid - 1  # 继续向左找
-        elif arr[mid] < target:
-            left = mid + 1
-        else:
-            right = mid - 1
-    return result
-
-
-def insertion_position(arr, target):
-    """找到插入 target 的位置（第一个 >= target 的下标）"""
-    left, right = 0, len(arr)
-    while left < right:
-        mid = left + (right - left) // 2
-        if arr[mid] < target:
-            left = mid + 1
-        else:
-            right = mid
-    return left</code></pre>
-
-        <h2>分治思想</h2>
-
-        <p>分治（Divide and Conquer）是递归最强大的应用场景。它的核心思想就三步：</p>
-
-        <ol>
-            <li><strong>分（Divide）</strong>：将原问题分解为若干个规模更小、结构相同的子问题。</li>
-            <li><strong>治（Conquer）</strong>：递归地解决每个子问题。当子问题足够小时直接解决。</li>
-            <li><strong>合（Combine）</strong>：将子问题的解合并为原问题的解。</li>
-        </ol>
-
-        <h3>归并排序——分治的教科书案例</h3>
-
-        <p>我们之前在排序算法一章学过归并排序，现在用分治的视角重新审视它：</p>
-
-        <pre><code>def merge_sort(arr):
-    """归并排序：分治思想的完美体现"""
-    if len(arr) <= 1:
-        return arr  # 终止条件：单个元素已经有序
-
-    # 1. 分：将数组均匀分成两半
-    mid = len(arr) // 2
-    left_half = merge_sort(arr[:mid])
-    right_half = merge_sort(arr[mid:])
-
-    # 2. 合：将两个有序子数组合并为一个有序数组
-    return merge(left_half, right_half)
-
-
-def merge(left, right):
-    """合并两个有序数组"""
-    result = []
-    i = j = 0
-
-    while i < len(left) and j < len(right):
-        if left[i] <= right[j]:
-            result.append(left[i])
-            i += 1
-        else:
-            result.append(right[j])
-            j += 1
-
-    # 把剩余元素追加到结果中
-    result.extend(left[i:])
-    result.extend(right[j:])
-    return result</code></pre>
-
-        <p>归并排序的时间复杂度是 <strong>O(n log n)</strong>，空间复杂度是 <strong>O(n)</strong>。这个 O(n log n) 是怎么算出来的？这就引出了我们分析递归复杂度的利器——<strong>主定理（Master Theorem）</strong>。</p>
-
-        <h3>主定理——快速计算递归复杂度</h3>
-
-        <p>对于形如 <code>T(n) = a·T(n/b) + f(n)</code> 的递归式（其中 a ≥ 1, b > 1），主定理给出了三种情况：</p>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>情况</th>
-                    <th>条件</th>
-                    <th>复杂度</th>
-                    <th>典型算法</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><strong>情况一</strong></td>
-                    <td>f(n) = O(n<sup>log<sub>b</sub> a - ε</sup>)</td>
-                    <td>T(n) = Θ(n<sup>log<sub>b</sub> a</sup>)</td>
-                    <td>二分查找 T(n) = T(n/2) + O(1)</td>
-                </tr>
-                <tr>
-                    <td><strong>情况二</strong></td>
-                    <td>f(n) = Θ(n<sup>log<sub>b</sub> a</sup>)</td>
-                    <td>T(n) = Θ(n<sup>log<sub>b</sub> a</sup> · log n)</td>
-                    <td>归并排序 T(n) = 2T(n/2) + O(n)</td>
-                </tr>
-                <tr>
-                    <td><strong>情况三</strong></td>
-                    <td>f(n) = Ω(n<sup>log<sub>b</sub> a + ε</sup>)</td>
-                    <td>T(n) = Θ(f(n))</td>
-                    <td>快速排序最坏 T(n) = T(n-1) + O(n)</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <p>用主定理算一下归并排序：T(n) = 2T(n/2) + O(n)，a=2, b=2，<br>
-        log<sub>b</sub> a = log<sub>2</sub> 2 = 1，f(n) = O(n) = Θ(n<sup>1</sup>)，符合<strong>情况二</strong>，<br>
-        因此 T(n) = Θ(n log n)。</p>
-
-        <div class="tip">
-            <strong>主定理的记忆技巧：</strong>比较 <code>n<sup>log<sub>b</sub>a</sup></code> 和 <code>f(n)</code> 谁的增长速度更快。前者大就是情况一，两者相当就是情况二，后者大就是情况三。如果忘记细节也没关系——面试中很少让你手算主定理，你只需要知道<strong>归并排序 O(n log n)、二分查找 O(log n)</strong> 就够了。
-        </div>
-
-        <h2>递归的注意事项</h2>
-
-        <p>递归虽美，但用不好就是一把双刃剑。</p>
-
-        <h3>问题一：栈溢出（Stack Overflow）</h3>
-
-        <p>递归的每一层调用都要占用栈空间。Python 默认的递归深度限制是 <strong>1000</strong> 层。如果你的递归深度超过这个数，就会抛出 <code>RecursionError</code>。</p>
-
-        <div class="warning">
-            <strong>踩坑故事——"递归写得很爽，直到生产环境 StackOverflow"</strong><br><br>
-            一位朋友在写一个树形结构的遍历函数时，使用了递归实现。本地测试数据只有几十层，跑得飞起。部署到生产环境后，有一棵树的深度达到了几万个节点——结果服务直接崩溃，错误信息是 <code>RecursionError: maximum recursion depth exceeded</code>。<br><br>
-            他后来把递归改成了迭代（用栈模拟），问题解决。教训是：<strong>递归深度不可控时，一定要考虑栈溢出的风险。</strong>生产环境慎用递归，尤其是处理不确定规模的数据时。
-        </div>
-
-        <h3>问题二：重复计算</h3>
-
-        <p>还记得上面那个三行的斐波那契函数吗？它有一个严重问题——<strong>重复计算</strong>。计算 fibonacci(5) 需要计算 fibonacci(4) 和 fibonacci(3)，而计算 fibonacci(4) 又需要 fibonacci(3) 和 fibonacci(2)——fibonacci(3) 被重复计算了两次！</p>
-
-        <p>这个递归展开后是一个<strong>二叉树</strong>，节点数呈指数级增长。fibonacci(n) 的时间复杂度是 O(2<sup>n</sup>)——n=50 时，你的电脑就要计算超过 10<sup>15</sup> 次，这辈子都算不完。</p>
-
-        <p>这就引出了我们下一章要学的核心思想之一——<strong>记忆化（Memoization）</strong>。把已经算过的结果存起来，避免重复计算。再往深处走，这就是<strong>动态规划（Dynamic Programming）</strong>的雏形了。</p>
-
-        <h3>问题三：尾递归优化</h3>
-
-        <p>尾递归（Tail Recursion）是指递归调用发生在函数的<strong>最后一步</strong>（即 return 语句中只有递归调用，没有其他操作）。某些编译器可以对尾递归进行优化——复用当前栈帧，避免栈增长。</p>
-
-        <pre><code># 非尾递归：返回后还要乘以 n
-def factorial(n):
-    if n == 0: return 1
-    return n * factorial(n - 1)
-
-# 尾递归：递归调用在最后一步
-def factorial_tail(n, acc=1):
-    if n == 0: return acc
-    return factorial_tail(n - 1, n * acc)</code></pre>
-
-        <p>可惜的是，<strong>Python 不支持尾递归优化</strong>。Guido van Rossum（Python之父）明确说过"尾递归优化不是Python的风格"。所以你在 Python 中写尾递归并不会有什么性能提升。但如果你用 C++ 或 Java（某些JVM实现支持），尾递归确实可以避免栈溢出。</p>
-
-        <div class="highlight">
-            <strong>递归使用决策树：</strong>
-            <ul>
-                <li>递归深度可控（≤ 几百层）→ 可以用递归，代码简洁</li>
-                <li>递归深度不可控 → 用栈模拟或迭代</li>
-                <li>有大量子问题重叠 → 用记忆化递归或 DP（下一章的内容）</li>
-                <li>平台支持尾递归优化 → 考虑尾递归写法</li>
-            </ul>
-        </div>
-
-        <h2>本章小结</h2>
-
-        <p>这一章我们覆盖了递归和分治的核心内容：</p>
-
-        <ul>
-            <li><strong>递归三要素</strong>——终止条件、递推关系、返回值，用"电影院座位号"的故事帮你记忆。</li>
-            <li><strong>调用栈可视化</strong>——理解递归函数的执行过程，汉诺塔问题作为经典案例。</li>
-            <li><strong>二分查找</strong>——递归版和迭代版的双写法，四种边界变体是面试高频考点。</li>
-            <li><strong>分治思想</strong>——归并排序作为分治的教科书案例，主定理快速计算递归复杂度。</li>
-            <li><strong>注意事项</strong>——栈溢出（深度超限）、重复计算（引出DP动机）、尾递归优化。</li>
-        </ul>
-
-        <p>掌握了递归，你已经拿到了开启后面三章大门的钥匙。下一章我们要学的是<strong>回溯算法（Backtracking）</strong>——一种基于递归的"试错"方法。如果说递归是"直接解决子问题"，那回溯就是"尝试所有可能的子问题，走不通就回头"。我们把递归这个工具带上，去解决更复杂的问题。</p>
-
-        <div class="footer-nav">
-            <a href="14.html">← 上一章</a>
-            <a href="index.html">📖 返回目录</a>
-            <a href="16.html">下一章 →</a>
-        </div>
-    </div>
-</div>
-</div>
+            hi = mid            # a[mid] 可能是答案，保留在区间里
+    return lo</code></pre>
+<p>把“小于就放弃左边”改成“找到也不停，继续往左收缩”，就能求出<strong>第一个等于 target</strong> 的位置；它同时也是 target 的<strong>插入位置</strong>（第一个 ≥ target 的下标）。这正是标准库里 lower_bound / bisect_left 的语义。变体之间只差“命中后往哪边收”。</p>
+<div class="lab" data-demo="bisect-trace"><h3>逐步观察二分区间收缩</h3><p>固定有序数组 [1, 3, 3, 5, 7, 9]；选择目标值，查看每一步的搜索区间。</p><div class="lab-controls"><label for="bisect-target">目标值</label><select id="bisect-target"><option value="3">3（有重复）</option><option value="7">7</option><option value="4">4（不存在）</option></select></div><output aria-live="polite">查找 3：区间 [0,6) → …</output></div>
+<p>一个经典易错点是 <code>mid = (lo + hi) // 2</code> 在有符号整数上可能溢出（在 C/Java 里）；写成 <code>lo + (hi - lo) // 2</code> 就安全。另一个是边界开闭不一致——建议统一用<strong>半开区间 [lo, hi)</strong>，循环条件永远是 <code>lo &lt; hi</code>。</p></section>
+<section id="divide" class="article-section" aria-labelledby="heading-divide"><span class="section-number">05 / 07</span><h2 id="heading-divide">分治三步与归并排序</h2>
+<p><strong>分治</strong>是递归最有威力的用法，它把“缩小问题”说得更具体，固定为三步：<strong>分</strong>（把问题拆成若干个更小、结构相同的子问题）、<strong>治</strong>（递归解决每个子问题，小到可以直接回答就返回）、<strong>合</strong>（把子问题的解合并成原问题的解）。分治能不能快，关键在于“合”这一步能不能比“直接做”更便宜。</p>
+<p>归并排序就是标准样板：<strong>分</strong>是把数组从中间切成两半；<strong>治</strong>是对两半递归排序；<strong>合</strong>是把两个有序段线性合并（第 14 章图 1）。关键就在于合并两个有序段只需 O(n) 一次扫描，而“直接排序”做不到这么快。递归树共有 log₂ n 层、每层合并总量为 n，所以总代价 O(n log n)。</p>
+<p>快排也是分治，但把“分”和“合”的位置对调：它先花 O(n) 分区（分），再递归两段（治），而“合”什么都不用做——因为分区后左右段拼起来就是有序的。这提醒我们：分治三步里哪一步花时间，决定了算法的架子。</p></section>
+<section id="master" class="article-section" aria-labelledby="heading-master"><span class="section-number">06 / 07</span><h2 id="heading-master">主定理：估算递归复杂度</h2>
+<p>分治算法的代价天然是一个<strong>递归式</strong>，子问题数按 a 增长、规模按 b 缩小，再加上每层的分解或合并代价 f(n)：</p>
+<div class="equation" tabindex="0" aria-label="数学公式"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block" aria-label="T(n) = a 乘以 T(n 除以 b) 加 f(n)"><mrow><mi>T</mi><mo>(</mo><mi>n</mi><mo>)</mo><mo>=</mo><mi>a</mi><mo>⋅</mo><mi>T</mi><mo>(</mo><mi>n</mi><mo>/</mo><mi>b</mi><mo>)</mo><mo>+</mo><mi>f</mi><mo>(</mo><mi>n</mi><mo>)</mo></mrow></math></div>
+<figure class="diagram"><div class="diagram-scroll" tabindex="0" aria-label="可横向滚动查看图示"><img src="../assets/svg/15-master.svg" alt="递归式展开成递归树，每层有 a 的 k 次方个子问题，共 log_b n 层" width="880" height="420" loading="lazy"></div><figcaption>图 3 · 把递归式展开成递归树，每层代价叠加。子问题项 n^(log_b a) 与合并项 f(n) 谁增长得快，就定了主定理落在哪一种情况。</figcaption></figure>
+<p>主定理不做新数学，它只是把递归树每层代价求和后的结论。判断方法就是比较 <code>n^(log_b a)</code> 与 <code>f(n)</code>：</p>
+<div class="table-scroll"><table><thead><tr><th>情况</th><th>条件</th><th>T(n)</th><th>例子</th></tr></thead><tbody>
+<tr><td>叶子项主导</td><td>f(n) 比 n^(log_b a) 小得多</td><td>Θ(n^(log_b a))</td><td>二分查找 T(n)=T(n/2)+O(1) → Θ(log n)</td></tr>
+<tr><td>各层同阶</td><td>f(n) = Θ(n^(log_b a))</td><td>Θ(n^(log_b a)·log n)</td><td>归并排序 2T(n/2)+O(n) → Θ(n log n)</td></tr>
+<tr><td>根项主导</td><td>f(n) 比 n^(log_b a) 大得多</td><td>Θ(f(n))</td><td>不平衡划分 T(n)=T(n−1)+O(n) → Θ(n²)</td></tr>
+</tbody></table></div>
+<p>以归并排序验证：a=2、b=2，所以 n^(log_b a) = n；而 f(n)=O(n) 与之同阶，落在第二种，得 Θ(n log n)。注意主定理有使用前提（f(n) 需满足正则条件），也不适用于 T(n)=T(n−1)+O(n) 这类非折半情形——那是另一种展开方式。</p></section>
+<section id="traps" class="article-section" aria-labelledby="heading-traps"><span class="section-number">07 / 07</span><h2 id="heading-traps">陷阱：栈溢出、重复计算、尾递归</h2>
+<h3>栈溢出</h3>
+<p>栈帧要占用内存，而调用栈深度是有限的。Python 默认递归深度上限为 1000；超过就会招出 <code>RecursionError</code>。关键在于：<strong>递归深度是否可控</strong>。处理一棵深度未知的树时，递归写法可能在生产数据上爆栈——此时应改用显式栈或队列迭代。</p>
+<pre class="code-panel" tabindex="0"><code>import sys
+sys.getrecursionlimit()      # 默认 1000
+# 深度不可控时，用列表当栈自己维护，而不是递归</code></pre>
+<h3>重复计算</h3>
+<p>朴素斐波那契 <code>F(n)=F(n−1)+F(n−2)</code> 直接递归时，同一个子问题会被反复求解：算 F(5) 要算 F(4) 和 F(3)，而 F(4) 又要算 F(3) 和 F(2)——F(3) 被算了不止一次。展开后调用数呈指数增长，约 1.618ⁿ，n=50 就慢到不可接受。</p>
+<div class="lab" data-demo="fib-calls"><h3>数一数朴素递归调用了多少次</h3><p>拖动滑块选择 n，对比朴素递归与记忆化对同一子问题的处理。</p><div class="lab-controls"><label for="fib-n">n</label><input id="fib-n" type="range" min="0" max="10" value="6" step="1"></div><output aria-live="polite">n = 6：朴素递归共 25 次调用；记忆化只需计算 7 个不同的子问题。</output></div>
+<p>解决办法是<strong>记忆化</strong>：把算过的结果存起来，下次直接查表。这样每个子问题只算一次，复杂度从指数降到 O(n)。把“自顶向下的记忆化递归”反过来写成“自底向上的递推表格”，就是下一章的<strong>动态规划</strong>。</p>
+<h3>尾递归</h3>
+<p>如果递归调用是函数的<strong>最后一步</strong>（返回后不再做别的运算），部分语言会复用当前栈帧，避免栈增长——这叫尾递归优化。但 <strong>Python 不做尾递归优化</strong>，写尾递归不会省下任何栈空间。所以别把工程上的防爆栈希望寄托在它上面，跨语言时也别默认它存在。</p></section>
+<section class="takeaways"><h2>带走三个判断准则</h2><ol>
+<li>写递归先写终止条件和递推关系，再“相信”子调用正确——这正是数学归纳法的编程版本。</li>
+<li>递归的代价是栈深度：深度可控就用递归换简洁，深度不可控就改用显式栈迭代。</li>
+<li>子问题一旦重叠，朴素递归会指数级重复计算；记忆化或改写成递推，就是下一章动态规划的入口。</li>
+</ol></section>
+<section class="references"><h2>继续学习与校验资料</h2><ul>
+<li><a href="https://en.wikipedia.org/wiki/Divide-and-conquer_algorithm">Divide-and-conquer algorithm</a> — 分治范式的定义与典型例子</li>
+<li><a href="https://en.wikipedia.org/wiki/Master_theorem_(analysis_of_algorithms)">Master theorem</a> — 递归式复杂度三种情况的完整表述</li>
+<li><a href="https://docs.python.org/3/library/sys.html#sys.setrecursionlimit">Python <code>sys.setrecursionlimit</code></a> — 递归深度上限的官方说明</li>
+<li><a href="14.html">上一章：排序算法全览</a> — 归并排序是本章分治的直接案例</li>
+<li>运行参考：<code>examples/recursion.py</code>；测试：<code>tests/test_recursion.py</code></li>
+</ul></section>
+<nav class="end-nav" aria-label="上一章和下一章"><a href="14.html">← 第 14 章</a><a href="../index.html">全部课程</a><a class="chapter-link" href="16.html">第 16 章 →</a></nav>
+</article></main></div>
+<footer class="article-footer"><a href="../index.html">数据结构与算法课程</a><span>先相信子问题已解决，再证明它真的会被解决。</span></footer>
+<script src="../assets/js/interactive.js" defer></script>
 </body>
 </html>

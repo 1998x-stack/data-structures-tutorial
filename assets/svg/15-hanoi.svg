@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 420" role="img" aria-labelledby="t d">
+<title id="t">汉诺塔的递归分解：T(n) = 2T(n−1) + 1</title>
+<desc id="d">把 n 个圆盘从一根柱移到另一根，需要先把上面 n−1 个移到辅助柱（一个 T(n−1)），移动最大的圆盘一次（加 1），再把 n−1 个移到目标柱（又一个 T(n−1)）。展开这棵递归树得 T(n)=2ⁿ−1，三个圆盘对应 7 步。</desc>
+<rect width="880" height="420" rx="14" fill="#f9fcf9"/>
+<g font-family="system-ui,Arial,sans-serif"><text x="24" y="36" font-size="20" font-weight="750" fill="#234649">汉诺塔：一次递归把问题切成两个同样的子问题</text><text x="24" y="58" font-size="13" fill="#667a7d">T(n) = 2·T(n−1) + 1，终止条件 T(1) = 1，解开得 T(n) = 2ⁿ − 1</text></g>
+<g font-family="system-ui,Arial,sans-serif" font-size="16" font-weight="700" text-anchor="middle">
+<rect x="380" y="96" width="120" height="46" rx="8" fill="#fdece4" stroke="#b25a3a" stroke-width="2.5"/><text x="440" y="126" fill="#8f3f22">T(3)</text>
+<rect x="230" y="212" width="120" height="46" rx="8" fill="#eef0fa" stroke="#7461ba" stroke-width="1.5"/><text x="290" y="242" fill="#4d3f86">T(2)</text>
+<rect x="530" y="212" width="120" height="46" rx="8" fill="#eef0fa" stroke="#7461ba" stroke-width="1.5"/><text x="590" y="242" fill="#4d3f86">T(2)</text>
+</g>
+<g font-family="system-ui,Arial,sans-serif" font-size="14" font-weight="700" text-anchor="middle" fill="#2f6047">
+<rect x="120" y="320" width="96" height="42" rx="8" fill="#e6f2ea" stroke="#3f7d5a" stroke-width="1.5"/><text x="168" y="347">T(1)=1</text>
+<rect x="250" y="320" width="96" height="42" rx="8" fill="#e6f2ea" stroke="#3f7d5a" stroke-width="1.5"/><text x="298" y="347">T(1)=1</text>
+<rect x="534" y="320" width="96" height="42" rx="8" fill="#e6f2ea" stroke="#3f7d5a" stroke-width="1.5"/><text x="582" y="347">T(1)=1</text>
+<rect x="664" y="320" width="96" height="42" rx="8" fill="#e6f2ea" stroke="#3f7d5a" stroke-width="1.5"/><text x="712" y="347">T(1)=1</text></g>
+<g stroke="#7d8fb3" stroke-width="2" fill="none"><line x1="410" y1="142" x2="300" y2="210"/><line x1="470" y1="142" x2="580" y2="210"/><line x1="265" y1="258" x2="185" y2="318"/><line x1="315" y1="258" x2="315" y2="318"/><line x1="565" y1="258" x2="580" y2="318"/><line x1="615" y1="258" x2="705" y2="318"/></g>
+<g font-family="system-ui,Arial,sans-serif" font-size="13" fill="#b25a3a"><text x="300" y="176">移 n−1 个 + 1</text><text x="500" y="176">+ 1 移 n−1 个</text></g>
+<text x="24" y="392" font-size="13" fill="#526f71" font-family="system-ui,Arial,sans-serif">每层多两个子问题，深度每加一总步数翻倍再加一，因此是指数增长：n=64 时需 2⁶⁴−1 步，远超任何机器的处理能力。</text>
+</svg>

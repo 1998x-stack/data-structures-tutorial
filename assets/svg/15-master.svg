@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 420" role="img" aria-labelledby="t d">
+<title id="t">递归树：主定理比较每层的分解代价与合并代价</title>
+<desc id="d">递归式 T(n)=a·T(n/b)+f(n) 展开成一棵树：第 k 层有 aᵏ 个规模 n/bᵏ 的子问题，共 log_b n 层。把每层代价求和，哪一项增长最快就主导总代价——这正是主定理三种情况的来源。</desc>
+<rect width="880" height="420" rx="14" fill="#f9fcf9"/>
+<g font-family="system-ui,Arial,sans-serif"><text x="24" y="36" font-size="20" font-weight="750" fill="#234649">递归树：主定理只是把每层代价加起来</text><text x="24" y="58" font-size="13" fill="#667a7d">T(n) = a·T(n/b) + f(n)：子问题数按 a 增长，规模按 b 缩小，深度为 log_b n</text></g>
+<g font-family="system-ui,Arial,sans-serif" font-size="15" font-weight="700" text-anchor="middle">
+<rect x="360" y="92" width="160" height="44" rx="8" fill="#fdece4" stroke="#b25a3a" stroke-width="2.5"/><text x="440" y="121" fill="#8f3f22">f(n)</text>
+<rect x="200" y="176" width="140" height="44" rx="8" fill="#eef0fa" stroke="#7461ba" stroke-width="1.5"/><text x="270" y="205" fill="#4d3f86">f(n/b)</text>
+<rect x="540" y="176" width="140" height="44" rx="8" fill="#eef0fa" stroke="#7461ba" stroke-width="1.5"/><text x="610" y="205" fill="#4d3f86">f(n/b)</text>
+<rect x="130" y="262" width="130" height="44" rx="8" fill="#eef0fa" stroke="#7461ba" stroke-width="1.5"/><text x="195" y="291" fill="#4d3f86">f(n/b²)</text>
+<rect x="300" y="262" width="130" height="44" rx="8" fill="#eef0fa" stroke="#7461ba" stroke-width="1.5"/><text x="365" y="291" fill="#4d3f86">f(n/b²)</text>
+<rect x="470" y="262" width="130" height="44" rx="8" fill="#eef0fa" stroke="#7461ba" stroke-width="1.5"/><text x="535" y="291" fill="#4d3f86">f(n/b²)</text>
+<rect x="640" y="262" width="130" height="44" rx="8" fill="#eef0fa" stroke="#7461ba" stroke-width="1.5"/><text x="705" y="291" fill="#4d3f86">f(n/b²)</text>
+</g>
+<g stroke="#7d8fb3" stroke-width="1.8" fill="none"><line x1="410" y1="136" x2="280" y2="174"/><line x1="470" y1="136" x2="600" y2="174"/><line x1="240" y1="220" x2="205" y2="260"/><line x1="290" y1="220" x2="355" y2="260"/><line x1="580" y1="220" x2="545" y2="260"/><line x1="630" y1="220" x2="695" y2="260"/></g>
+<g font-family="system-ui,Arial,sans-serif" font-size="13" text-anchor="middle" fill="#2f6047"><text x="440" y="348">… 共 log_b n 层，每层 aᵏ 个 f(n/bᵏ) 的代价 …</text></g>
+<g font-family="system-ui,Arial,sans-serif" font-size="13" fill="#526f71"><text x="24" y="382">情况一：叶子项 n^(log_b a) 主导 → T(n)=Θ(n^(log_b a))；情况二：各层同阶（如 f(n)=Θ(n)，log_b a=1）→ 乘 log n；情况三：f(n) 主导 → T(n)=Θ(f(n))。</text></g>
+</svg>

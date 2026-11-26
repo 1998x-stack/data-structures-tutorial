@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 420" role="img" aria-labelledby="t d">
+<title id="t">factorial(3) 的调用栈：先压栈再逐层出栈</title>
+<desc id="d">递归向下时依次压入 factorial(3)、factorial(2)、factorial(1)、factorial(0)，到达终止条件后开始返回：factorial(0)=1，factorial(1)=1×1=1，factorial(2)=2×1=2，factorial(3)=3×2=6。栈深等于未返回的调用层数。</desc>
+<rect width="880" height="420" rx="14" fill="#f9fcf9"/>
+<g font-family="system-ui,Arial,sans-serif"><text x="24" y="36" font-size="20" font-weight="750" fill="#234649">调用栈：递归先去到底，再逐层把结果带回来</text><text x="24" y="58" font-size="13" fill="#667a7d">每层调用保存局部变量与返回地址；最深一层先返回，其余按后进先出顺序弹出</text></g>
+<g font-family="system-ui,Arial,sans-serif" font-size="13" fill="#667a7d"><text x="120" y="96">↓ 压栈（深入）</text><text x="540" y="96">↑ 出栈（回溯）</text></g>
+<g font-family="system-ui,Arial,sans-serif" font-size="15" font-weight="600">
+<rect x="120" y="112" width="230" height="48" rx="8" fill="#eef0fa" stroke="#7461ba" stroke-width="1.5"/><text x="140" y="142" fill="#4d3f86">factorial(3)</text>
+<rect x="120" y="172" width="230" height="48" rx="8" fill="#eef0fa" stroke="#7461ba" stroke-width="1.5"/><text x="140" y="202" fill="#4d3f86">factorial(2)</text>
+<rect x="120" y="232" width="230" height="48" rx="8" fill="#eef0fa" stroke="#7461ba" stroke-width="1.5"/><text x="140" y="262" fill="#4d3f86">factorial(1)</text>
+<rect x="120" y="292" width="230" height="48" rx="8" fill="#fdece4" stroke="#b25a3a" stroke-width="2.5"/><text x="140" y="322" fill="#8f3f22">factorial(0) 终止</text>
+</g>
+<defs><marker id="a15c" markerWidth="9" markerHeight="9" refX="4" refY="7" orient="auto"><path d="M0,0 L7,0 L3.5,7 z" fill="#7461ba"/></marker><marker id="a15u" markerWidth="9" markerHeight="9" refX="4" refY="1" orient="auto"><path d="M0,7 L7,7 L3.5,0 z" fill="#3f7d5a"/></marker></defs>
+<g stroke="#7461ba" stroke-width="2" fill="none" marker-end="url(#a15c)"><line x1="235" y1="162" x2="235" y2="170"/><line x1="235" y1="222" x2="235" y2="230"/><line x1="235" y1="282" x2="235" y2="290"/></g>
+<g font-family="system-ui,Arial,sans-serif" font-size="15" font-weight="600">
+<rect x="540" y="292" width="260" height="48" rx="8" fill="#fdece4" stroke="#b25a3a" stroke-width="2.5"/><text x="560" y="322" fill="#8f3f22">返回 1</text>
+<rect x="540" y="232" width="260" height="48" rx="8" fill="#e6f2ea" stroke="#3f7d5a" stroke-width="1.5"/><text x="560" y="262" fill="#2f6047">1 × 1 = 1</text>
+<rect x="540" y="172" width="260" height="48" rx="8" fill="#e6f2ea" stroke="#3f7d5a" stroke-width="1.5"/><text x="560" y="202" fill="#2f6047">2 × 1 = 2</text>
+<rect x="540" y="112" width="260" height="48" rx="8" fill="#e6f2ea" stroke="#3f7d5a" stroke-width="1.5"/><text x="560" y="142" fill="#2f6047">3 × 2 = 6</text>
+</g>
+<g stroke="#3f7d5a" stroke-width="2" fill="none" marker-end="url(#a15u)"><line x1="670" y1="290" x2="670" y2="282"/><line x1="670" y1="230" x2="670" y2="222"/><line x1="670" y1="170" x2="670" y2="162"/></g>
+<text x="24" y="384" font-size="13" fill="#526f71" font-family="system-ui,Arial,sans-serif">递归深度 = 未返回的栈帧数。这里最多 4 层；若输入 n=10⁴，同样的写法就会撞上 Python 的递归深度上限。</text>
+</svg>

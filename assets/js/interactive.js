@@ -204,4 +204,27 @@
   input.addEventListener("input",update);update();
  }
 
+ // Chapter 15: lower_bound interval shrinking on a fixed sorted array.
+ const bis=document.querySelector('[data-demo="bisect-trace"]');
+ if(bis){
+  const select=bis.querySelector("select"),out=bis.querySelector("output");
+  const a=[1,3,3,5,7,9];
+  const update=()=>{
+   const target=Number(select.value);
+   let lo=0,hi=a.length;const steps=[];
+   while(lo<hi){const mid=lo+((hi-lo)>>1);steps.push(`[${lo},${hi}) 取 mid=${mid}（值 ${a[mid]}）`);if(a[mid]<target)lo=mid+1;else hi=mid;}
+   out.textContent="查找 "+target+"："+steps.join(" → ")+"；最终插入位置为 "+lo+"（下标 "+lo+" 起均 ≥ "+target+"）。";
+  };
+  select.addEventListener("change",update);update();
+ }
+
+ // Chapter 15: naive vs memoized Fibonacci call counts on a fixed table.
+ const fib=document.querySelector('[data-demo="fib-calls"]');
+ if(fib){
+  const input=fib.querySelector("input"),out=fib.querySelector("output");
+  const calls=[1,1,3,5,9,15,25,41,67,109,177];
+  const update=()=>{const n=Number(input.value);out.textContent="n = "+n+"：朴素递归共 "+calls[n]+" 次调用；记忆化只需计算 "+(n+1)+" 个不同的子问题。";};
+  input.addEventListener("input",update);update();
+ }
+
 })();
