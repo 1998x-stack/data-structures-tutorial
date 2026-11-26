@@ -348,4 +348,20 @@
   select.addEventListener("change",update);update();
  }
 
+ // Chapter 27: learned-index prediction window (teaching model).
+ const li=document.querySelector('[data-demo="learned-pos"]');
+ if(li){
+  const select=li.querySelector("select"),out=li.querySelector("output");
+  const keys=[1,3,5,7,9,11,13,15],window=4;
+  const predict=k=>{const n=keys.length,lo=keys[0],hi=keys[n-1];let r=(k-lo)/(hi-lo);r=Math.min(1,Math.max(0,r));return Math.floor(r*(n-1));};
+  const update=()=>{
+   const key=Number(select.value),pos=predict(key);
+   const lo=Math.max(0,pos-window),hi=Math.min(keys.length-1,pos+window);
+   let a=lo,b=hi,found=-1;
+   while(a<=b){const mid=(a+b)>>1;if(keys[mid]===key){found=mid;break;}if(keys[mid]<key)a=mid+1;else b=mid-1;}
+   out.textContent="key="+key+"：预测位置 "+pos+"；窗口 ["+lo+", "+hi+"]；在窗口内二分，"+(found>=0?("找到它位于下标 "+found+"。"):"未找到（该 key 不在数组中）。");
+  };
+  select.addEventListener("change",update);update();
+ }
+
 })();
