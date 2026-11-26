@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 320" width="880" height="320" role="img" aria-labelledby="xor-title xor-desc">
+<title id="xor-title">异或最大值：逐位贪心凑出尽可能高的位</title>
+<desc id="xor-desc">5 的二进制是 00101，25 的二进制是 11001，逐位异或得到 11100，即十进制 28。因为高位权重更大，在二进制 Trie 上每一步优先走与当前位相反的子树。</desc>
+<g font-family="-apple-system, 'PingFang SC', sans-serif" font-size="15" text-anchor="middle">
+<text x="200" y="52" fill="#475569" text-anchor="end">位权</text>
+<text x="300" y="52" fill="#475569">16</text><text x="380" y="52" fill="#475569">8</text><text x="460" y="52" fill="#475569">4</text><text x="540" y="52" fill="#475569">2</text><text x="620" y="52" fill="#475569">1</text>
+<text x="200" y="102" fill="#334155" text-anchor="end">5</text>
+<text x="200" y="152" fill="#334155" text-anchor="end">25</text>
+<text x="200" y="212" fill="#14532d" text-anchor="end">5 ⊕ 25 = 28</text>
+<rect x="277" y="78" width="46" height="32" rx="5" fill="#f8fafc" stroke="#cbd5e1"/><text x="300" y="100" fill="#334155">0</text>
+<rect x="357" y="78" width="46" height="32" rx="5" fill="#f8fafc" stroke="#cbd5e1"/><text x="380" y="100" fill="#334155">0</text>
+<rect x="437" y="78" width="46" height="32" rx="5" fill="#f8fafc" stroke="#cbd5e1"/><text x="460" y="100" fill="#334155">1</text>
+<rect x="517" y="78" width="46" height="32" rx="5" fill="#f8fafc" stroke="#cbd5e1"/><text x="540" y="100" fill="#334155">0</text>
+<rect x="597" y="78" width="46" height="32" rx="5" fill="#f8fafc" stroke="#cbd5e1"/><text x="620" y="100" fill="#334155">1</text>
+<rect x="277" y="128" width="46" height="32" rx="5" fill="#f8fafc" stroke="#cbd5e1"/><text x="300" y="150" fill="#334155">1</text>
+<rect x="357" y="128" width="46" height="32" rx="5" fill="#f8fafc" stroke="#cbd5e1"/><text x="380" y="150" fill="#334155">1</text>
+<rect x="437" y="128" width="46" height="32" rx="5" fill="#f8fafc" stroke="#cbd5e1"/><text x="460" y="150" fill="#334155">0</text>
+<rect x="517" y="128" width="46" height="32" rx="5" fill="#f8fafc" stroke="#cbd5e1"/><text x="540" y="150" fill="#334155">0</text>
+<rect x="597" y="128" width="46" height="32" rx="5" fill="#f8fafc" stroke="#cbd5e1"/><text x="620" y="150" fill="#334155">1</text>
+<rect x="277" y="188" width="46" height="32" rx="5" fill="#dcfce7" stroke="#15803d"/><text x="300" y="210" fill="#14532d">1</text>
+<rect x="357" y="188" width="46" height="32" rx="5" fill="#dcfce7" stroke="#15803d"/><text x="380" y="210" fill="#14532d">1</text>
+<rect x="437" y="188" width="46" height="32" rx="5" fill="#dcfce7" stroke="#15803d"/><text x="460" y="210" fill="#14532d">1</text>
+<rect x="517" y="188" width="46" height="32" rx="5" fill="#dcfce7" stroke="#15803d"/><text x="540" y="210" fill="#14532d">0</text>
+<rect x="597" y="188" width="46" height="32" rx="5" fill="#dcfce7" stroke="#15803d"/><text x="620" y="210" fill="#14532d">0</text>
+<text x="440" y="268" font-size="13" fill="#475569">异或的每一位独立：想让结果位为 1，就要让两个数在这一位不同</text>
+<text x="440" y="296" font-size="13" fill="#166534">高位一旦凑到 1，就比低位全为 1 还大，所以从最高位开始贪心是正确的</text>
+</g></svg>

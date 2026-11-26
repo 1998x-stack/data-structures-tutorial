@@ -301,4 +301,19 @@
   left.addEventListener("input",update);right.addEventListener("input",update);update();
  }
 
+ // Chapter 21: autocomplete results for a fixed word list.
+ const trieDemo=document.querySelector('[data-demo="trie-complete"]');
+ if(trieDemo){
+  const select=trieDemo.querySelector("select"),out=trieDemo.querySelector("output");
+  const results={
+   ap:["app","apple","apply","application","apt"],
+   app:["app","apple","apply","application"],
+   appl:["apple","apply","application"],
+   b:["bat"],
+   z:[]
+  };
+  const update=()=>{const key=select.value,list=results[key];out.textContent="前缀 "+key+"："+(list.length?list.join(", "):"没有匹配的词")+"（共 "+list.length+" 个）。";};
+  select.addEventListener("change",update);update();
+ }
+
 })();
