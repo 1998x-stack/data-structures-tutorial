@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 430" role="img" aria-labelledby="t d">
+<title id="t">跳跃游戏：每一步维护最远可达下标</title>
+<desc id="d">数组 2,3,1,1,4 从下标 0 出发。每次在当前位置 i，若 i 不超过当前最远可达 reach 就更新 reach = max(reach, i+nums[i])。依次得到 reach 为 2、4、4、4、8，在 i=4 之前就已覆盖到终点下标 4，因此可以到达。</desc>
+<rect width="880" height="430" rx="14" fill="#f9fcf9"/>
+<g font-family="system-ui,Arial,sans-serif"><text x="24" y="34" font-size="20" font-weight="750" fill="#234649">跳跃游戏：不比“怎么跳”，只比“能到多远”</text><text x="24" y="56" font-size="13" fill="#667a7d">维护一个变量 reach，表示目前能到达的最远下标；若某下标 i 超过 reach，就说明卡住了</text></g>
+<g font-family="system-ui,Arial,sans-serif" font-size="13" fill="#667a7d"><text x="24" y="128">下标 / 可跳跃最大长度</text></g>
+<g font-family="system-ui,Arial,sans-serif" font-size="24" font-weight="800" text-anchor="middle" fill="#4d3f86">
+<rect x="100" y="150" width="80" height="64" rx="9" fill="#eef0fa" stroke="#7461ba" stroke-width="2"/><text x="140" y="193">2</text>
+<rect x="200" y="150" width="80" height="64" rx="9" fill="#eef0fa" stroke="#7461ba" stroke-width="2"/><text x="240" y="193">3</text>
+<rect x="300" y="150" width="80" height="64" rx="9" fill="#eef0fa" stroke="#7461ba" stroke-width="2"/><text x="340" y="193">1</text>
+<rect x="400" y="150" width="80" height="64" rx="9" fill="#eef0fa" stroke="#7461ba" stroke-width="2"/><text x="440" y="193">1</text>
+<rect x="500" y="150" width="80" height="64" rx="9" fill="#fdece4" stroke="#b25a3a" stroke-width="3"/><text x="540" y="193" fill="#8f3f22">4</text></g>
+<g font-family="system-ui,Arial,sans-serif" font-size="15" font-weight="700" text-anchor="middle" fill="#667a7d"><text x="140" y="146">i=0</text><text x="240" y="146">i=1</text><text x="340" y="146">i=2</text><text x="440" y="146">i=3</text><text x="540" y="146">i=4 终点</text></g>
+<g font-family="system-ui,Arial,sans-serif" font-size="14" font-weight="700" text-anchor="middle" fill="#2f6047">
+<text x="140" y="250">reach=2</text><text x="240" y="250">reach=4</text><text x="340" y="250">reach=4</text><text x="440" y="250">reach=4</text><text x="540" y="250">已覆盖终点</text></g>
+<g font-family="system-ui,Arial,sans-serif" font-size="13" fill="#667a7d"><text x="24" y="250">处理后的最远可达</text></g>
+<rect x="100" y="278" width="480" height="34" rx="8" fill="#e6f2ea" stroke="#3f7d5a" stroke-width="1.5"/>
+<text x="340" y="301" font-size="14" font-weight="700" text-anchor="middle" fill="#2f6047">从 i=0 能覆盖到下标 4：整段都可达</text>
+<text x="24" y="360" font-size="13" fill="#526f71" font-family="system-ui,Arial,sans-serif">反例 [3,2,1,0,4]：在 i=3 处 reach 只有 3，而 i=4 需要下标 4，i=4 &gt; reach，返回不可达。</text>
+<text x="24" y="386" font-size="13" fill="#526f71" font-family="system-ui,Arial,sans-serif">为什么“跳最远”不亏？因为能到更远的位置，就同样能选择停在更近的位置——选择空间只增不减。</text>
+<text x="24" y="412" font-size="13" fill="#526f71" font-family="system-ui,Arial,sans-serif">贪心 O(n) 与 DP O(n²) 在这道题上结果相同，但贪心少了一个量级。</text>
+</svg>

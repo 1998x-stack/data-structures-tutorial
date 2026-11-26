@@ -256,4 +256,14 @@
   input.addEventListener("input",update);update();
  }
 
+ // Chapter 18: jump-game farthest reach after each index.
+ const jr=document.querySelector('[data-demo="jump-reach"]');
+ if(jr){
+  const input=jr.querySelector("input"),out=jr.querySelector("output");
+  const nums=[2,3,1,1,4];
+  const reach=[2,4,4,4,8];
+  const update=()=>{const i=Number(input.value);const done=reach[i]>=nums.length-1;out.textContent="处理 i="+i+"（可跳 "+nums[i]+"）：reach = "+reach[i]+(done?"，已覆盖终点下标 4。":"，尚未到达终点。");};
+  input.addEventListener("input",update);update();
+ }
+
 })();
