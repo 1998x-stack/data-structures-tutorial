@@ -1,435 +1,143 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
-    <title>第16章 回溯算法</title>
-    <link rel="stylesheet" href="theme.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="回溯算法：把问题看成决策树并做深度优先遍历，用“做选择→递归→撤销选择”的统一模板解决全排列、子集、组合与 N 皇后，并理解剪枝与回溯、动态规划的分工。">
+<title>第 16 章 · 回溯算法：走不通就退回来 | 数据结构与算法</title>
+<link rel="stylesheet" href="../assets/css/article.css">
 </head>
 <body>
-<div class="double-border">
-<div class="container">
-    <div class="sidebar">
-        <h3>🧠 课程目录</h3>
-        <ul class="chapter-list">
-            <li><a href="01.html">第1章 为什么要学数据结构</a></li>
-            <li><a href="02.html">第2章 复杂度分析</a></li>
-            <li><a href="03.html">第3章 数组与字符串</a></li>
-            <li><a href="04.html">第4章 链表</a></li>
-            <li><a href="05.html">第5章 栈</a></li>
-            <li><a href="06.html">第6章 队列</a></li>
-            <li><a href="07.html">第7章 哈希表</a></li>
-            <li><a href="08.html">第8章 树基础</a></li>
-            <li><a href="09.html">第9章 二叉搜索树</a></li>
-            <li><a href="10.html">第10章 平衡二叉树</a></li>
-            <li><a href="11.html">第11章 堆与优先队列</a></li>
-            <li><a href="12.html">第12章 图基础</a></li>
-            <li><a href="13.html">第13章 图算法</a></li>
-            <li><a href="14.html">第14章 排序算法全览</a></li>
-            <li><a href="15.html">第15章 递归与分治</a></li>
-            <li><a href="16.html" class="active">第16章 回溯算法</a></li>
-            <li><a href="17.html">第17章 动态规划</a></li>
-            <li><a href="18.html">第18章 贪心算法</a></li>
-            <li><a href="19.html">第19章 并查集</a></li>
-            <li><a href="20.html">第20章 线段树与树状数组</a></li>
-            <li><a href="21.html">第21章 字典树(Trie)</a></li>
-            <li><a href="22.html">第22章 跳表与B+树</a></li>
-            <li><a href="23.html">第23章 LeetCode刷题方法论</a></li>
-            <li><a href="24.html">第24章 大厂面试高频题精讲</a></li>
-            <li><a href="25.html">第25章 系统设计中的数据结构</a></li>
-            <li><a href="26.html">第26章 数据结构性能分析</a></li>
-            <li><a href="27.html">第27章 AI与数据结构的交叉</a></li>
-            <li><a href="28.html">第28章 学习路线与综合项目</a></li>
-        </ul>
-    </div>
-    <div class="main-content">
-
-        <h2>开篇：走迷宫的故事</h2>
-
-        <p>想象你去一个大型迷宫探险。你站在入口，面前是一道长长的走廊。你往前走，到了第一个分岔口——左边一条路，右边一条路。你选了左边。走了一段，又遇到分岔口，你继续选左边。走了十分钟，你发现是死路。这时候你怎么办？</p>
-
-        <p>你只能<strong>原路返回</strong>到上一个分岔口，尝试另外一条路。如果那条也是死路，就再往回退，直到找到出口为止。</p>
-
-        <p>这就是<strong>回溯（Backtracking）</strong>最直观的理解——<strong>走不通就退回，换条路再试</strong>。所有需要"枚举所有可能"并且"某些可能行不通"的问题，都可以用回溯来解决。</p>
-
-        <h2>回溯的本质——"试错法"</h2>
-
-        <p>回溯本质上是一种<strong>暴力搜索（Brute-force Search）</strong>，但它比纯粹的暴力搜索更聪明——因为它会在发现当前路径不可能产生有效解时<strong>提前终止（Pruning，剪枝）</strong>，避免无效搜索。</p>
-
-        <p>从数据结构的角度看，回溯过程实际上是对一棵<strong>决策树（Decision Tree）</strong>的<strong>深度优先遍历（DFS）</strong>。树中的每个节点代表一个"决策点"，每条边代表一个"选择"，叶子节点代表"最终结果"（可能是有效解，也可能是死路）。</p>
-
-        <p>回溯算法的三要素：</p>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>要素</th>
-                    <th>含义</th>
-                    <th>迷宫类比</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><strong>选择（Choice）</strong></td>
-                    <td>在当前步骤有哪些可能的选项？</td>
-                    <td>岔路口的每一条路</td>
-                </tr>
-                <tr>
-                    <td><strong>约束（Constraint）</strong></td>
-                    <td>什么条件下当前的路径不可能产生有效解？</td>
-                    <td>死路、重复经过的路</td>
-                </tr>
-                <tr>
-                    <td><strong>目标（Goal）</strong></td>
-                    <td>什么样的状态算找到了一个有效解？</td>
-                    <td>到达迷宫出口</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <h2>回溯的标配模板——"做选择→递归→撤销选择"</h2>
-
-        <p>所有的回溯算法都遵循同一个模板。掌握这个模板，你就掌握了回溯的"骨架"：</p>
-
-        <pre><code>def backtrack(路径, 选择列表):
-    if 满足结束条件:
-        将 路径 加入结果集
+<a href="#content" class="skip-link">跳转至正文</a>
+<header class="article-top"><div class="top-inner"><a class="brand" href="../index.html">← 课程首页</a><span class="course-name">数据结构与算法 · 深度图解</span><a class="source-link" href="https://github.com/1998x-stack/data-structures-tutorial">GitHub</a></div></header>
+<div class="article-layout">
+<aside class="toc"><details open><summary>本章导览</summary><nav aria-label="回溯算法章节目录"><ol>
+<li><a href="#maze"><span>01</span>走迷宫：走不通就退回</a></li>
+<li><a href="#tree"><span>02</span>回溯的本质：决策树的 DFS</a></li>
+<li><a href="#template"><span>03</span>标配模板：做选择 → 递归 → 撤销选择</a></li>
+<li><a href="#permute"><span>04</span>全排列与“拷贝路径”陷阱</a></li>
+<li><a href="#subset"><span>05</span>子集与组合：start 去重与剪枝</a></li>
+<li><a href="#queens"><span>06</span>N 皇后：对角线剪枝</a></li>
+<li><a href="#vsdp"><span>07</span>回溯 vs DP 与优化三板斧</a></li>
+</ol></nav></details><div class="toc-bottom"><a href="../index.html#curriculum">查看 28 章课程</a></div></aside>
+<main id="content"><article>
+<header class="article-heading"><div class="article-kicker">ALGORITHM DESIGN / CHAPTER 16</div><h1>回溯算法：走不通就退回来</h1><p class="dek">枚举所有可能、又不能重复地枚举，是很多问题的共同需求。把问题画成一棵决策树，再对它做深度优先遍历——“做选择、递归、撤销选择”——就能系统地走遍每条路，并在没希望时提前回头。</p><div class="topic-tags"><span>决策树</span><span>做选择 / 递归 / 撤销</span><span>排列·组合·子集</span><span>剪枝</span><span>N 皇后</span></div></header>
+<section id="maze" class="article-section" aria-labelledby="heading-maze"><span class="section-number">01 / 07</span><h2 id="heading-maze">走迷宫：走不通就退回</h2>
+<p>想象你走进一个大迷宫，每到一个分岔口就要选一条路。选错了呢？你只能<strong>原路返回</strong>，回到上一个分岔口换一条；如果还是死路，就再往回退，直到走出去。这个“深入地走、碰壁就退回、换个选择再试”的过程，就是<strong>回溯</strong>。</p>
+<p>要枚举“所有可能且满足某条件”的方案时，朴素做法是列一个巨大的候选表逐个检查；回溯则为一种更聪明的穷举——它不预先列出所有方案，而是<strong>边构造边检查</strong>，一旦发现当前的部分选择已经不可能凑出合法解，就立即回头。这使它在许多实际数据上远快于“先全部枚举再筛”。</p>
+<p>本章先建立“决策树”的图像，再给出回溯的统一模板，最后用全排列、子集、组合与 N 皇后四个经典问题把它练熟。回顾上一章的递归：回溯就是递归里的“试错版”。</p></section>
+<section id="tree" class="article-section" aria-labelledby="heading-tree"><span class="section-number">02 / 07</span><h2 id="heading-tree">回溯的本质：决策树的 DFS</h2>
+<p>把所有可能的选择按顺序摊开，就得到一棵<strong>决策树</strong>：根是“尚未做任何选择”，每个节点是一个中间状态，每条边是一次选择，叶子是一个完整方案（合法解或死路）。那么“枚举所有方案”就等价于<strong>遍历这棵树的每个节点</strong>。</p>
+<figure class="diagram"><div class="diagram-scroll" tabindex="0" aria-label="可横向滚动查看图示"><img src="../assets/svg/16-decisiontree.svg" alt="子集问题的决策树，从空集出发逐层加入元素 1、2、3，按先序深度优先访问每个节点" width="880" height="430" loading="lazy"></div><figcaption>图 1 · 子集问题的决策树。按先序 DFS 访问每个节点，每个节点就是一个子集；“回退”那一步就是把刚加入的元素从路径里弹掉。遍历顺序决定了输出的子集顺序。</figcaption></figure>
+<p>回溯用<strong>深度优先</strong>遍历这棵树：沿着一条路一直深入，直到无路可走或已找到一个解，再退回上一个决策点换分支。三个要素决定了整棵树长什么样：</p>
+<ul><li><strong>选择</strong>：当前步骤有哪些候选项？（决定分支的宽度）</li><li><strong>约束</strong>：什么条件下当前部分路径已不可能导出合法解？（决定哪些分支可被剪掉）</li><li><strong>目标</strong>：什么状态算一个完整解？（决定什么时候把路径收进结果集）</li></ul></section>
+<section id="template" class="article-section" aria-labelledby="heading-template"><span class="section-number">03 / 07</span><h2 id="heading-template">标配模板：做选择 → 递归 → 撤销选择</h2>
+<p>尽管问题千变万化，回溯的代码骨架几乎不变。它有一个统一的循环结构，只要把“选择列表”和“约束”填进去即可：</p>
+<figure class="diagram"><div class="diagram-scroll" tabindex="0" aria-label="可横向滚动查看图示"><img src="../assets/svg/16-template.svg" alt="回溯模板：做选择、递归、撤销选择三步构成一个循环，配合当前路径栈" width="880" height="430" loading="lazy"></div><figcaption>图 2 · 三步必须成对出现。撤销选择把状态还原到进入前，让同一层的下一个兄弟选择不受上一个的影响——这正是回溯区别于普通递归的关键。</figcaption></figure>
+<pre class="code-panel" tabindex="0"><code>def backtrack(path, choices):
+    if 满足目标条件:
+        result.append(path[:])      # 拷贝一份，不要存引用
         return
-
-    for 选择 in 选择列表:
-        if 选择不满足约束条件:
-            continue  # 剪枝
-
-        做选择：将选择加入路径
-        backtrack(新路径, 新选择列表)
-        撤销选择：将选择从路径中移除
-
-    return 结果</code></pre>
-
-        <p>这个模板的核心就是三个字——<strong>做选择→递归→撤销选择</strong>。"撤销选择"这一步是回溯区别于普通递归的关键——因为它让路径恢复到递归前的状态，确保同一层的不同选择互不干扰。</p>
-
-        <h3>全排列——回溯模板的 Hello World</h3>
-
-        <p>LeetCode 46：给定一个不含重复数字的数组，返回所有可能的排列。</p>
-
-        <pre><code>def permute(nums):
-    """全排列：回溯算法的 Hello World"""
-    def backtrack(path, used):
-        # 目标：路径长度等于原数组长度，说明找到了一个排列
+    for choice in choices:
+        if 不满足约束:
+            continue                # 剪枝：跳过没希望的分支
+        path.append(choice)         # 做选择
+        backtrack(path, 下一层选择)  # 递归
+        path.pop()                  # 撤销选择</code></pre>
+<p>注释里的 <code>path[:]</code> 不是风格洁癖，而是必须的第一步。Python 的列表是<strong>引用类型</strong>：如果直接 <code>result.append(path)</code>，存入的只是一个指向同一列表的引用，而后续递归会不断修改这个列表，最终结果集里的每一项都会变成最后一次的状态。所以“加入结果集时一定拷一份”。</p></section>
+<section id="permute" class="article-section" aria-labelledby="heading-permute"><span class="section-number">04 / 07</span><h2 id="heading-permute">全排列与“拷贝路径”陷阱</h2>
+<p>全排列是最标准的回溯练习：每一步从“还未用过”的元素里选一个，选到长度等于 n 时就得到一个排列。因为顺序不同算不同解，所以需要用 <code>used[]</code> 标记哪些元素已被使用，而不能像子集那样用“往后选”去重。</p>
+<pre class="code-panel" tabindex="0"><code>def permute(nums):
+    result, used = [], [False] * len(nums)
+    def backtrack(path):
         if len(path) == len(nums):
-            result.append(path[:])  # 注意：path[:] 是拷贝，不是引用
+            result.append(path[:])          # 拷贝！
             return
-
-        for i in range(len(nums)):
+        for i, value in enumerate(nums):
             if used[i]:
-                continue  # 剪枝：已经使用过的元素不能再选
-
-            # 做选择
-            path.append(nums[i])
-            used[i] = True
-
-            # 递归
-            backtrack(path, used)
-
-            # 撤销选择
-            path.pop()
-            used[i] = False
-
+                continue                    # 剪枝：已用过的不再选
+            path.append(value); used[i] = True
+            backtrack(path)
+            path.pop(); used[i] = False     # 撤销
+    backtrack([])
+    return result</code></pre>
+<p>注意 <code>used[i] = True</code> 也要在递归后还原，否则“撤销”只做了一半，兄弟分支会误以为该元素仍在使用。这正是模板里“成对出现”的提醒。</p>
+<div class="lab" data-demo="permute-order"><h3>生成顺序：先序 DFS 的输出</h3><p>固定输入 [1, 2, 3]，拖动滑块查看第 1 到第 6 个被加入结果集的排列。</p><div class="lab-controls"><label for="permute-step">第几个排列</label><input id="permute-step" type="range" min="0" max="5" value="0" step="1"></div><output aria-live="polite">第 1 个排列是 [1, 2, 3]。</output></div></section>
+<section id="subset" class="article-section" aria-labelledby="heading-subset"><span class="section-number">05 / 07</span><h2 id="heading-subset">子集与组合：start 去重与剪枝</h2>
+<p>子集和排列的关键区别在“去重方式”。排列关心顺序，[1,2] 与 [2,1] 不同；子集不关心顺序，它们算同一个。因此子集不用 <code>used</code>，而用一个 <code>start</code> 下标：每一层只从 <code>start</code> 往后选，保证任何组合只会以“下标递增”的顺序生成一次。</p>
+<pre class="code-panel" tabindex="0"><code>def subsets(nums):
     result = []
-    backtrack([], [False] * len(nums))
-    return result
-
-# 测试
-print(permute([1, 2, 3]))
-# 输出: [[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]</code></pre>
-
-        <p>这里有一个非常重要的细节：<code>path[:]</code> 而不是直接 <code>path</code>。因为 Python 中列表是引用类型，如果直接加入 <code>path</code>，后续 path 的变化会影响已经加入结果集的内容。<strong>加入结果集时一定要拷贝当前路径。</strong></p>
-
-        <div class="tip">
-            <strong>回溯模板记忆口诀：</strong>"做选择，递归，撤销选择。剪枝放在循环头。结果集里放拷贝。"把这四句背下来，写遍回溯题不愁。
-        </div>
-
-        <h2>子集问题</h2>
-
-        <p>LeetCode 78：给定一个不含重复元素的数组，返回所有可能的子集。</p>
-
-        <p>子集和全排列的区别在于：全排列关心元素的<strong>顺序</strong>（[1,2,3] 和 [3,2,1] 是不同的排列），而子集只关心元素的<strong>组合</strong>（{1,2,3} 和 {3,2,1} 是同一个子集）。</p>
-
-        <h3>思路一：递归回溯</h3>
-
-        <pre><code>def subsets(nums):
-    """子集问题：回溯解法"""
     def backtrack(start, path):
-        # 每个节点都是子集，直接加入结果
-        result.append(path[:])
-
-        # 从 start 开始，避免产生重复子集
+        result.append(path[:])       # 每个节点都是一个子集
         for i in range(start, len(nums)):
             path.append(nums[i])
-            backtrack(i + 1, path)
+            backtrack(i + 1, path)   # i+1：只能往后选
             path.pop()
-
-    result = []
     backtrack(0, [])
-    return result
-
-print(subsets([1, 2, 3]))
-# 输出: [[],[1],[1,2],[1,2,3],[1,3],[2],[2,3],[3]]</code></pre>
-
-        <p>注意这里和全排列的关键区别——我们使用了 <code>start</code> 参数而不是 <code>used</code> 数组。因为子集不关心顺序，我们用 <code>start</code> 保证每次只往后选，前面选过的元素不会再选。这叫做<strong>按顺序去重</strong>。</p>
-
-        <h3>思路二：迭代追加</h3>
-
-        <p>子集还有一个非常巧妙的迭代解法——逐个元素追加：</p>
-
-        <pre><code>def subsets_iterative(nums):
-    """子集问题：迭代解法（位运算思想）"""
-    result = [[]]  # 初始包含空集
-
-    for num in nums:
-        # 在现有所有子集的基础上，各追加当前元素
-        new_subsets = [subset + [num] for subset in result]
-        result.extend(new_subsets)
-
-    return result
-
-print(subsets_iterative([1, 2, 3]))
-# 输出: [[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]</code></pre>
-
-        <p>这个解法的思想和 <strong>位运算</strong> 本质相同——每个元素有两种状态（选/不选），n 个元素就有 2<sup>n</sup> 种子集。对应到二进制位上，第 i 位为 1 表示选中 nums[i]：</p>
-
-        <pre><code>def subsets_bit(nums):
-    """子集问题：位运算解法"""
-    n = len(nums)
-    result = []
-    for mask in range(1 << n):  # 遍历所有二进制掩码
-        subset = []
-        for i in range(n):
-            if mask & (1 << i):  # 第 i 位为 1，说明选中
-                subset.append(nums[i])
-        result.append(subset)
     return result</code></pre>
-
-        <h2>组合问题</h2>
-
-        <p>组合（Combination）是子集的"限量版"——从 n 个元素中选 k 个，且不关心顺序。</p>
-
-        <h3>LeetCode 77：组合</h3>
-
-        <pre><code>def combine(n, k):
-    """返回 1..n 中所有 k 个数的组合"""
+<p>子集也可以用迭代法或位运算枚举：n 个元素每个只有“选/不选”两种状态，共 2ⁿ 种子集，每个二进制掩码 <code>mask</code> 的“1 位”就对应一个子集。三种写法结果一致，但回溯版更容易加上约束。</p>
+<p>组合是子集的“限量版”：从 1..n 里选恰好 k 个。除了同样的 <code>start</code> 去重，还能用“剩余元素数不够”来剪枝：第 i 个候选之后还剩 <code>n−i+1</code> 个数，如果不足以凑齐还缺的 <code>k−len(path)</code> 个，就无需再试。</p>
+<pre class="code-panel" tabindex="0"><code>def combine(n, k):
+    result = []
     def backtrack(start, path):
         if len(path) == k:
             result.append(path[:])
             return
-
-        # 剪枝优化：剩余可选数量不够时提前退出
         for i in range(start, n + 1):
-            # 剪枝：还需要 k-len(path) 个元素
-            # 剩余元素数量必须足够
-            if n - i + 1 < k - len(path):
+            if n - i + 1 &lt; k - len(path):    # 剩余不够，直接收尾
                 break
             path.append(i)
             backtrack(i + 1, path)
             path.pop()
-
-    result = []
     backtrack(1, [])
     return result</code></pre>
-
-        <h3>LeetCode 39：组合总和</h3>
-
-        <pre><code>def combination_sum(candidates, target):
-    """找出 candidates 中所有和为 target 的组合（元素可重复使用）"""
-    def backtrack(start, path, remaining):
-        if remaining == 0:
-            result.append(path[:])
-            return
-        if remaining < 0:
-            return  # 剪枝：超了
-
-        for i in range(start, len(candidates)):
-            # 剪枝：如果当前元素已经比剩余值大，跳过
-            # 但由于数组已排序，后面的更大，可以直接 break
-            if candidates[i] > remaining:
-                break
-            path.append(candidates[i])
-            backtrack(i, path, remaining - candidates[i])
-            path.pop()
-
-    candidates.sort()  # 排序保证剪枝有效
+<p>若元素可重复使用（如“组合总和”），只需把递归参数从 <code>i+1</code> 改回 <code>i</code>，表示当前候选仍可选。把输入先排序，还能在“当前候选已大于剩余目标”时直接 <code>break</code>，一次性砍掉后面整段分支。</p></section>
+<section id="queens" class="article-section" aria-labelledby="heading-queens"><span class="section-number">06 / 07</span><h2 id="heading-queens">N 皇后：对角线剪枝</h2>
+<p>N 皇后要求在 N×N 棋盘上放 N 个互不攻击的皇后（不同行、不同列、不同对角线）。因为每行恰好一个皇后，可以<strong>逐行放置</strong>，把问题变成“每行选一个列”。把行号从 0 递增递归，就自然满足了“不同行”这个约束。</p>
+<figure class="diagram"><div class="diagram-scroll" tabindex="0" aria-label="可横向滚动查看图示"><img src="../assets/svg/16-queens.svg" alt="4×4 棋盘上先放一个皇后，它的列与两条对角线上的格子被标为受攻击，最终四个皇后放在 (0,1),(1,3),(2,0),(3,2)" width="880" height="430" loading="lazy"></div><figcaption>图 3 · 首个皇后 (0,1) 攻击到的格子被阴影标出：同一列、以及两条对角线。后续行只能在未受攻击的列里试，命中即剪枝、不进递归。</figcaption></figure>
+<p>剩下的两个约束可以压缩成两个数：主对角线上 <code>row − col</code> 恒定，副对角线上 <code>row + col</code> 恒定。于是用三个集合分别存已占用的列、主对角线和副对角线，判冲突只需 O(1)。</p>
+<pre class="code-panel" tabindex="0"><code>def solve_n_queens(n):
     result = []
-    backtrack(0, [], target)
-    return result</code></pre>
-
-        <p>这个题目和组合的区别在于：元素可以<strong>无限重复使用</strong>（用不完的"弹药"），所以递归时传入的是 <code>i</code> 而不是 <code>i+1</code>，表示当前元素还可以继续选。</p>
-
-        <h3>三类问题的模板差异</h3>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>问题类型</th>
-                    <th>去重方式</th>
-                    <th>递归参数</th>
-                    <th>能否重复选</th>
-                    <th>时间复杂度</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><strong>排列（Permutation）</strong></td>
-                    <td><code>used[]</code> 标记已选</td>
-                    <td><code>path</code>, <code>used</code></td>
-                    <td>否</td>
-                    <td>O(n!)</td>
-                </tr>
-                <tr>
-                    <td><strong>组合（Combination）</strong></td>
-                    <td><code>start</code> 顺序选择</td>
-                    <td><code>start</code>, <code>path</code></td>
-                    <td>视题目而定</td>
-                    <td>O(C(n,k))</td>
-                </tr>
-                <tr>
-                    <td><strong>子集（Subset）</strong></td>
-                    <td><code>start</code> 顺序选择</td>
-                    <td><code>start</code>, <code>path</code></td>
-                    <td>否（每个元素至多一次）</td>
-                    <td>O(2<sup>n</sup>)</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <div class="highlight">
-            <strong>回溯的优化三板斧：</strong>
-            <ol>
-                <li><strong>剪枝（Pruning）</strong>——提前判断不可能的解，跳过无效分支。比如组合总和中，如果排序后当前元素已经大于剩余值，后面的更大元素直接全部跳过。</li>
-                <li><strong>备忘录（Memoization）</strong>——将已经搜索过的状态缓存起来，避免重复搜索。这其实已经是在向 DP 靠拢了。</li>
-                <li><strong>改变搜索顺序</strong>——先搜索"更可能成功"的分支。比如先尝试大的硬币面额，可能更快达到目标金额，增加剪枝机会。</li>
-            </ol>
-        </div>
-
-        <h2>N皇后——回溯的经典难题</h2>
-
-        <p>LeetCode 51：在 N×N 的棋盘上放置 N 个皇后，使得它们互不攻击（任何两个皇后不在同一行、同一列、同一条对角线上）。</p>
-
-        <pre><code>def solve_n_queens(n):
-    """N皇后问题的回溯解法"""
-    def backtrack(row, cols, diag1, diag2, board):
+    def backtrack(row, cols, diag1, diag2, placement):
         if row == n:
-            # 找到了一个有效解
-            result.append([''.join(row) for row in board])
+            result.append(tuple(placement))
             return
-
         for col in range(n):
-            # 对角线约束
-            d1 = row - col      # 主对角线差恒定
-            d2 = row + col      # 副对角线和恒定
-
+            d1, d2 = row - col, row + col
             if col in cols or d1 in diag1 or d2 in diag2:
-                continue  # 冲突，剪枝
-
-            # 做选择
-            board[row][col] = 'Q'
-            cols.add(col)
-            diag1.add(d1)
-            diag2.add(d2)
-
-            backtrack(row + 1, cols, diag1, diag2, board)
-
-            # 撤销选择
-            board[row][col] = '.'
-            cols.remove(col)
-            diag1.remove(d1)
-            diag2.remove(d2)
-
-    result = []
-    board = [['.'] * n for _ in range(n)]
-    backtrack(0, set(), set(), set(), board)
-    return result
-
-# 测试
-solutions = solve_n_queens(4)
-for sol in solutions:
-    for row in sol:
-        print(row)
-    print()
-# 输出两个解（4皇后的标准答案）</code></pre>
-
-        <p>这里用了一个小技巧：用 <code>row - col</code> 和 <code>row + col</code> 的唯一性来表示对角线。主对角线上 <code>row - col</code> 是常数，副对角线上 <code>row + col</code> 是常数。用集合存储已占用的对角线，判断冲突的时间复杂度是 <strong>O(1)</strong>。</p>
-
-        <div class="tip">
-            <strong>位运算优化 N 皇后：</strong>对于 N 皇后问题，还可以用整数的二进制位来代替集合，进一步优化常数。一个 int 的每一位代表一列——<code>cols</code> 的第 i 位为 1 表示第 i 列已被占用。对角线用 <code>(row - col) &lt;&lt; n</code> 移位避开负数。这种位运算优化在竞赛中很常见，但对面试来说，<strong>用集合的可读性更强</strong>，够用了。
-        </div>
-
-        <h2>回溯与 DP 的区别</h2>
-
-        <p>回溯和动态规划（DP）是面试中最容易混淆的一对概念，因为它们都依赖递归思想。但它们的应用场景有本质区别：</p>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>维度</th>
-                    <th>回溯（Backtracking）</th>
-                    <th>动态规划（DP）</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><strong>目标</strong></td>
-                    <td>求<strong>所有解</strong>（All solutions）</td>
-                    <td>求<strong>最优解</strong>（Optimal solution）或<strong>计数</strong></td>
-                </tr>
-                <tr>
-                    <td><strong>子问题重叠</strong></td>
-                    <td>通常没有重叠子问题（或有但未利用）</td>
-                    <td>必须利用重叠子问题来加速</td>
-                </tr>
-                <tr>
-                    <td><strong>复杂度</strong></td>
-                    <td>指数级（需要枚举）</td>
-                    <td>多项式级（通过记忆化避免重复计算）</td>
-                </tr>
-                <tr>
-                    <td><strong>典型问题</strong></td>
-                    <td>全排列、N皇后、组合总和</td>
-                    <td>背包问题、最短路径、编辑距离</td>
-                </tr>
-                <tr>
-                    <td><strong>选择</strong></td>
-                    <td>需要"撤销选择"（回溯的核心）</td>
-                    <td>不需要撤销，递推即可</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <p>一句话总结：<strong>求所有解 → 回溯；求最优解或计数 → DP。</strong>当然，这不是绝对的——有些问题既可以回溯也可以DP（比如背包问题），但 DP 通常是更优的选择。</p>
-
-        <div class="warning">
-            <strong>一个常见的误解：</strong>"回溯太慢，面试不用。"事实上，很多面试题就是考回溯——特别是当题目要求"列出所有可能"时，你只能用回溯。学会判断什么时候用回溯、什么时候用 DP，也是面试官考察的点。另外，回溯配合剪枝往往在实际数据上跑得比理论复杂度快很多。
-        </div>
-
-        <h2>本章小结</h2>
-
-        <ul>
-            <li><strong>回溯的本质</strong>——"试错法"，对决策树做 DFS 遍历，三要素：选择、约束、目标。</li>
-            <li><strong>回溯标配模板</strong>——"做选择→递归→撤销选择"，用全排列讲透了模板的每个细节。</li>
-            <li><strong>子集、组合、排列</strong>——三类问题的模板差异：去重方式（used vs start）、递归参数、能否重复选。</li>
-            <li><strong>剪枝优化</strong>——回溯优化三板斧：剪枝、备忘录、改变搜索顺序。</li>
-            <li><strong>N皇后</strong>——对角线约束的位运算优化。</li>
-            <li><strong>回溯 vs DP</strong>——求所有解用回溯，求最优解用 DP。</li>
-        </ul>
-
-        <p>上一章我们学了递归，这一章我们学了回溯——递归的"试错"版本。下一章将进入许多面试者最"恐惧"、但也是最重要的章节——<strong>动态规划（Dynamic Programming）</strong>。如果说回溯是"暴力搜索的优雅版本"，那么 DP 就是"暴力搜索的聪明版本"——通过记住已经算过的结果，避免重复劳动。准备好了吗？下一章见。</p>
-
-        <div class="footer-nav">
-            <a href="15.html">← 上一章</a>
-            <a href="index.html">📖 返回目录</a>
-            <a href="17.html">下一章 →</a>
-        </div>
-    </div>
-</div>
-</div>
+                continue                       # 冲突，剪枝
+            cols.add(col); diag1.add(d1); diag2.add(d2); placement.append(col)
+            backtrack(row + 1, cols, diag1, diag2, placement)
+            cols.discard(col); diag1.discard(d1); diag2.discard(d2); placement.pop()
+    backtrack(0, set(), set(), set(), [])
+    return result</code></pre>
+<div class="lab" data-demo="queens-count"><h3>解的个数随 n 增长</h3><p>拖动滑块选择棋盘大小，查看互不攻击的摆法数量（已知序列）。</p><div class="lab-controls"><label for="queens-n">n</label><input id="queens-n" type="range" min="1" max="8" value="4" step="1"></div><output aria-live="polite">n = 4：共有 2 个解。</output></div>
+<p>剪枝的效果非常直接：不加约束时每行 n 个列就有 nⁿ 种组合，而实际搜索树被大幅剪掉。若还想进一步压常数量级，可以用整数位图代替集合（第 i 位表示第 i 列是否被占），但那属于竞赛优化，面试中集合版的可读性更好。</p></section>
+<section id="vsdp" class="article-section" aria-labelledby="heading-vsdp"><span class="section-number">07 / 07</span><h2 id="heading-vsdp">回溯 vs DP 与优化三板斧</h2>
+<p>回溯和动态规划都靠递归展开子问题，但目标不同，不能混用：</p>
+<div class="table-scroll"><table><thead><tr><th>维度</th><th>回溯</th><th>动态规划</th></tr></thead><tbody>
+<tr><td>目标</td><td>枚举全部解或可行方案</td><td>求最优值或方案数</td></tr>
+<tr><td>子问题</td><td>通常不重叠（重叠就不用枚举了）</td><td>必须重叠，靠状态复用加速</td></tr>
+<tr><td>复杂度</td><td>指数级（解本身就可能有指数多个）</td><td>多项式级</td></tr>
+<tr><td>关键动作</td><td>撤销选择，恢复状态</td><td>状态转移，不需要撤销</td></tr>
+<tr><td>典型题</td><td>全排列、N 皇后、组合总和</td><td>背包、编辑距离、最长公共子序列</td></tr>
+</tbody></table></div>
+<p>一句话记：<strong>要把所有解都列出来，用回溯；只要一个最优值或个数，且子问题重叠，用 DP。</strong>有些题两者都能做（比如背包），但 DP 通常更优；强制枚举所有方案时，就只能用回溯。</p>
+<p>回溯的优化主要有三招：<strong>剪枝</strong>（提前砍掉不可能的分支，如 N 皇后的冲突判断、组合的剩余数量判断）；<strong>记忆化</strong>（缓存已搜过的状态，避免重复搜索——这已经在向 DP 靠拢）；<strong>调整搜索顺序</strong>（先试“更可能成功”的选择，让可行解尽早出现、剪枝尽早生效）。注意剪枝<strong>只能砍掉不可能的分支</strong>，绝不能砍掉合法解，否则答案就错了。</p></section>
+<section class="takeaways"><h2>带走三个判断准则</h2><ol>
+<li>要“列出所有解”就用回溯：把候选选择画成决策树，对树做 DFS，每个叶子是一个解。</li>
+<li>“撤销选择”是回溯区别于普通递归的关键：它保证同一层的兄弟分支互不污染状态。</li>
+<li>剪枝不改答案、只砍没希望的分支；一旦子问题大量重叠、只求最优或计数，就该换成动态规划。</li>
+</ol></section>
+<section class="references"><h2>继续学习与校验资料</h2><ul>
+<li><a href="https://en.wikipedia.org/wiki/Backtracking">Backtracking</a> — 决策树、剪枝与经典八皇后</li>
+<li><a href="https://docs.python.org/3/tutorial/datastructures.html">Python 数据结构教程</a> — 列表可变性与引用语义</li>
+<li><a href="15.html">上一章：递归与分治</a> — 回溯建立在递归之上</li>
+<li>运行参考：<code>examples/backtracking.py</code>；测试：<code>tests/test_backtracking.py</code></li>
+</ul></section>
+<nav class="end-nav" aria-label="上一章和下一章"><a href="15.html">← 第 15 章</a><a href="../index.html">全部课程</a><a class="chapter-link" href="17.html">第 17 章 →</a></nav>
+</article></main></div>
+<footer class="article-footer"><a href="../index.html">数据结构与算法课程</a><span>枚举全部解，靠的是系统地把每条路都走一遍。</span></footer>
+<script src="../assets/js/interactive.js" defer></script>
 </body>
 </html>

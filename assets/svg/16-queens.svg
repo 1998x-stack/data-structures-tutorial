@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 430" role="img" aria-labelledby="t d">
+<title id="t">四皇后：列与两条对角线用集合判冲突</title>
+<desc id="d">在 4×4 棋盘上先放一个皇后在 (0,1)，它的整列和两条对角线上的格子都被攻击（阴影）。后续每一行只能放在剩余安全的格子上，最终得到 (0,1),(1,3),(2,0),(3,2)。用三个集合分别记录已占的列、主对角线 row−col、副对角线 row+col，判冲突是 O(1)。</desc>
+<rect width="880" height="430" rx="14" fill="#f9fcf9"/>
+<g font-family="system-ui,Arial,sans-serif"><text x="24" y="34" font-size="20" font-weight="750" fill="#234649">四皇后：剪枝就是“这个格子能不能放”</text><text x="24" y="56" font-size="13" fill="#667a7d">阴影是已被首个皇后 (第 0 行, 第 1 列) 攻击的格子；逐行放置，每行只需在安全列里试</text></g>
+<g stroke="#b9c4d6" stroke-width="1.5">
+<rect x="140" y="90" width="70" height="70" fill="#fff"/><rect x="210" y="90" width="70" height="70" fill="#fff"/>
+<rect x="280" y="90" width="70" height="70" fill="#fff"/><rect x="350" y="90" width="70" height="70" fill="#fff"/>
+<rect x="140" y="160" width="70" height="70" fill="#fff"/><rect x="210" y="160" width="70" height="70" fill="#fbe0d6"/>
+<rect x="280" y="160" width="70" height="70" fill="#fbe0d6"/><rect x="350" y="160" width="70" height="70" fill="#fff"/>
+<rect x="140" y="230" width="70" height="70" fill="#fff"/><rect x="210" y="230" width="70" height="70" fill="#fbe0d6"/>
+<rect x="280" y="230" width="70" height="70" fill="#fff"/><rect x="350" y="230" width="70" height="70" fill="#fbe0d6"/>
+<rect x="140" y="300" width="70" height="70" fill="#fff"/><rect x="210" y="300" width="70" height="70" fill="#fbe0d6"/>
+<rect x="280" y="300" width="70" height="70" fill="#fff"/><rect x="350" y="300" width="70" height="70" fill="#fff"/>
+<rect x="140" y="90" width="280" height="280" fill="none" stroke="#6b7f9e" stroke-width="2"/></g>
+<g font-family="system-ui,Arial,sans-serif" font-size="24" font-weight="800" text-anchor="middle" fill="#8f3f22">
+<circle cx="245" cy="125" r="20" fill="#fdece4" stroke="#b25a3a" stroke-width="2.5"/><text x="245" y="134">Q</text>
+<circle cx="385" cy="195" r="20" fill="#eef0fa" stroke="#7461ba" stroke-width="2.5"/><text x="385" y="204" fill="#4d3f86">Q</text>
+<circle cx="175" cy="265" r="20" fill="#eef0fa" stroke="#7461ba" stroke-width="2.5"/><text x="175" y="274" fill="#4d3f86">Q</text>
+<circle cx="315" cy="335" r="20" fill="#eef0fa" stroke="#7461ba" stroke-width="2.5"/><text x="315" y="344" fill="#4d3f86">Q</text></g>
+<g font-family="system-ui,Arial,sans-serif" font-size="13" fill="#667a7d" text-anchor="middle">
+<text x="175" y="82">列0</text><text x="245" y="82">列1</text><text x="315" y="82">列2</text><text x="385" y="82">列3</text></g>
+<g font-family="system-ui,Arial,sans-serif" font-size="13" fill="#667a7d" text-anchor="end">
+<text x="132" y="130">行0</text><text x="132" y="200">行1</text><text x="132" y="270">行2</text><text x="132" y="340">行3</text></g>
+<g font-family="system-ui,Arial,sans-serif" font-size="14" fill="#2f6047">
+<text x="470" y="130" font-weight="700">放置 (行, 列)</text>
+<text x="470" y="158">(0, 1)　(1, 3)</text>
+<text x="470" y="182">(2, 0)　(3, 2)</text>
+<text x="470" y="222" font-weight="700" fill="#8f3f22">冲突判据（三个集合）</text>
+<text x="470" y="248">列 col 用 set</text>
+<text x="470" y="272">主对角线 row−col 用 set</text>
+<text x="470" y="296">副对角线 row+col 用 set</text>
+<text x="470" y="326">任一命中即剪枝，不进下一行</text>
+<text x="470" y="352" fill="#526f71">行按 0→n−1 顺序递归，天然不冲突。</text></g>
+<text x="24" y="412" font-size="13" fill="#526f71" font-family="system-ui,Arial,sans-serif">4 皇后共有 2 个不同解；n=8 时有 92 个。用集合判冲突是 O(1)，是回溯剪枝的典型手法。</text>
+</svg>

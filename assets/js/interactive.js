@@ -227,4 +227,22 @@
   input.addEventListener("input",update);update();
  }
 
+ // Chapter 16: DFS output order of permute([1,2,3]).
+ const perm=document.querySelector('[data-demo="permute-order"]');
+ if(perm){
+  const input=perm.querySelector("input"),out=perm.querySelector("output");
+  const perms=[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]];
+  const update=()=>{const n=Number(input.value);out.textContent="第 "+(n+1)+" 个排列是 "+JSON.stringify(perms[n])+"（共 6 个；先序 DFS 的顺序）。";};
+  input.addEventListener("input",update);update();
+ }
+
+ // Chapter 16: known N-queens solution counts.
+ const qn=document.querySelector('[data-demo="queens-count"]');
+ if(qn){
+  const input=qn.querySelector("input"),out=qn.querySelector("output");
+  const counts={1:1,2:0,3:0,4:2,5:10,6:4,7:40,8:92};
+  const update=()=>{const n=Number(input.value);out.textContent="n = "+n+"：共有 "+counts[n]+" 个解。";};
+  input.addEventListener("input",update);update();
+ }
+
 })();

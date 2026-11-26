@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 430" role="img" aria-labelledby="t d">
+<title id="t">回溯模板：做选择、递归、撤销选择</title>
+<desc id="d">回溯的统一骨架是一个循环：把当前选项加入路径，递归进入下一层，返回后把该选项从路径中弹出，恢复到进入前的状态。撤销选择让同一层的不同分支互不干扰，这是它区别于普通递归的关键。</desc>
+<rect width="880" height="430" rx="14" fill="#f9fcf9"/>
+<g font-family="system-ui,Arial,sans-serif"><text x="24" y="34" font-size="20" font-weight="750" fill="#234649">回溯模板：做选择 → 递归 → 撤销选择</text><text x="24" y="56" font-size="13" fill="#667a7d">三条语句必须成对出现；撤销那一步把状态还原，才能干净地去试下一个分支</text></g>
+<defs><marker id="a16t" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#7461ba"/></marker></defs>
+<g font-family="system-ui,Arial,sans-serif" font-size="16" font-weight="700" text-anchor="middle">
+<rect x="90" y="96" width="190" height="64" rx="10" fill="#eef0fa" stroke="#7461ba" stroke-width="2"/><text x="185" y="124" fill="#4d3f86">① 做选择</text><text x="185" y="146" font-size="12" fill="#667a7d">path.append(x)</text>
+<rect x="345" y="96" width="190" height="64" rx="10" fill="#e6f2ea" stroke="#3f7d5a" stroke-width="2"/><text x="440" y="124" fill="#2f6047">② 递归</text><text x="440" y="146" font-size="12" fill="#667a7d">backtrack(下一层)</text>
+<rect x="600" y="96" width="190" height="64" rx="10" fill="#fdece4" stroke="#b25a3a" stroke-width="2"/><text x="695" y="124" fill="#8f3f22">③ 撤销选择</text><text x="695" y="146" font-size="12" fill="#667a7d">path.pop()</text></g>
+<g stroke="#7461ba" stroke-width="2.5" fill="none" marker-end="url(#a16t)"><line x1="282" y1="128" x2="342" y2="128"/><line x1="537" y1="128" x2="597" y2="128"/></g>
+<path d="M695 162 C695 214 185 214 185 166" stroke="#7461ba" stroke-width="2.5" fill="none" stroke-dasharray="6 5" marker-end="url(#a16t)"/>
+<g font-family="system-ui,Arial,sans-serif" font-size="13" fill="#667a7d"><text x="380" y="206">带回上一层后，继续循环下一个选择</text></g>
+<g font-family="system-ui,Arial,sans-serif" font-size="14" font-weight="600">
+<text x="90" y="270" fill="#667a7d">path（当前路径）</text>
+<rect x="90" y="284" width="80" height="44" rx="8" fill="#e6f2ea" stroke="#3f7d5a" stroke-width="2"/><text x="130" y="312" text-anchor="middle" font-size="18" fill="#2f6047">1</text>
+<rect x="180" y="284" width="80" height="44" rx="8" fill="#e6f2ea" stroke="#3f7d5a" stroke-width="2"/><text x="220" y="312" text-anchor="middle" font-size="18" fill="#2f6047">2</text>
+<rect x="270" y="284" width="80" height="44" rx="8" fill="#fff" stroke="#7d8fb3" stroke-width="2" stroke-dasharray="5 4"/><text x="310" y="312" text-anchor="middle" font-size="14" fill="#8a99a8">下一个</text></g>
+<text x="400" y="312" font-size="13" fill="#526f71" font-family="system-ui,Arial,sans-serif">撤销选择后，下一个候选元素会写入同一个位置。</text>
+<text x="90" y="386" font-size="13" fill="#526f71" font-family="system-ui,Arial,sans-serif">剪枝（约束判断）放在循环开头：一旦发现该选择不可能导出合法解，直接跳过，不进递归。</text>
+</svg>
