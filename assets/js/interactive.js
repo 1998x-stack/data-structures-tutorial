@@ -330,4 +330,22 @@
   select.addEventListener("change",update);update();
  }
 
+ // Chapter 26: branch-transition model for sorted vs shuffled data.
+ const branch=document.querySelector('[data-demo="branch-pattern"]');
+ if(branch){
+  const select=branch.querySelector("select"),out=branch.querySelector("output");
+  const n=256,T=128;
+  const sorted=[...Array(n).keys()];
+  const rnd=[...Array(n).keys()];
+  let seed=12345;
+  const next=()=>{seed=(seed*1103515245+12345)&0x7fffffff;return seed;};
+  for(let i=n-1;i>0;i--){const j=next()%(i+1);const t=rnd[i];rnd[i]=rnd[j];rnd[j]=t;}
+  const transitions=a=>{let c=0;for(let i=1;i<a.length;i++){if((a[i]<T)!==(a[i-1]<T))c++;}return c;};
+  const update=()=>{
+   const data=select.value==="sorted"?sorted:rnd;
+   out.textContent=(select.value==="sorted"?"有序":"乱序")+"数据：跳变 "+transitions(data)+" 次（共 "+(n-1)+" 个相邻对）；跳变越多，分支越难预测。";
+  };
+  select.addEventListener("change",update);update();
+ }
+
 })();

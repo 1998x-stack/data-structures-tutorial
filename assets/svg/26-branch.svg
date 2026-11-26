@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 300" width="880" height="300" role="img" aria-labelledby="branch-title branch-desc">
+<title id="branch-title">分支预测：有序与随机数据的条件跳转模式</title>
+<desc id="branch-desc">对同一判断 x 小于 128，先排序的数据前半全为真后半全为假，跳转模式规律，容易被预测器学会；随机数据真真假假交替，预测命中率接近一半。</desc>
+<g font-family="-apple-system, 'PingFang SC', sans-serif" font-size="14" text-anchor="middle">
+<text x="100" y="94" fill="#14532d" text-anchor="end">有序数据</text>
+<rect x="120" y="70" width="40" height="34" fill="#dcfce7" stroke="#15803d"/><rect x="160" y="70" width="40" height="34" fill="#dcfce7" stroke="#15803d"/><rect x="200" y="70" width="40" height="34" fill="#dcfce7" stroke="#15803d"/><rect x="240" y="70" width="40" height="34" fill="#dcfce7" stroke="#15803d"/>
+<rect x="280" y="70" width="40" height="34" fill="#dcfce7" stroke="#15803d"/><rect x="320" y="70" width="40" height="34" fill="#dcfce7" stroke="#15803d"/><rect x="360" y="70" width="40" height="34" fill="#dcfce7" stroke="#15803d"/><rect x="400" y="70" width="40" height="34" fill="#dcfce7" stroke="#15803d"/>
+<rect x="440" y="70" width="40" height="34" fill="#e2e8f0" stroke="#64748b"/><rect x="480" y="70" width="40" height="34" fill="#e2e8f0" stroke="#64748b"/><rect x="520" y="70" width="40" height="34" fill="#e2e8f0" stroke="#64748b"/><rect x="560" y="70" width="40" height="34" fill="#e2e8f0" stroke="#64748b"/>
+<rect x="600" y="70" width="40" height="34" fill="#e2e8f0" stroke="#64748b"/><rect x="640" y="70" width="40" height="34" fill="#e2e8f0" stroke="#64748b"/><rect x="680" y="70" width="40" height="34" fill="#e2e8f0" stroke="#64748b"/><rect x="720" y="70" width="40" height="34" fill="#e2e8f0" stroke="#64748b"/>
+<text x="120" y="126" font-size="13" fill="#166534" text-anchor="start">真 ×8</text>
+<text x="720" y="126" font-size="13" fill="#475569" text-anchor="end">假 ×8</text>
+<text x="100" y="214" fill="#78350f" text-anchor="end">随机数据</text>
+<rect x="120" y="190" width="40" height="34" fill="#dcfce7" stroke="#15803d"/><rect x="160" y="190" width="40" height="34" fill="#e2e8f0" stroke="#64748b"/><rect x="200" y="190" width="40" height="34" fill="#dcfce7" stroke="#15803d"/><rect x="240" y="190" width="40" height="34" fill="#dcfce7" stroke="#15803d"/>
+<rect x="280" y="190" width="40" height="34" fill="#e2e8f0" stroke="#64748b"/><rect x="320" y="190" width="40" height="34" fill="#dcfce7" stroke="#15803d"/><rect x="360" y="190" width="40" height="34" fill="#e2e8f0" stroke="#64748b"/><rect x="400" y="190" width="40" height="34" fill="#e2e8f0" stroke="#64748b"/>
+<rect x="440" y="190" width="40" height="34" fill="#dcfce7" stroke="#15803d"/><rect x="480" y="190" width="40" height="34" fill="#e2e8f0" stroke="#64748b"/><rect x="520" y="190" width="40" height="34" fill="#dcfce7" stroke="#15803d"/><rect x="560" y="190" width="40" height="34" fill="#e2e8f0" stroke="#64748b"/>
+<rect x="600" y="190" width="40" height="34" fill="#dcfce7" stroke="#15803d"/><rect x="640" y="190" width="40" height="34" fill="#e2e8f0" stroke="#64748b"/><rect x="680" y="190" width="40" height="34" fill="#dcfce7" stroke="#15803d"/><rect x="720" y="190" width="40" height="34" fill="#e2e8f0" stroke="#64748b"/>
+<text x="440" y="258" font-size="13" fill="#166534">有序：跳转模式规律，预测器几乎不猜错</text>
+<text x="440" y="284" font-size="13" fill="#78350f">随机：跳转变幻频繁，猜错后流水线要清空重来</text>
+</g></svg>
