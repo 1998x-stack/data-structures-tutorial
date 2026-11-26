@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 430" role="img" aria-labelledby="t d">
+<title id="t">一维背包：01 背包逆序、完全背包正序</title>
+<desc id="d">两幅图对比一维 dp 数组的遍历方向。01 背包的每个物品只能用一次，容量从大到小逆序更新，保证 dp[c−w] 还是“没选当前物品”的旧值；完全背包的元素可重复使用，容量从小到大正序更新，让同一物品能再次被选中。</desc>
+<rect width="880" height="430" rx="14" fill="#f9fcf9"/>
+<g font-family="system-ui,Arial,sans-serif"><text x="24" y="34" font-size="20" font-weight="750" fill="#234649">一维背包：遍历方向决定“物品能否重复使用”</text><text x="24" y="56" font-size="13" fill="#667a7d">同一个 dp[c] = max(dp[c], dp[c−w] + v)，方向反了就变成另一种背包</text></g>
+<defs><marker id="a17o" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#b25a3a"/></marker></defs>
+<g font-family="system-ui,Arial,sans-serif" font-size="14" font-weight="700" fill="#8f3f22"><text x="24" y="118">01 背包：容量 c 从大到小（逆序）</text></g>
+<g font-family="system-ui,Arial,sans-serif" font-size="18" font-weight="700" text-anchor="middle" fill="#4d3f86">
+<rect x="120" y="134" width="70" height="52" rx="8" fill="#eef0fa" stroke="#7461ba" stroke-width="1.5"/><text x="155" y="167">0</text>
+<rect x="200" y="134" width="70" height="52" rx="8" fill="#eef0fa" stroke="#7461ba" stroke-width="1.5"/><text x="235" y="167">1</text>
+<rect x="280" y="134" width="70" height="52" rx="8" fill="#eef0fa" stroke="#7461ba" stroke-width="1.5"/><text x="315" y="167">2</text>
+<rect x="360" y="134" width="70" height="52" rx="8" fill="#eef0fa" stroke="#7461ba" stroke-width="1.5"/><text x="395" y="167">3</text>
+<rect x="440" y="134" width="70" height="52" rx="8" fill="#eef0fa" stroke="#7461ba" stroke-width="1.5"/><text x="475" y="167">4</text>
+<rect x="520" y="134" width="70" height="52" rx="8" fill="#eef0fa" stroke="#7461ba" stroke-width="1.5"/><text x="555" y="167">5</text></g>
+<line x1="548" y1="110" x2="180" y2="110" stroke="#b25a3a" stroke-width="2.5" marker-end="url(#a17o)"/>
+<text x="620" y="166" font-size="13" fill="#4d3f86" font-family="system-ui,Arial,sans-serif">dp[c−w] 仍是上一轮的旧值</text>
+<g font-family="system-ui,Arial,sans-serif" font-size="14" font-weight="700" fill="#2f6047"><text x="24" y="258">完全背包：容量 c 从小到大（正序）</text></g>
+<g font-family="system-ui,Arial,sans-serif" font-size="18" font-weight="700" text-anchor="middle" fill="#2f6047">
+<rect x="120" y="274" width="70" height="52" rx="8" fill="#e6f2ea" stroke="#3f7d5a" stroke-width="1.5"/><text x="155" y="307">0</text>
+<rect x="200" y="274" width="70" height="52" rx="8" fill="#e6f2ea" stroke="#3f7d5a" stroke-width="1.5"/><text x="235" y="307">1</text>
+<rect x="280" y="274" width="70" height="52" rx="8" fill="#e6f2ea" stroke="#3f7d5a" stroke-width="1.5"/><text x="315" y="307">2</text>
+<rect x="360" y="274" width="70" height="52" rx="8" fill="#e6f2ea" stroke="#3f7d5a" stroke-width="1.5"/><text x="395" y="307">3</text>
+<rect x="440" y="274" width="70" height="52" rx="8" fill="#e6f2ea" stroke="#3f7d5a" stroke-width="1.5"/><text x="475" y="307">4</text>
+<rect x="520" y="274" width="70" height="52" rx="8" fill="#e6f2ea" stroke="#3f7d5a" stroke-width="1.5"/><text x="555" y="307">5</text></g>
+<line x1="162" y1="250" x2="530" y2="250" stroke="#b25a3a" stroke-width="2.5" marker-end="url(#a17o)"/>
+<text x="620" y="306" font-size="13" fill="#2f6047" font-family="system-ui,Arial,sans-serif">dp[c−w] 可已被本轮更新，允许复用</text>
+<text x="24" y="384" font-size="13" fill="#526f71" font-family="system-ui,Arial,sans-serif">这就是 01 背包与完全背包在一维写法上的唯一区别；二维写法里用 dp[i−1] 还是 dp[i] 表达同一件事。</text>
+<text x="24" y="408" font-size="13" fill="#526f71" font-family="system-ui,Arial,sans-serif">“零钱兑换”求最少硬币数属于完全背包（正序）；若问“最少硬币数但每种至多一枚”则回到逆序。</text>
+</svg>

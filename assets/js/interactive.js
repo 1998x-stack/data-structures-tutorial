@@ -245,4 +245,15 @@
   input.addEventListener("input",update);update();
  }
 
+ // Chapter 17: rolling DP values for the house-robber example.
+ const rob=document.querySelector('[data-demo="rob-trace"]');
+ if(rob){
+  const input=rob.querySelector("input"),out=rob.querySelector("output");
+  const nums=[2,1,1,2];
+  const vals=[2,2,3,4];
+  const why=["偷第 1 间得 2。","第 2 间得 1，不如沿用 2。","偷第 1、3 间：2+1=3。","偷第 1、4 间：2+2=4，跳过中间两间。"];
+  const update=()=>{const i=Number(input.value);out.textContent="处理到第 "+(i+1)+" 间（金额 "+nums[i]+"）：当前最优 dp = "+vals[i]+"。"+why[i];};
+  input.addEventListener("input",update);update();
+ }
+
 })();

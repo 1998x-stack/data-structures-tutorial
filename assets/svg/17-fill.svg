@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 430" role="img" aria-labelledby="t d">
+<title id="t">不同路径的 DP 表：每个格子只依赖上方和左方</title>
+<desc id="d">3 行 4 列的网格里，dp[i][j] 表示到达该格子的路径数。第一行和第一列都只有一条路，其余格子等于上方与左方之和，右下角 (2,3) 等于 4 加 6 得 10。因为依赖方向固定，按行主序从左到右、从上到下填表，所需状态一定已经算好。</desc>
+<rect width="880" height="430" rx="14" fill="#f9fcf9"/>
+<g font-family="system-ui,Arial,sans-serif"><text x="24" y="34" font-size="20" font-weight="750" fill="#234649">二维 DP：表格填数，依赖方向决定遍历顺序</text><text x="24" y="56" font-size="13" fill="#667a7d">dp[i][j] = dp[i−1][j]（上方）+ dp[i][j−1]（左方）；第一行与第一列是边界，恒为 1</text></g>
+<defs><marker id="a17f" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#b25a3a"/></marker></defs>
+<g font-family="system-ui,Arial,sans-serif" font-size="22" font-weight="800" text-anchor="middle">
+<rect x="120" y="110" width="90" height="70" fill="#e6f2ea" stroke="#3f7d5a" stroke-width="1.5"/><text x="165" y="154" fill="#2f6047">1</text>
+<rect x="210" y="110" width="90" height="70" fill="#e6f2ea" stroke="#3f7d5a" stroke-width="1.5"/><text x="255" y="154" fill="#2f6047">1</text>
+<rect x="300" y="110" width="90" height="70" fill="#e6f2ea" stroke="#3f7d5a" stroke-width="1.5"/><text x="345" y="154" fill="#2f6047">1</text>
+<rect x="390" y="110" width="90" height="70" fill="#e6f2ea" stroke="#3f7d5a" stroke-width="1.5"/><text x="435" y="154" fill="#2f6047">1</text>
+<rect x="120" y="180" width="90" height="70" fill="#e6f2ea" stroke="#3f7d5a" stroke-width="1.5"/><text x="165" y="224" fill="#2f6047">1</text>
+<rect x="210" y="180" width="90" height="70" fill="#eef0fa" stroke="#7461ba" stroke-width="1.5"/><text x="255" y="224" fill="#4d3f86">2</text>
+<rect x="300" y="180" width="90" height="70" fill="#eef0fa" stroke="#7461ba" stroke-width="1.5"/><text x="345" y="224" fill="#4d3f86">3</text>
+<rect x="390" y="180" width="90" height="70" fill="#eef0fa" stroke="#7461ba" stroke-width="1.5"/><text x="435" y="224" fill="#4d3f86">4</text>
+<rect x="120" y="250" width="90" height="70" fill="#e6f2ea" stroke="#3f7d5a" stroke-width="1.5"/><text x="165" y="294" fill="#2f6047">1</text>
+<rect x="210" y="250" width="90" height="70" fill="#eef0fa" stroke="#7461ba" stroke-width="1.5"/><text x="255" y="294" fill="#4d3f86">3</text>
+<rect x="300" y="250" width="90" height="70" fill="#eef0fa" stroke="#7461ba" stroke-width="1.5"/><text x="345" y="294" fill="#4d3f86">6</text>
+<rect x="390" y="250" width="90" height="70" fill="#fdece4" stroke="#b25a3a" stroke-width="3"/><text x="435" y="294" fill="#8f3f22">10</text>
+</g>
+<g stroke="#b25a3a" stroke-width="2.5" fill="none" marker-end="url(#a17f)"><line x1="435" y1="182" x2="435" y2="246"/></g>
+<g font-family="system-ui,Arial,sans-serif" font-size="13" fill="#b25a3a"><text x="446" y="216">来自上方 4</text><text x="345" y="338" text-anchor="middle">来自左方 6</text></g>
+<g font-family="system-ui,Arial,sans-serif" font-size="13" fill="#667a7d" text-anchor="middle"><text x="165" y="102">列 0</text><text x="255" y="102">列 1</text><text x="345" y="102">列 2</text><text x="435" y="102">列 3</text></g>
+<g font-family="system-ui,Arial,sans-serif" font-size="13" fill="#2f6047"><text x="560" y="150" font-weight="700">绿色：边界（1 条路）</text><text x="560" y="180">紫色：由上方 + 左方得到</text><text x="560" y="218" font-weight="700" fill="#8f3f22">右下角 10 = 4 + 6</text></g>
+<text x="24" y="380" font-size="13" fill="#526f71" font-family="system-ui,Arial,sans-serif">遍历顺序必须保证“依赖的状态已算过”。这里依赖是“上方、左方”，所以按行主序（先左到右、再上到下）填表即可。</text>
+<text x="24" y="406" font-size="13" fill="#526f71" font-family="system-ui,Arial,sans-serif">若依赖方向不同（如区间 DP 依赖更短的区间），就要按区间长度从小到大遍历——闭区间 DP 的顺序不能照搬。</text>
+</svg>
