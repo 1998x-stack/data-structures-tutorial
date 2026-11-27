@@ -70,7 +70,7 @@
 <p>快排也是分治，但把“分”和“合”的位置对调：它先花 O(n) 分区（分），再递归两段（治），而“合”什么都不用做——因为分区后左右段拼起来就是有序的。这提醒我们：分治三步里哪一步花时间，决定了算法的架子。</p></section>
 <section id="master" class="article-section" aria-labelledby="heading-master"><span class="section-number">06 / 07</span><h2 id="heading-master">主定理：估算递归复杂度</h2>
 <p>分治算法的代价天然是一个<strong>递归式</strong>，子问题数按 a 增长、规模按 b 缩小，再加上每层的分解或合并代价 f(n)：</p>
-<div class="equation" tabindex="0" aria-label="数学公式"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block" aria-label="T(n) = a 乘以 T(n 除以 b) 加 f(n)"><mrow><mi>T</mi><mo>(</mo><mi>n</mi><mo>)</mo><mo>=</mo><mi>a</mi><mo>⋅</mo><mi>T</mi><mo>(</mo><mi>n</mi><mo>/</mo><mi>b</mi><mo>)</mo><mo>+</mo><mi>f</mi><mo>(</mo><mi>n</mi><mo>)</mo></mrow></math></div>
+<div class="equation eq-scroll" role="region" tabindex="0" aria-label="分治递归式定义公式"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block" aria-label="T(n) = a 乘以 T(n 除以 b) 加 f(n)"><mrow><mi>T</mi><mo>(</mo><mi>n</mi><mo>)</mo><mo>=</mo><mi>a</mi><mo>⋅</mo><mi>T</mi><mo>(</mo><mi>n</mi><mo>/</mo><mi>b</mi><mo>)</mo><mo>+</mo><mi>f</mi><mo>(</mo><mi>n</mi><mo>)</mo></mrow></math></div>
 <figure class="diagram"><div class="diagram-scroll" tabindex="0" aria-label="可横向滚动查看图示"><img src="../assets/svg/15-master.svg" alt="递归式展开成递归树，每层有 a 的 k 次方个子问题，共 log_b n 层" width="880" height="420" loading="lazy"></div><figcaption>图 3 · 把递归式展开成递归树，每层代价叠加。子问题项 n^(log_b a) 与合并项 f(n) 谁增长得快，就定了主定理落在哪一种情况。</figcaption></figure>
 <p>主定理不做新数学，它只是把递归树每层代价求和后的结论。判断方法就是比较 <code>n^(log_b a)</code> 与 <code>f(n)</code>：</p>
 <div class="table-scroll"><table><thead><tr><th>情况</th><th>条件</th><th>T(n)</th><th>例子</th></tr></thead><tbody>
