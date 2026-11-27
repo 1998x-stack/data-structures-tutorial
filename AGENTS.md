@@ -69,3 +69,11 @@
 - 必须区分：线段树/树状数组的 O(log n) 与“实测耗时”（同阶常数不同）；Trie 的“前缀存在”与“完整词存在”（靠 is_end 区分）；跳表的 O(log n) 是期望而非最坏保证；B+ 树优势来自“多 key/页 + 叶链”而非渐进复杂度更低。
 - 性能与 AI 章节：硬件数量级（内存/缓存/磁盘）须标注“教学示意”，不得编造“实测”数字或来源；学习型索引的预测是近似，ANN 不保证精确最近邻。
 - 图示为外链 `assets/svg/20-*.svg`、`assets/svg/21-*.svg`、`assets/svg/22-*.svg`、`assets/svg/25-*.svg`、`assets/svg/26-*.svg`、`assets/svg/27-*.svg`，与 01–19 一致。
+
+## 2026-11 后续精修批次（23、24、28，收尾）
+- 23（LeetCode 刷题方法论）、24（大厂面试高频题精讲）、28（学习路线与综合项目）已按同一图解体系重写；至此 28 章全部为 `illustrated`。README 的状态表与本节同步更新。
+- 本批原稿存入 `archive/original/23.html`、`archive/original/24.html`、`archive/original/28.html`；`courses.json` 中这三章的 `revision` 已改为 `illustrated`。
+- 运行参考：`examples/study_patterns.py`（反转链表、两数之和、间隔复习排期）、`examples/interview_problems.py`（15 道高频题）、`examples/mini_redis.py`（跳表 + TTL + AOF）；测试：`tests/test_study_patterns.py`、`tests/test_interview_problems.py`、`tests/test_mini_redis.py`。
+- 必须区分：方法论章的“刷够 N 题就稳”“命中率 X%”等无来源数字须标注为教学示意或删除；面试章中两数之和的 O(1) 查找是平均复杂度；反转链表迭代 O(1) 空间 / 递归 O(n) 调用栈；岛屿数量 DFS 的最坏递归栈为 O(m·n)（不是 O(min(m,n))）；LIS 的 tails 数组不是某个具体子序列；跳表的 O(log n) 是期望而非最坏保证；TTL 用“最小堆 + 惰性删除”，过期时间被重设时靠 ttl_map 比对避免误删。
+- 图示为外链 `assets/svg/23-*.svg`、`assets/svg/24-*.svg`、`assets/svg/28-*.svg`，与 01–22、25–27 一致。
+- 交付说明：skills 自带的 `validate.py` 要求内联 `<svg>`，与本仓库外链 SVG 约定冲突，故其报 “No SVG illustrations” 属已知差异；仓库自带的 `tests/validate_site.py` 通过。

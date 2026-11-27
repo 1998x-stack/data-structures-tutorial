@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 250" width="900" height="250" role="img" aria-labelledby="jt-title jt-desc">
+<title id="jt-title">28 章的学习路径：从线性结构到工程拓展</title>
+<desc id="jt-desc">课程分为六个部分：线性结构与复杂度、树与图、算法范式、进阶结构、实战与系统设计、性能与 AI 拓展。每一部分都在前一部分之上叠加新的抽象。</desc>
+<g font-family="-apple-system, 'PingFang SC', sans-serif" font-size="13" text-anchor="middle">
+<text x="450" y="30" fill="#1e293b" font-size="14">六个部分，抽象层层叠加</text>
+<rect x="6" y="70" width="140" height="96" rx="8" fill="#e0e7ff" stroke="#4338ca"/><text x="76" y="98" fill="#312e81">Part 1 · 01–07</text><text x="76" y="122" fill="#312e81">线性结构</text><text x="76" y="146" fill="#312e81">复杂度分析</text>
+<rect x="154" y="70" width="140" height="96" rx="8" fill="#e0e7ff" stroke="#4338ca"/><text x="224" y="98" fill="#312e81">Part 2 · 08–13</text><text x="224" y="122" fill="#312e81">树与图</text><text x="224" y="146" fill="#312e81">BFS/DFS·最短路</text>
+<rect x="302" y="70" width="140" height="96" rx="8" fill="#dcfce7" stroke="#15803d"/><text x="372" y="98" fill="#14532d">Part 3 · 14–18</text><text x="372" y="122" fill="#14532d">算法范式</text><text x="372" y="146" fill="#14532d">排序·DP·贪心</text>
+<rect x="450" y="70" width="140" height="96" rx="8" fill="#dcfce7" stroke="#15803d"/><text x="520" y="98" fill="#14532d">Part 4 · 19–22</text><text x="520" y="122" fill="#14532d">进阶结构</text><text x="520" y="146" fill="#14532d">并查集·Trie·B+树</text>
+<rect x="598" y="70" width="140" height="96" rx="8" fill="#fde68a" stroke="#b45309"/><text x="668" y="98" fill="#78350f">Part 5 · 23–25</text><text x="668" y="122" fill="#78350f">实战</text><text x="668" y="146" fill="#78350f">刷题·面试·系统</text>
+<rect x="746" y="70" width="148" height="96" rx="8" fill="#fae8ff" stroke="#a21caf"/><text x="820" y="98" fill="#701a75">Part 6 · 26–28</text><text x="820" y="122" fill="#701a75">拓展</text><text x="820" y="146" fill="#701a75">性能·AI·项目</text>
+<text x="450" y="200" fill="#475569">后续四阶段：巩固（能手写）→ 深入（读源码）→ 竞赛（限时）→ 贡献（提 PR）</text>
+<text x="450" y="226" fill="#475569">顺序不建议跳：基本结构没吃透就上竞赛，体验和收益都会很差</text>
+</g></svg>

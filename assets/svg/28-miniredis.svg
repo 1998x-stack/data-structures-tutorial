@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 350" width="880" height="350" role="img" aria-labelledby="mr-title mr-desc">
+<title id="mr-title">MiniRedis 的结构：一块引擎，三种存储，一份追加日志</title>
+<desc id="mr-desc">命令进入单机引擎后分派到三块存储：data 用 dict 存字符串、zsets 用字典套跳表存有序集合、ttl_heap 最小堆加 ttl_map 管理过期。写命令追加到 AOF 日志，启动时重放日志恢复数据。</desc>
+<defs>
+<marker id="mr-arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9 z" fill="#475569"/></marker>
+</defs>
+<g font-family="-apple-system, 'PingFang SC', sans-serif" font-size="13" text-anchor="middle">
+<text x="440" y="28" fill="#1e293b" font-size="14">MiniRedis：命令 → 三种存储 → 持久化</text>
+<rect x="270" y="46" width="340" height="46" rx="8" fill="#f1f5f9" stroke="#64748b"/>
+<text x="440" y="74" fill="#334155">命令：SET / GET / ZADD / ZRANGE / EXPIRE</text>
+<line x1="440" y1="92" x2="440" y2="122" stroke="#475569" marker-end="url(#mr-arrow)"/>
+<rect x="40" y="126" width="800" height="150" rx="10" fill="none" stroke="#94a3b8" stroke-dasharray="6 4"/>
+<text x="440" y="150" fill="#334155">MiniRedis 单机引擎</text>
+<rect x="70" y="168" width="220" height="88" rx="8" fill="#e0e7ff" stroke="#4338ca"/>
+<text x="180" y="194" fill="#312e81">data：dict</text><text x="180" y="218" fill="#312e81">String 键值（第 7 章）</text><text x="180" y="240" fill="#312e81">O(1) 平均读写</text>
+<rect x="330" y="168" width="220" height="88" rx="8" fill="#dcfce7" stroke="#15803d"/>
+<text x="440" y="194" fill="#14532d">zsets：dict → SkipList</text><text x="440" y="218" fill="#14532d">有序集合（第 22 章）</text><text x="440" y="240" fill="#14532d">按分数 / 排名取范围</text>
+<rect x="590" y="168" width="220" height="88" rx="8" fill="#fde68a" stroke="#b45309"/>
+<text x="700" y="194" fill="#78350f">ttl_heap 最小堆</text><text x="700" y="218" fill="#78350f">+ ttl_map（第 11 章）</text><text x="700" y="240" fill="#78350f">惰性删除过期 key</text>
+<line x1="440" y1="276" x2="440" y2="300" stroke="#475569" marker-end="url(#mr-arrow)"/>
+<rect x="290" y="302" width="300" height="40" rx="8" fill="#fae8ff" stroke="#a21caf"/>
+<text x="440" y="328" fill="#701a75">AOF：写命令追加，启动重放恢复</text>
+<text x="180" y="328" fill="#475569">数据的“恢复”← 重放日志（虚线方向相反）</text>
+</g></svg>
