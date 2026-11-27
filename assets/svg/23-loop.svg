@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 320" width="900" height="320" role="img" aria-labelledby="lp-title lp-desc">
+<title id="lp-title">刷题闭环：五步循环，而不是“看完题解就下一题”</title>
+<desc id="lp-desc">限时独立尝试、卡住才看题解、合上题解重写跑通、记入错题本、按 1 天/3 天/1 周/1 月间隔复习，再回到新题。关键是第 3 步必须自己写，第 5 步必须重新独立完成。</desc>
+<defs>
+<marker id="lp-arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9 z" fill="#475569"/></marker>
+</defs>
+<g font-family="-apple-system, 'PingFang SC', sans-serif" font-size="13" text-anchor="middle">
+<rect x="10" y="90" width="164" height="72" rx="8" fill="#e0e7ff" stroke="#4338ca"/>
+<text x="92" y="120" fill="#312e81">① 限时独立尝试</text><text x="92" y="140" fill="#312e81">时间到前不看题解</text>
+<rect x="194" y="90" width="164" height="72" rx="8" fill="#e0e7ff" stroke="#4338ca"/>
+<text x="276" y="120" fill="#312e81">② 卡住才看题解</text><text x="276" y="140" fill="#312e81">只看思路/复杂度/坑</text>
+<rect x="378" y="90" width="164" height="72" rx="8" fill="#fde68a" stroke="#b45309"/>
+<text x="460" y="114" fill="#78350f">③ 合上题解</text><text x="460" y="134" fill="#78350f">自己重写并跑通</text><text x="460" y="152" fill="#78350f">（不能照抄）</text>
+<rect x="562" y="90" width="164" height="72" rx="8" fill="#dcfce7" stroke="#15803d"/>
+<text x="644" y="120" fill="#14532d">④ 记入错题本</text><text x="644" y="140" fill="#14532d">原因·insight·同类题</text>
+<rect x="746" y="90" width="164" height="72" rx="8" fill="#dcfce7" stroke="#15803d"/>
+<text x="828" y="114" fill="#14532d">⑤ 间隔复习</text><text x="828" y="134" fill="#14532d">1天·3天·1周·1月</text><text x="828" y="152" fill="#14532d">重新独立完成</text>
+<line x1="174" y1="126" x2="192" y2="126" stroke="#475569" marker-end="url(#lp-arrow)"/>
+<line x1="358" y1="126" x2="376" y2="126" stroke="#475569" marker-end="url(#lp-arrow)"/>
+<line x1="542" y1="126" x2="560" y2="126" stroke="#475569" marker-end="url(#lp-arrow)"/>
+<line x1="726" y1="126" x2="744" y2="126" stroke="#475569" marker-end="url(#lp-arrow)"/>
+<path d="M828 162 L828 240 L92 240 L92 165" fill="none" stroke="#475569" stroke-dasharray="6 4" marker-end="url(#lp-arrow)"/>
+<text x="460" y="266" fill="#475569">复习后回到新题，用同样的题再检验一次“是否真的会”</text>
+<text x="460" y="40" fill="#1e293b" font-size="14">“看懂”到“能写出来”之间，隔着第 ③ 步</text>
+</g></svg>
