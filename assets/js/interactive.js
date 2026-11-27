@@ -386,4 +386,18 @@
   input.addEventListener("input",update);update();
  }
 
+ // Chapter 23: spaced-review schedule for the notebook.
+ const rp=document.querySelector('[data-demo="review-plan"]');
+ if(rp){
+  const input=rp.querySelector("input"),out=rp.querySelector("output");
+  const intervals=[1,3,7,30];
+  const update=()=>{
+   let start=Number(input.value);
+   if(!Number.isFinite(start)||start<0) start=0;
+   const days=intervals.map(d=>start+d);
+   out.textContent="第 0 天 = "+start+"：复习日为 "+days.join("、")+"。";
+  };
+  input.addEventListener("input",update);update();
+ }
+
 })();
