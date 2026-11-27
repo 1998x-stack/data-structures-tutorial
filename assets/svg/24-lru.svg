@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 830 320" width="830" height="320" role="img" aria-labelledby="lru-title lru-desc">
+<title id="lru-title">LRU 缓存：哈希表负责 O(1) 定位，双向链表负责 O(1) 调整访问顺序</title>
+<desc id="lru-desc">哈希表把 key 映射到链表节点，提供 O(1) 查找；双向链表用两个哨兵维护顺序，head.next 是最近使用、tail.prev 是最久未使用。get 命中时把节点移到 head 之后；put 超出容量时删除 tail.prev 并从哈希表移除对应 key。</desc>
+<defs>
+<marker id="lru-arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9 z" fill="#475569"/></marker>
+</defs>
+<g font-family="-apple-system, 'PingFang SC', sans-serif" font-size="13" text-anchor="middle">
+<text x="415" y="28" fill="#1e293b" font-size="14">哈希表 + 双向链表 = 两个 O(1) 合起来</text>
+<rect x="20" y="66" width="180" height="152" rx="8" fill="#e0e7ff" stroke="#4338ca"/>
+<text x="110" y="90" fill="#312e81">哈希表 key → 节点</text>
+<text x="110" y="124" fill="#312e81">1 → 节点引用</text>
+<text x="110" y="154" fill="#312e81">2 → 节点引用</text>
+<text x="110" y="184" fill="#312e81">3 → 节点引用</text>
+<text x="415" y="58" fill="#14532d">双向链表：顺序即“多久没用过”</text>
+<rect x="250" y="150" width="76" height="48" rx="8" fill="#f1f5f9" stroke="#64748b"/><text x="288" y="180" fill="#475569">head</text>
+<rect x="360" y="150" width="76" height="48" rx="8" fill="#dcfce7" stroke="#15803d"/><text x="398" y="180" fill="#14532d">A</text>
+<rect x="470" y="150" width="76" height="48" rx="8" fill="#dcfce7" stroke="#15803d"/><text x="508" y="180" fill="#14532d">B</text>
+<rect x="580" y="150" width="76" height="48" rx="8" fill="#dcfce7" stroke="#15803d"/><text x="618" y="180" fill="#14532d">C</text>
+<rect x="690" y="150" width="76" height="48" rx="8" fill="#f1f5f9" stroke="#64748b"/><text x="728" y="180" fill="#475569">tail</text>
+<text x="398" y="140" fill="#15803d">最近使用（head.next）</text>
+<text x="618" y="228" fill="#b45309">最久未使用（tail.prev）</text>
+<line x1="326" y1="174" x2="358" y2="174" stroke="#475569" marker-end="url(#lru-arrow)" marker-start="url(#lru-arrow)"/>
+<line x1="436" y1="174" x2="468" y2="174" stroke="#475569" marker-end="url(#lru-arrow)" marker-start="url(#lru-arrow)"/>
+<line x1="546" y1="174" x2="578" y2="174" stroke="#475569" marker-end="url(#lru-arrow)" marker-start="url(#lru-arrow)"/>
+<line x1="656" y1="174" x2="688" y2="174" stroke="#475569" marker-end="url(#lru-arrow)" marker-start="url(#lru-arrow)"/>
+<path d="M200 142 L356 158" fill="none" stroke="#4338ca" stroke-dasharray="5 4" marker-end="url(#lru-arrow)"/>
+<text x="288" y="262" fill="#475569">get 命中：删掉节点再插到 head 之后 = 移到“最近使用”</text>
+<text x="288" y="288" fill="#475569">put 超容：删除 tail.prev 并 del 哈希表中对应的 key</text>
+</g></svg>

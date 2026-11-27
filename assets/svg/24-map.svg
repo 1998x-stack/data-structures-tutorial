@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 300" width="900" height="300" role="img" aria-labelledby="im-title im-desc">
+<title id="im-title">高频题按题型分六类，每类落在一种核心结构上</title>
+<desc id="im-desc">数组与哈希用哈希表或双指针；链表用三指针与快慢指针；栈与队列用栈与单调队列；树与图用 DFS 与 BFS；动态规划用滚动变量与二分；设计题用哈希表加双向链表。题号为核心代表题的 LeetCode 编号。</desc>
+<g font-family="-apple-system, 'PingFang SC', sans-serif" font-size="13" text-anchor="middle">
+<text x="450" y="30" fill="#1e293b" font-size="14">六大题型 → 核心结构 → 代表题</text>
+<rect x="6" y="56" width="140" height="170" rx="8" fill="#e0e7ff" stroke="#4338ca"/><text x="76" y="84" fill="#312e81">数组·哈希</text><text x="76" y="112" fill="#312e81">哈希表</text><text x="76" y="134" fill="#312e81">双指针</text><text x="76" y="190" fill="#4338ca">1 · 15</text>
+<rect x="154" y="56" width="140" height="170" rx="8" fill="#e0e7ff" stroke="#4338ca"/><text x="224" y="84" fill="#312e81">链表</text><text x="224" y="112" fill="#312e81">三指针</text><text x="224" y="134" fill="#312e81">快慢指针</text><text x="224" y="190" fill="#4338ca">206 · 142</text>
+<rect x="302" y="56" width="140" height="170" rx="8" fill="#dcfce7" stroke="#15803d"/><text x="372" y="84" fill="#14532d">栈·队列</text><text x="372" y="112" fill="#14532d">栈</text><text x="372" y="134" fill="#14532d">单调队列</text><text x="372" y="190" fill="#15803d">20 · 239</text>
+<rect x="450" y="56" width="140" height="170" rx="8" fill="#dcfce7" stroke="#15803d"/><text x="520" y="84" fill="#14532d">树·图</text><text x="520" y="112" fill="#14532d">DFS</text><text x="520" y="134" fill="#14532d">BFS</text><text x="520" y="190" fill="#15803d">94 · 102 · 200</text>
+<rect x="598" y="56" width="140" height="170" rx="8" fill="#fde68a" stroke="#b45309"/><text x="668" y="84" fill="#78350f">动态规划</text><text x="668" y="112" fill="#78350f">滚动变量</text><text x="668" y="134" fill="#78350f">二分 / 二维表</text><text x="668" y="190" fill="#b45309">70 · 300 · 1143</text>
+<rect x="746" y="56" width="148" height="170" rx="8" fill="#fae8ff" stroke="#a21caf"/><text x="820" y="84" fill="#701a75">设计</text><text x="820" y="112" fill="#701a75">哈希表 +</text><text x="820" y="134" fill="#701a75">双向链表</text><text x="820" y="190" fill="#a21caf">146</text>
+<text x="450" y="258" fill="#475569">选结构看操作：点查 → 哈希；有序 + 区间 → 双指针/单调结构；层次 → BFS；顺序维护 → 链表/队列</text>
+<text x="450" y="284" fill="#475569">同一道题常有多解（如岛屿数量：DFS / BFS / 并查集），面试可主动给出并对比取舍</text>
+</g></svg>
